@@ -8,7 +8,7 @@
       <p class="subtitle">
         קליניקה לאסתטיקה רפואית – בוטוקס, חומצה היאלורונית, הזעת יתר ועוד
       </p>
-      <form action="https://formsubmit.co/your@email.com" method="POST">
+      <form action="https://formsubmit.co/drchenpardo@gmail.com" method="POST">
         <input type="text" name="name" placeholder="שם מלא" required />
         <input
           type="tel"
@@ -24,8 +24,8 @@
         <input type="hidden" name="_captcha" value="false" />
         <button type="submit">שלחו לי פרטים</button>
       </form>
-      <a class="whatsapp-link" href="https://wa.me/972501234567" target="_blank"
-        >📲 לחצי כאן ליצירת קשר בוואטסאפ</a
+      <a class="whatsapp-link" href="https://wa.me/972545412405" target="_blank"
+        >📲 לחצו כאן ליצירת קשר בוואטסאפ</a
       >
     </div>
   </div>
