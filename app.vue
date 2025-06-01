@@ -1,34 +1,36 @@
 <template>
   <div>
-    <div class="hero">
-      <img src="/assets/logo.png" class="logo" />
-    </div>
+    <header class="main-header">
+      <div class="container">
+        <img src="/assets/logo.png" alt="Dr. Chen Pardo Logo" class="logo" />
+
+        <button
+          class="menu-toggle"
+          @click="isOpen = !isOpen"
+          aria-label="תפריט"
+        >
+          ☰
+        </button>
+
+        <nav class="nav-menu" :class="{ open: isOpen }">
+          <a href="#about" @click="isOpen = false">אודות</a>
+          <a href="#treatments" @click="isOpen = false">טיפולים</a>
+          <a href="#contact" @click="isOpen = false">יצירת קשר</a>
+        </nav>
+      </div>
+    </header>
+
     <div class="content">
-      <h1>ד"ר חן פרדו</h1>
-      <p class="subtitle">
-        קליניקה לאסתטיקה רפואית – בוטוקס, חומצה היאלורונית, הזעת יתר ועוד
-      </p>
-      <section id="treatments" class="treatments-section">
-        <div class="container">
-          <h2 class="section-title">סוגי טיפולים בקליניקה</h2>
-          <ul class="treatment-list">
-            <li>טיפול בבוטוקס full face וצוואר</li>
-            <li>טיפול בחיוך חושף שיניים ובנעילת לסתות</li>
-            <li>טיפול בפציאליס (שיתוק עצב הפנים)</li>
-            <li>טיפול בהזעת יתר בכל הגוף</li>
-            <li>פיסול ועיצוב פנים מלא בדגש על מראה טבעי</li>
-            <li>ביוסטימולטורים</li>
-            <li>מכשור רפואי מתקדם</li>
-            <li>מורפאוס – טיפול מחליף ניתוח להרמת פנים</li>
-            <li>טיפולי פיגמנטציה</li>
-            <li>טיפול בבוטוקס למיגרנה</li>
-            <li>טיפול להזעה בבית השחי, כפות ידיים, פנים ועוד</li>
-            <li>טיפול להזעה באיזורים אינטימיים</li>
-          </ul>
+      <section class="hero-section">
+        <div class="hero-content">
+          <h1>ד"ר חן פרדו</h1>
+          <p class="subtitle">
+            קליניקה לאסתטיקה רפואית – וטיפולים כנגד הזעת יתר בכל הגוף
+          </p>
         </div>
       </section>
 
-      <section class="about-section">
+      <section id="about" class="about-section">
         <div class="container">
           <div class="about-content">
             <div class="about-text">
@@ -54,7 +56,30 @@
           </div>
         </div>
       </section>
-      <footer class="contact-footer">
+      <section id="treatments" class="treatments-section">
+        <div class="container">
+          <h2 class="section-title">סוגי טיפולים בקליניקה</h2>
+          <ul class="treatment-list">
+            <li>טיפול בבוטוקס full face וצוואר</li>
+            <li>טיפול בחיוך חושף שיניים ובנעילת לסתות</li>
+            <li>טיפול בפציאליס (שיתוק עצב הפנים)</li>
+            <li>טיפול בהזעת יתר בכל הגוף</li>
+            <li>פיסול ועיצוב פנים מלא בדגש על מראה טבעי</li>
+            <li>ביוסטימולטורים</li>
+            <li>מכשור רפואי מתקדם</li>
+            <li>מורפאוס – טיפול מחליף ניתוח להרמת פנים</li>
+            <li>טיפולי פיגמנטציה</li>
+            <li>טיפול בבוטוקס למיגרנה</li>
+            <li>טיפול להזעה בבית השחי, כפות ידיים, פנים ועוד</li>
+            <li>טיפול להזעה באיזורים אינטימיים</li>
+          </ul>
+
+          <div class="cta">
+            <a href="#contact" class="cta-button">לתיאום פגישת ייעוץ</a>
+          </div>
+        </div>
+      </section>
+      <footer id="contact" class="contact-footer">
         <div class="container">
           <h3 class="footer-title">יצירת קשר</h3>
 
@@ -111,3 +136,9 @@
 <style scoped>
 /* הכנס כאן את הסגנון מ־index.css */
 </style>
+
+<script setup>
+import { ref } from "vue";
+
+const isOpen = ref(false);
+</script>
