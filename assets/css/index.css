@@ -62,6 +62,10 @@ textarea {
   font-family: inherit;
 }
 
+input[type="tel" i] {
+  direction: rtl;
+}
+
 textarea {
   resize: vertical;
   min-height: 80px;
