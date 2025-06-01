@@ -1,14 +1,13 @@
-
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Assistant', sans-serif;
+  font-family: "Assistant", sans-serif;
   background-color: #f4f1ee;
   color: #3a3a3a;
 }
 
 .hero {
-  background-image: url('../assets/cover.png');
+  background-image: url("../assets/cover.png");
   background-size: cover;
   background-position: center;
   height: 60vh;
@@ -19,7 +18,7 @@ body {
 
 .hero img.logo {
   width: 250px;
-  background-color: rgba(255,255,255,0.8);
+  background-color: rgba(255, 255, 255, 0.8);
   padding: 1rem;
   border-radius: 1rem;
 }
@@ -50,7 +49,8 @@ form {
   margin-bottom: 2rem;
 }
 
-input, textarea {
+input,
+textarea {
   padding: 0.8rem;
   border: 1px solid #ccc;
   border-radius: 10px;
@@ -82,7 +82,7 @@ button:hover {
   display: inline-block;
   margin-top: 1rem;
   text-decoration: none;
-  background-color: #25D366;
+  background-color: #25d366;
   color: white;
   padding: 0.8rem 1.5rem;
   border-radius: 32px;
