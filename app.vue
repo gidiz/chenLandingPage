@@ -25,7 +25,7 @@
         <div class="hero-content">
           <h1>ד"ר חן פרדו</h1>
           <p class="subtitle">
-            קליניקה לאסתטיקה רפואית – וטיפולים כנגד הזעת יתר בכל הגוף
+            קליניקה לאסתטיקה רפואית וטיפולים כנגד הזעת יתר בכל הגוף
           </p>
         </div>
       </section>
@@ -44,15 +44,15 @@
                 ה"אני המאמין" שלי תומך בשמירה על מראה טבעי, כזה שמדגיש את היופי
                 של כל אחד מאיתנו, מבלי לייצר מראה מזויף.<br />
                 בקליניקה שלי אני מציעה כנות, אמינות, שירות מקצועי, הסבר בגובה
-                העיניים וכל זאת תמיד עם חיוך על הפנים. כמובן שכל זאת תוך כדי
-                שימוש בחומרי גלם איכותיים המשלימים את התמונה למלאה.<br /><br />
+                העיניים והכל עם חיוך על הפנים. כמובן שכל זאת תוך כדי שימוש
+                בחומרי גלם איכותיים המשלימים את התמונה למלאה.<br /><br />
                 בקליניקה תוכלו גם למצוא טיפולים כנגד הזעה בכל הגוף, לרבות בית
                 שחי, פנים, מפשעות, כפות ידיים ועוד...<br />
                 מוזמנים להגיע לפגישת ייעוץ עמי.
               </p>
             </div>
             <div class="about-image">
-              <img src="/assets/cover.png" />
+              <img src="/assets/about-doctor.jpeg" />
             </div>
           </div>
         </div>
@@ -66,13 +66,15 @@
             <li>טיפול בפציאליס (שיתוק עצב הפנים)</li>
             <li>טיפול בהזעת יתר בכל הגוף</li>
             <li>פיסול ועיצוב פנים מלא בדגש על מראה טבעי</li>
-            <li>ביוסטימולטורים</li>
-            <li>מכשור רפואי מתקדם</li>
+            <li>ביוסטימולטורים(רדיאס, סקולפטרה, הרמוניקה ועוד)</li>
+            <li>מכשור רפואי מתקדם לפנים ולגוף</li>
             <li>מורפאוס – טיפול מחליף ניתוח להרמת פנים</li>
             <li>טיפולי פיגמנטציה</li>
             <li>טיפול בבוטוקס למיגרנה</li>
             <li>טיפול להזעה בבית השחי, כפות ידיים, פנים ועוד</li>
             <li>טיפול להזעה באיזורים אינטימיים</li>
+            <li>טיפול באקסוזומים</li>
+            <li>טיפולי מרקם עור מתקדמים</li>
           </ul>
 
           <div class="cta">
@@ -84,21 +86,15 @@
         <div class="container">
           <h3 class="footer-title">יצירת קשר</h3>
 
-          <form
-            class="contact-form"
-            action="https://formsubmit.co/drchenpardo@email.com"
-            method="POST"
-          >
+          <form id="contact-form">
             <input type="text" name="name" placeholder="שם מלא" required />
-            <input type="tel" name="phone" placeholder="טלפון" required />
-            <textarea
-              name="message"
-              placeholder="הודעה"
-              rows="4"
-              required
-            ></textarea>
+            <input type="email" name="email" placeholder="אימייל" required />
+            <textarea name="message" placeholder="הודעה" required></textarea>
             <button type="submit">שלח</button>
           </form>
+
+          <!-- Alert Message -->
+          <div id="form-alert" class="form-alert hidden"></div>
 
           <p class="footer-address">📍 התע"ש 20, כפר סבא</p>
           <p class="footer-phone">
@@ -139,7 +135,48 @@
 </style>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 
 const isOpen = ref(false);
+
+onMounted(() => {
+  const form = document.getElementById("contact-form");
+  const alertBox = document.getElementById("form-alert");
+
+  if (form && alertBox) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch(
+          "https://formsubmit.co/drchenpardo@gmail.com",
+          {
+            method: "POST",
+            body: formData,
+            headers: {
+              Accept: "application/json",
+            },
+          }
+        );
+
+        if (response.ok) {
+          alertBox.className = "form-alert success";
+          alertBox.textContent = "הטופס נשלח בהצלחה!";
+          form.reset();
+        } else {
+          alertBox.className = "form-alert error";
+          alertBox.textContent = "אירעה שגיאה בשליחה.";
+        }
+      } catch (error) {
+        alertBox.className = "form-alert error";
+        alertBox.textContent = "שגיאה כללית, נסה שוב.";
+      }
+
+      setTimeout(() => {
+        alertBox.className = "form-alert hidden";
+      }, 5000);
+    });
+  }
+});
 </script>
