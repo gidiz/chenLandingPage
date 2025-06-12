@@ -100,6 +100,7 @@
           <form id="contact-form">
             <input type="text" name="name" placeholder="שם מלא" required />
             <input type="email" name="email" placeholder="אימייל" required />
+            <input type="tel" name="phone" placeholder="טלפון" required />
             <textarea name="message" placeholder="הודעה" required></textarea>
             <button type="submit">שלח</button>
           </form>
@@ -121,7 +122,7 @@
             ></a>
             <a
               class="icon facebook"
-              href="https://www.facebook.com/chen.pardo"
+              href="https://www.facebook.com/profile.php?id=61577031445942"
               target="_blank"
               aria-label="Facebook"
             ></a>
