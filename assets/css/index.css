@@ -380,6 +380,13 @@ button:hover {
   padding: 0.3rem;
   border-radius: 8px;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  transition: height 0.3s ease, max-height 0.3s ease;
+}
+
+/* כשה-header במצב scrolled */
+.main-header.scrolled .logo {
+  height: 60px;
+  max-height: 60px;
 }
 
 .nav-menu a {
@@ -499,6 +506,21 @@ button:hover {
 
 .hidden {
   display: none;
+}
+
+.main-header {
+  position: sticky;
+  top: 0;
+  background: white;
+  transition: all 0.3s ease;
+  padding: 1.5rem 0;
+  z-index: 100;
+}
+
+.main-header.scrolled {
+  padding: 0.5rem 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background: #fff;
 }
 
 /* תפריט במובייל */
