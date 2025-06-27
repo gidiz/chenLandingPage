@@ -179,17 +179,26 @@ onMounted(() => {
       e.preventDefault();
       const formData = new FormData(form);
 
+      const data = {
+        name: formData.get("name"),
+        email: formData.get("email"),
+        phone: formData.get("phone"),
+        message: formData.get("message"),
+      };
+
       try {
         const response = await fetch(
-          "https://formsubmit.co/drchenpardo@gmail.com",
+          "https://vxu8elp5u8.execute-api.us-east-1.amazonaws.com/v1/sendContactEmail",
           {
             method: "POST",
-            body: formData,
             headers: {
-              Accept: "application/json",
+              "Content-Type": "application/json",
             },
+            body: JSON.stringify(data),
           }
         );
+
+        const result = await response.json();
 
         if (response.ok) {
           alertBox.className = "form-alert success";
@@ -197,7 +206,7 @@ onMounted(() => {
           form.reset();
         } else {
           alertBox.className = "form-alert error";
-          alertBox.textContent = "אירעה שגיאה בשליחה.";
+          alertBox.textContent = result.error || "אירעה שגיאה בשליחה.";
         }
       } catch (error) {
         alertBox.className = "form-alert error";
