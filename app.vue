@@ -187,30 +187,46 @@ onMounted(() => {
       };
 
       try {
-        const response = await fetch(
-          "https://vxu8elp5u8.execute-api.us-east-1.amazonaws.com/v1/sendContactEmail",
-          {
+        const [lambdaRes, makeRes] = await Promise.allSettled([
+          fetch(
+            "https://vxu8elp5u8.execute-api.us-east-1.amazonaws.com/v1/sendContactEmail",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            }
+          ),
+          fetch("https://hook.eu1.make.com/2754n2mdnhkuwadra1tp8m7pkr4f3el6", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
-          }
-        );
+          }),
+        ]);
 
-        const result = await response.json();
+        const lambdaSuccess =
+          lambdaRes.status === "fulfilled" && lambdaRes.value.ok;
+        const makeSuccess = makeRes.status === "fulfilled" && makeRes.value.ok;
 
-        if (response.ok) {
+        if (lambdaSuccess || makeSuccess) {
           alertBox.className = "form-alert success";
           alertBox.textContent = "הטופס נשלח בהצלחה!";
           form.reset();
+
+          if (!lambdaSuccess) {
+            console.warn("שגיאה בשליחת מייל (Lambda):", lambdaRes);
+          }
+          if (!makeSuccess) {
+            console.warn("שגיאה בשליחה ל־Make Webhook:", makeRes);
+          }
         } else {
           alertBox.className = "form-alert error";
-          alertBox.textContent = result.error || "אירעה שגיאה בשליחה.";
+          alertBox.textContent = "אירעה שגיאה בשליחה.";
+          console.error("שתי השליחות נכשלו:", { lambdaRes, makeRes });
         }
       } catch (error) {
         alertBox.className = "form-alert error";
         alertBox.textContent = "שגיאה כללית, נסה שוב.";
+        console.error("שגיאה כללית:", error);
       }
 
       setTimeout(() => {
