@@ -4,4 +4,10 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ["@/assets/css/index.css"],
   ssr: false,
+  runtimeConfig: {
+    public: {
+      gaMeasurementId: "G-X3E61VSZXK",
+      gtmContainerId: "GTM-WXGV32T9",
+    },
+  },
 });

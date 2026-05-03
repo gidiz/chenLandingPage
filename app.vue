@@ -1,15 +1,32 @@
 <template>
   <div>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript>
-      <iframe
-        src="https://www.googletagmanager.com/ns.html?id=GTM-MMZ89TFS"
-        height="0"
-        width="0"
-        style="display: none; visibility: hidden"
-      ></iframe>
-    </noscript>
-    <!-- End Google Tag Manager (noscript) -->
+    <div
+      v-if="showConsentBanner"
+      class="consent-banner"
+      role="dialog"
+      aria-live="polite"
+    >
+      <p class="consent-copy">
+        האתר משתמש ב-Google Analytics ו-Google Tag Manager כדי למדוד פניות
+        וביצועים.
+      </p>
+      <div class="consent-actions">
+        <button
+          type="button"
+          class="consent-button consent-button-primary"
+          @click="acceptAnalytics"
+        >
+          מאשר/ת
+        </button>
+        <button
+          type="button"
+          class="consent-button consent-button-secondary"
+          @click="declineAnalytics"
+        >
+          לא מאשר/ת
+        </button>
+      </div>
+    </div>
 
     <header class="main-header">
       <div class="container">
@@ -89,7 +106,12 @@
           </ul>
 
           <div class="cta">
-            <a href="#contact" class="cta-button">לתיאום פגישת ייעוץ</a>
+            <a
+              href="#contact"
+              class="cta-button"
+              @click="trackClick('cta_click', 'hero_consultation_button')"
+              >לתיאום פגישת ייעוץ</a
+            >
           </div>
         </div>
       </section>
@@ -97,7 +119,11 @@
         <div class="container">
           <h3 class="footer-title">יצירת קשר</h3>
 
-          <form id="contact-form">
+          <form
+            id="contact-form"
+            ref="contactForm"
+            @submit.prevent="handleSubmit"
+          >
             <input type="text" name="name" placeholder="שם מלא" required />
             <input type="email" name="email" placeholder="אימייל" required />
             <input type="tel" name="phone" placeholder="טלפון" required />
@@ -106,11 +132,18 @@
           </form>
 
           <!-- Alert Message -->
-          <div id="form-alert" class="form-alert hidden"></div>
+          <div id="form-alert" :class="['form-alert', alertState]">
+            {{ alertMessage }}
+          </div>
 
           <p class="footer-address">📍 התע"ש 20, כפר סבא</p>
           <p class="footer-phone">
-            📞 <a href="tel:0547577214">054-757-7214</a>
+            📞
+            <a
+              href="tel:0547577214"
+              @click="trackClick('phone_click', 'footer_phone')"
+              >054-757-7214</a
+            >
           </p>
 
           <div class="social-icons">
@@ -119,12 +152,14 @@
               href="https://www.instagram.com/dr_chen_pardo/"
               target="_blank"
               aria-label="Instagram"
+              @click="trackClick('instagram_click', 'footer_instagram')"
             ></a>
             <a
               class="icon facebook"
               href="https://www.facebook.com/profile.php?id=61577031445942"
               target="_blank"
               aria-label="Facebook"
+              @click="trackClick('facebook_click', 'footer_facebook')"
             ></a>
           </div>
         </div>
@@ -136,6 +171,7 @@
         href="https://wa.me/972547577214"
         target="_blank"
         aria-label="WhatsApp"
+        @click="trackClick('whatsapp_click', 'floating_whatsapp')"
       >
       </a>
     </div>
@@ -143,96 +179,163 @@
 </template>
 
 <style scoped>
-/* הכנס כאן את הסגנון מ־index.css */
+.consent-banner {
+  position: fixed;
+  inset-inline: 16px;
+  bottom: 16px;
+  z-index: 1000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: rgba(22, 31, 45, 0.96);
+  color: #fff;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24);
+}
+
+.consent-copy {
+  margin: 0;
+  flex: 1 1 320px;
+  line-height: 1.5;
+}
+
+.consent-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.consent-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.consent-button-primary {
+  background: #f4c542;
+  color: #1b2230;
+}
+
+.consent-button-secondary {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  .consent-banner {
+    inset-inline: 12px;
+    bottom: 12px;
+  }
+
+  .consent-actions {
+    width: 100%;
+  }
+
+  .consent-button {
+    flex: 1 1 0;
+  }
+}
 </style>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { useHead } from "#imports"; // חשוב כדי ש-useHead יעבוד
-
-// ✅ הוספת Google Tag Manager ל-head
-useHead({
-  script: [
-    {
-      hid: "gtm",
-      innerHTML: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','GTM-MMZ89TFS');`,
-      type: "text/javascript",
-    },
-  ],
-  __dangerouslyDisableSanitizersByTagID: {
-    gtm: ["innerHTML"],
-  },
-});
+import { ref } from "vue";
 
 const isOpen = ref(false);
+const contactForm = ref(null);
+const alertState = ref("hidden");
+const alertMessage = ref("");
+const { $analytics } = useNuxtApp();
+const showConsentBanner = computed(
+  () => $analytics.consent.value === "pending",
+);
 
-onMounted(() => {
-  const form = document.getElementById("contact-form");
-  const alertBox = document.getElementById("form-alert");
+const showAlert = (state, message) => {
+  alertState.value = state;
+  alertMessage.value = message;
 
-  if (form && alertBox) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const formData = new FormData(form);
+  window.setTimeout(() => {
+    alertState.value = "hidden";
+    alertMessage.value = "";
+  }, 5000);
+};
 
-      const data = {
-        name: formData.get("name"),
-        email: formData.get("email"),
-        phone: formData.get("phone"),
-        message: formData.get("message"),
-      };
+const trackClick = (eventName, clickLocation) => {
+  $analytics.trackEvent(eventName, {
+    click_location: clickLocation,
+    page_path: window.location.pathname,
+  });
+};
 
-      try {
-        const [lambdaRes, makeRes] = await Promise.allSettled([
-          fetch(
-            "https://vxu8elp5u8.execute-api.us-east-1.amazonaws.com/v1/sendContactEmail",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(data),
-            }
-          ),
-          fetch("https://hook.eu1.make.com/2754n2mdnhkuwadra1tp8m7pkr4f3el6", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-          }),
-        ]);
+const acceptAnalytics = () => {
+  $analytics.setConsent("granted");
+};
 
-        const lambdaSuccess =
-          lambdaRes.status === "fulfilled" && lambdaRes.value.ok;
-        const makeSuccess = makeRes.status === "fulfilled" && makeRes.value.ok;
+const declineAnalytics = () => {
+  $analytics.setConsent("denied");
+};
 
-        if (lambdaSuccess || makeSuccess) {
-          alertBox.className = "form-alert success";
-          alertBox.textContent = "הטופס נשלח בהצלחה!";
-          form.reset();
-
-          if (!lambdaSuccess) {
-            console.warn("שגיאה בשליחת מייל (Lambda):", lambdaRes);
-          }
-          if (!makeSuccess) {
-            console.warn("שגיאה בשליחה ל־Make Webhook:", makeRes);
-          }
-        } else {
-          alertBox.className = "form-alert error";
-          alertBox.textContent = "אירעה שגיאה בשליחה.";
-          console.error("שתי השליחות נכשלו:", { lambdaRes, makeRes });
-        }
-      } catch (error) {
-        alertBox.className = "form-alert error";
-        alertBox.textContent = "שגיאה כללית, נסה שוב.";
-        console.error("שגיאה כללית:", error);
-      }
-
-      setTimeout(() => {
-        alertBox.className = "form-alert hidden";
-      }, 5000);
-    });
+const handleSubmit = async () => {
+  if (!contactForm.value) {
+    return;
   }
-});
+
+  const formData = new FormData(contactForm.value);
+
+  const data = {
+    name: formData.get("name"),
+    email: formData.get("email"),
+    phone: formData.get("phone"),
+    message: formData.get("message"),
+  };
+
+  try {
+    const [lambdaRes, makeRes] = await Promise.allSettled([
+      fetch(
+        "https://vxu8elp5u8.execute-api.us-east-1.amazonaws.com/v1/sendContactEmail",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        },
+      ),
+      fetch("https://hook.eu1.make.com/2754n2mdnhkuwadra1tp8m7pkr4f3el6", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }),
+    ]);
+
+    const lambdaSuccess =
+      lambdaRes.status === "fulfilled" && lambdaRes.value.ok;
+    const makeSuccess = makeRes.status === "fulfilled" && makeRes.value.ok;
+
+    if (lambdaSuccess || makeSuccess) {
+      showAlert("success", "הטופס נשלח בהצלחה!");
+      contactForm.value.reset();
+      $analytics.trackEvent("contact_form_submit", {
+        form_id: "contact-form",
+        form_location: "footer_contact_section",
+        transport_lambda: lambdaSuccess,
+        transport_make: makeSuccess,
+      });
+
+      if (!lambdaSuccess) {
+        console.warn("שגיאה בשליחת מייל (Lambda):", lambdaRes);
+      }
+      if (!makeSuccess) {
+        console.warn("שגיאה בשליחה ל־Make Webhook:", makeRes);
+      }
+    } else {
+      showAlert("error", "אירעה שגיאה בשליחה.");
+      console.error("שתי השליחות נכשלו:", { lambdaRes, makeRes });
+    }
+  } catch (error) {
+    showAlert("error", "שגיאה כללית, נסה שוב.");
+    console.error("שגיאה כללית:", error);
+  }
+};
 </script>
