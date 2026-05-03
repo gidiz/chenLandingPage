@@ -1,33 +1,5 @@
 <template>
   <div>
-    <div
-      v-if="showConsentBanner"
-      class="consent-banner"
-      role="dialog"
-      aria-live="polite"
-    >
-      <p class="consent-copy">
-        האתר משתמש ב-Google Analytics ו-Google Tag Manager כדי למדוד פניות
-        וביצועים.
-      </p>
-      <div class="consent-actions">
-        <button
-          type="button"
-          class="consent-button consent-button-primary"
-          @click="acceptAnalytics"
-        >
-          מאשר/ת
-        </button>
-        <button
-          type="button"
-          class="consent-button consent-button-secondary"
-          @click="declineAnalytics"
-        >
-          לא מאשר/ת
-        </button>
-      </div>
-    </div>
-
     <header class="main-header">
       <div class="container">
         <img src="/assets/logo.png" alt="Dr. Chen Pardo Logo" class="logo" />
@@ -178,68 +150,7 @@
   </div>
 </template>
 
-<style scoped>
-.consent-banner {
-  position: fixed;
-  inset-inline: 16px;
-  bottom: 16px;
-  z-index: 1000;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 16px 18px;
-  border-radius: 16px;
-  background: rgba(22, 31, 45, 0.96);
-  color: #fff;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24);
-}
-
-.consent-copy {
-  margin: 0;
-  flex: 1 1 320px;
-  line-height: 1.5;
-}
-
-.consent-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.consent-button {
-  border: 0;
-  border-radius: 999px;
-  padding: 10px 16px;
-  font: inherit;
-  cursor: pointer;
-}
-
-.consent-button-primary {
-  background: #f4c542;
-  color: #1b2230;
-}
-
-.consent-button-secondary {
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-}
-
-@media (max-width: 640px) {
-  .consent-banner {
-    inset-inline: 12px;
-    bottom: 12px;
-  }
-
-  .consent-actions {
-    width: 100%;
-  }
-
-  .consent-button {
-    flex: 1 1 0;
-  }
-}
-</style>
+<style scoped></style>
 
 <script setup>
 import { ref } from "vue";
@@ -249,9 +160,6 @@ const contactForm = ref(null);
 const alertState = ref("hidden");
 const alertMessage = ref("");
 const { $analytics } = useNuxtApp();
-const showConsentBanner = computed(
-  () => $analytics.consent.value === "pending",
-);
 
 const showAlert = (state, message) => {
   alertState.value = state;
@@ -268,14 +176,6 @@ const trackClick = (eventName, clickLocation) => {
     click_location: clickLocation,
     page_path: window.location.pathname,
   });
-};
-
-const acceptAnalytics = () => {
-  $analytics.setConsent("granted");
-};
-
-const declineAnalytics = () => {
-  $analytics.setConsent("denied");
 };
 
 const handleSubmit = async () => {

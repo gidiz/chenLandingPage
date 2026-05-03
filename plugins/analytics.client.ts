@@ -19,7 +19,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   const gtmContainerId = config.public.gtmContainerId;
   const consent = useState<ConsentState>(
     "analytics-consent-state",
-    () => "pending",
+    () => "granted",
   );
 
   const ensureDataLayer = () => {
@@ -134,17 +134,11 @@ export default defineNuxtPlugin((nuxtApp) => {
   };
 
   nuxtApp.hook("app:mounted", () => {
-    const storedConsent = window.localStorage.getItem(CONSENT_STORAGE_KEY);
-
-    if (storedConsent === "granted" || storedConsent === "denied") {
-      consent.value = storedConsent;
-    }
+    consent.value = "granted";
+    window.localStorage.setItem(CONSENT_STORAGE_KEY, "granted");
 
     initializeAnalytics();
-
-    if (consent.value === "granted") {
-      trackPageView(router.currentRoute.value.fullPath);
-    }
+    trackPageView(router.currentRoute.value.fullPath);
   });
 
   router.afterEach((to) => {
