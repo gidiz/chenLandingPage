@@ -6,8 +6,12 @@ export default defineNuxtConfig({
   ssr: false,
   runtimeConfig: {
     public: {
-      gaMeasurementId: "G-X3E61VSZXK",
-      gtmContainerId: "GTM-WXGV32T9",
+      gaMeasurementId: process.env.NUXT_PUBLIC_GA_MEASUREMENT_ID || "",
+      gtmContainerId: process.env.NUXT_PUBLIC_GTM_CONTAINER_ID || "",
+      gtmAuth: process.env.NUXT_PUBLIC_GTM_AUTH || "",
+      gtmPreview: process.env.NUXT_PUBLIC_GTM_PREVIEW || "",
+      gtmCookiesWin: process.env.NUXT_PUBLIC_GTM_COOKIES_WIN || "x",
+      appEnvironment: process.env.NUXT_PUBLIC_APP_ENVIRONMENT || "local",
     },
   },
 });

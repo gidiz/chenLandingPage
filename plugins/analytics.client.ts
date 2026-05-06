@@ -15,8 +15,12 @@ declare global {
 export default defineNuxtPlugin((nuxtApp) => {
   const config = useRuntimeConfig();
   const router = useRouter();
-  const gaMeasurementId = config.public.gaMeasurementId;
-  const gtmContainerId = config.public.gtmContainerId;
+  const gaMeasurementId = String(config.public.gaMeasurementId || "");
+  const gtmContainerId = String(config.public.gtmContainerId || "");
+  const gtmAuth = String(config.public.gtmAuth || "");
+  const gtmPreview = String(config.public.gtmPreview || "");
+  const gtmCookiesWin = String(config.public.gtmCookiesWin || "");
+  const appEnvironment = String(config.public.appEnvironment || "local");
   const consent = useState<ConsentState>(
     "analytics-consent-state",
     () => "granted",
@@ -38,6 +42,25 @@ export default defineNuxtPlugin((nuxtApp) => {
     scriptTag.async = true;
     scriptTag.src = src;
     document.head.appendChild(scriptTag);
+  };
+
+  const buildGtmScriptUrl = () => {
+    if (!gtmContainerId) {
+      return "";
+    }
+
+    const searchParams = new URLSearchParams({ id: gtmContainerId });
+
+    if (gtmAuth && gtmPreview) {
+      searchParams.set("gtm_auth", gtmAuth);
+      searchParams.set("gtm_preview", gtmPreview);
+
+      if (gtmCookiesWin) {
+        searchParams.set("gtm_cookies_win", gtmCookiesWin);
+      }
+    }
+
+    return `https://www.googletagmanager.com/gtm.js?${searchParams.toString()}`;
   };
 
   const bootGoogleAnalytics = () => {
@@ -66,16 +89,23 @@ export default defineNuxtPlugin((nuxtApp) => {
       return;
     }
 
+    const gtmScriptUrl = buildGtmScriptUrl();
+
+    if (!gtmScriptUrl) {
+      return;
+    }
+
     ensureDataLayer();
     window.dataLayer.push({
       "gtm.start": new Date().getTime(),
       event: "gtm.js",
+      app_environment: appEnvironment,
     });
 
     const scriptTag = document.createElement("script");
     scriptTag.id = GTM_SCRIPT_ID;
     scriptTag.async = true;
-    scriptTag.src = `https://www.googletagmanager.com/gtm.js?id=${gtmContainerId}`;
+    scriptTag.src = gtmScriptUrl;
     document.head.appendChild(scriptTag);
   };
 
@@ -115,6 +145,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     window.dataLayer.push({
       event: eventName,
       ...params,
+      app_environment: appEnvironment,
       ga_measurement_id: gaMeasurementId,
       gtm_container_id: gtmContainerId,
     });

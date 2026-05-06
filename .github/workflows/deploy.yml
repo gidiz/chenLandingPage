@@ -20,19 +20,28 @@ permissions:
   id-token: write
 
 concurrency:
-  group: deploy-${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target || github.ref_name }}
+  group: deploy-${{ github.event_name == 'workflow_dispatch' &&
+    github.event.inputs.target || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
   deploy:
     name: Build and Deploy
     runs-on: ubuntu-latest
-    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target || github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+    environment: ${{ github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.target || github.ref == 'refs/heads/main' && 'prod' ||
+      'dev' }}
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
       S3_BUCKET: ${{ vars.AWS_S3_BUCKET }}
       CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
       SITE_URL: ${{ vars.SITE_URL }}
+      NUXT_PUBLIC_GA_MEASUREMENT_ID: ${{ vars.NUXT_PUBLIC_GA_MEASUREMENT_ID }}
+      NUXT_PUBLIC_GTM_CONTAINER_ID: ${{ vars.NUXT_PUBLIC_GTM_CONTAINER_ID }}
+      NUXT_PUBLIC_GTM_AUTH: ${{ vars.NUXT_PUBLIC_GTM_AUTH }}
+      NUXT_PUBLIC_GTM_PREVIEW: ${{ vars.NUXT_PUBLIC_GTM_PREVIEW }}
+      NUXT_PUBLIC_GTM_COOKIES_WIN: ${{ vars.NUXT_PUBLIC_GTM_COOKIES_WIN }}
+      NUXT_PUBLIC_APP_ENVIRONMENT: ${{ vars.NUXT_PUBLIC_APP_ENVIRONMENT }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -65,4 +74,5 @@ jobs:
 
       - name: Invalidate CloudFront cache
         if: ${{ env.CLOUDFRONT_DISTRIBUTION_ID != '' }}
-        run: aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_DISTRIBUTION_ID} --paths '/*'
+        run: aws cloudfront create-invalidation --distribution-id
+          ${CLOUDFRONT_DISTRIBUTION_ID} --paths '/*'

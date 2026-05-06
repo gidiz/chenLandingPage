@@ -78,6 +78,29 @@ Check out the [deployment documentation](https://nuxt.com/docs/getting-started/d
 
 This project includes a GitHub Actions workflow at `.github/workflows/deploy.yml` that builds the static Nuxt site and deploys `.output/public` to AWS S3.
 
+## Analytics environment configuration
+
+This app now supports loading a GTM environment-specific snippet through Nuxt runtime config and GitHub environment variables.
+
+### Local environment variables
+
+Set these variables in your local `.env` file when you want to test a non-live GTM environment:
+
+```bash
+NUXT_PUBLIC_GA_MEASUREMENT_ID=G-P46K3PK4KD
+NUXT_PUBLIC_GTM_CONTAINER_ID=GTM-WXGV32T9
+NUXT_PUBLIC_GTM_AUTH=UvX2WLFuE3k0QgzT03_Zww
+NUXT_PUBLIC_GTM_PREVIEW=env-21
+NUXT_PUBLIC_GTM_COOKIES_WIN=x
+NUXT_PUBLIC_APP_ENVIRONMENT=development
+```
+
+Notes:
+
+- Leave `NUXT_PUBLIC_GTM_AUTH` and `NUXT_PUBLIC_GTM_PREVIEW` empty to load the live GTM container snippet.
+- `NUXT_PUBLIC_APP_ENVIRONMENT` is pushed into the dataLayer as `app_environment` for debugging and tag routing.
+- In GTM, use the built-in `Environment Name` variable for lookup tables that switch between GA4 Measurement IDs.
+
 ### What the workflow does
 
 1. Runs on pushes to `develop` and `main`, and on manual dispatch.
@@ -109,11 +132,22 @@ For each environment, add these variables:
 - `AWS_S3_BUCKET`: The target bucket name.
 - `AWS_CLOUDFRONT_DISTRIBUTION_ID`: Optional. Set this only if you want automatic cache invalidation.
 - `SITE_URL`: The public domain for that environment.
+- `NUXT_PUBLIC_GA_MEASUREMENT_ID`: The GA4 Measurement ID for that environment.
+- `NUXT_PUBLIC_GTM_CONTAINER_ID`: Your GTM container ID.
+- `NUXT_PUBLIC_GTM_AUTH`: Optional. The GTM environment auth token.
+- `NUXT_PUBLIC_GTM_PREVIEW`: Optional. The GTM environment preview value such as `env-3`.
+- `NUXT_PUBLIC_GTM_COOKIES_WIN`: Optional. Usually `x` when using GTM environments.
+- `NUXT_PUBLIC_APP_ENVIRONMENT`: A readable environment label such as `development` or `production`.
 
 Recommended values for `SITE_URL`:
 
 - `dev`: `https://test.drchenpardo.co.il`
 - `prod`: `https://drchenpardo.co.il`
+
+Recommended analytics values:
+
+- `dev`: use the dev GA4 Measurement ID, dev GTM auth/preview values, and `NUXT_PUBLIC_APP_ENVIRONMENT=development`
+- `prod`: use the prod GA4 Measurement ID, leave GTM auth/preview empty if you want the Live environment, and `NUXT_PUBLIC_APP_ENVIRONMENT=production`
 
 For each environment, add this secret:
 
