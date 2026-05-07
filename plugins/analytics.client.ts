@@ -2,13 +2,11 @@ type AnalyticsParams = Record<string, unknown>;
 type ConsentState = "granted" | "denied" | "pending";
 
 const CONSENT_STORAGE_KEY = "analytics-consent";
-const GA_SCRIPT_ID = "ga4-script";
 const GTM_SCRIPT_ID = "gtm-script";
 
 declare global {
   interface Window {
     dataLayer: Array<Record<string, unknown>>;
-    gtag?: (...args: unknown[]) => void;
   }
 }
 
@@ -63,27 +61,6 @@ export default defineNuxtPlugin((nuxtApp) => {
     return `https://www.googletagmanager.com/gtm.js?${searchParams.toString()}`;
   };
 
-  const bootGoogleAnalytics = () => {
-    if (!gaMeasurementId) {
-      return;
-    }
-
-    loadScript(
-      GA_SCRIPT_ID,
-      `https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`,
-    );
-
-    ensureDataLayer();
-
-    if (typeof window.gtag !== "function") {
-      window.gtag = (...args: unknown[]) => {
-        window.dataLayer.push(args as unknown as Record<string, unknown>);
-      };
-      window.gtag("js", new Date());
-      window.gtag("config", gaMeasurementId, { send_page_view: false });
-    }
-  };
-
   const bootGoogleTagManager = () => {
     if (!gtmContainerId || document.getElementById(GTM_SCRIPT_ID)) {
       return;
@@ -114,24 +91,24 @@ export default defineNuxtPlugin((nuxtApp) => {
       return;
     }
 
-    bootGoogleAnalytics();
     bootGoogleTagManager();
   };
 
   const trackPageView = (path: string) => {
-    if (
-      consent.value !== "granted" ||
-      !gaMeasurementId ||
-      typeof window.gtag !== "function"
-    ) {
+    if (consent.value !== "granted") {
       return;
     }
 
-    window.gtag("event", "page_view", {
+    ensureDataLayer();
+
+    window.dataLayer.push({
+      event: "page_view",
       page_path: path,
       page_location: window.location.href,
       page_title: document.title,
-      send_to: gaMeasurementId,
+      app_environment: appEnvironment,
+      ga_measurement_id: gaMeasurementId,
+      gtm_container_id: gtmContainerId,
     });
   };
 
