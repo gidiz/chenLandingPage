@@ -1,14 +1,5 @@
 <template>
-  <div>
-    <AppHeader />
-
-    <div class="content">
-      <HeroSection />
-      <AboutSection />
-      <TreatmentsSection />
-      <ContactSection />
-    </div>
-  </div>
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
 </template>
-
-<style scoped></style>
