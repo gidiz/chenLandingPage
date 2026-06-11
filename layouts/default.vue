@@ -7,3 +7,9 @@
     <SiteFooter />
   </div>
 </template>
+
+<style scoped>
+.site-main {
+  min-height: calc(100vh - 220px);
+}
+</style>

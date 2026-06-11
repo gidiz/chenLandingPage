@@ -26,3 +26,38 @@
     </div>
   </section>
 </template>
+
+<style scoped>
+.about-section {
+  background-color: #f9f8f6;
+  padding: 4rem 1rem;
+  direction: rtl;
+  text-align: right;
+}
+
+.about-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  align-items: center;
+}
+
+.about-text {
+  flex: 1 1 500px;
+  font-size: 1.125rem;
+  line-height: 2;
+  color: #444;
+}
+
+.about-image {
+  flex: 1 1 400px;
+  text-align: center;
+}
+
+.about-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+</style>

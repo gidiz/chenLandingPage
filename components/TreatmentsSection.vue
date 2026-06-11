@@ -38,3 +38,31 @@ const trackClick = (eventName, clickLocation) => {
   });
 };
 </script>
+
+<style scoped>
+.treatments-section {
+  background-color: #f7f5f2;
+  padding: 3rem 1.5rem;
+  direction: rtl;
+  text-align: right;
+}
+
+.treatments-section .container {
+  max-width: 1000px;
+}
+
+.treatment-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.treatment-category-card h3 {
+  margin-top: 0;
+}
+
+.cta {
+  text-align: center;
+}
+</style>
