@@ -1,8 +1,19 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+const isDev = process.env.NODE_ENV === "development";
+
 export default defineNuxtConfig({
   compatibilityDate: "2025-05-15",
   devtools: { enabled: true },
   css: ["@/assets/css/index.css"],
+  nitro: isDev
+    ? {
+        output: {
+          dir: ".output-dev",
+          serverDir: ".output-dev/server",
+          publicDir: ".output-dev/public",
+        },
+      }
+    : undefined,
   app: {
     head: {
       htmlAttrs: {
