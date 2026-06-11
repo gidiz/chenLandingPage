@@ -8,6 +8,7 @@ body {
   font-family: "Assistant", sans-serif;
   background-color: #f4f1ee;
   color: #3a3a3a;
+  direction: rtl;
 }
 
 .container {

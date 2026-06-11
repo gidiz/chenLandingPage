@@ -1,6 +1,7 @@
 <template>
   <div class="site-shell">
     <AppHeader />
+    <AppBreadcrumbs />
     <FloatingSocialLinks />
     <main class="site-main">
       <slot />

@@ -3,6 +3,14 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-05-15",
   devtools: { enabled: true },
   css: ["@/assets/css/index.css"],
+  app: {
+    head: {
+      htmlAttrs: {
+        dir: "rtl",
+        lang: "he",
+      },
+    },
+  },
   ssr: false,
   runtimeConfig: {
     public: {
