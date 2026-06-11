@@ -44,6 +44,8 @@
 </template>
 
 <script setup lang="ts">
+import TreatmentPageShell from './TreatmentPageShell.vue';
+
 const props = defineProps<{
   categorySlug: string;
   serviceSlug: string;
