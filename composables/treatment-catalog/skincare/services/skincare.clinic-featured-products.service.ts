@@ -7,6 +7,8 @@ export const clinicFeaturedProductsService: TreatmentService = {
         navTitle: "מוצרי דגל",
         description:
           "סקירה של מוצרים מרכזיים שהמרפאה עובדת איתם כחלק מהשגרה או מההכנה לטיפול.",
+        shortDescription:
+          "סקירה של מוצרים מרכזיים שהמרפאה עובדת איתם כחלק מהשגרה או מההכנה לטיפול.",
         summary:
           "דף מוצרי הדגל מסביר אילו סוגי מוצרים מקבלים מקום מרכזי בפרוטוקולים של המרפאה, ולמה לא כל מוצר מתאים לכל אחת.",
         suitability:

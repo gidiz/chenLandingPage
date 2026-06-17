@@ -63,7 +63,7 @@
             class="page-card page-card--link"
           >
             <h3>{{ service.title }}</h3>
-            <p>{{ service.description }}</p>
+            <p>{{ service.shortDescription }}</p>
           </NuxtLink>
         </div>
       </div>

@@ -9,6 +9,7 @@ export type TreatmentService = {
   shortTitle: string;
   navTitle: string;
   description: string;
+  shortDescription: string;
   summary: string;
   suitability: string;
   process: string;
