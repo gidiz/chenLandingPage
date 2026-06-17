@@ -71,9 +71,9 @@ defineProps({
 </script>
 
 <style scoped>
-.treatment-info-section__grid {
+/* .treatment-info-section__grid {
   align-items: stretch;
-}
+} */
 
 /* .treatment-info-section__main-card {
   height: 100%;

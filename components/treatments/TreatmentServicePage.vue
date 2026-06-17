@@ -24,7 +24,7 @@
             class="page-card page-card--link"
           >
             <h3>{{ relatedService.title }}</h3>
-            <p>{{ relatedService.description }}</p>
+            <p>{{ relatedService.shortDescription }}</p>
           </NuxtLink>
 
           <NuxtLink
