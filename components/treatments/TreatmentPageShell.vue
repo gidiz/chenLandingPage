@@ -2,63 +2,31 @@
   <div>
     <PageHero :eyebrow="eyebrow" :title="title" :subtitle="subtitle" />
 
-    <section class="page-section">
-      <div class="container page-grid">
-        <article class="page-card">
-          <h2 class="section-title">מה חשוב לדעת לפני הטיפול</h2>
-          <p>{{ summary }}</p>
+    <TreatmentInfoSection
+      :summary="summary"
+      :suitability-lead="suitabilityLead"
+      :suitability="suitability"
+      :process-lead="processLead"
+      :process="process"
+      :expectations-lead="expectationsLead"
+      :expectations="expectations"
+    >
+      <template #cta>
+        <TreatmentConsultationCta :cta-label="ctaLabel" />
+      </template>
+    </TreatmentInfoSection>
 
-          <div class="info-list">
-            <div>
-              <h3>למי זה מתאים</h3>
-              <p>{{ suitability }}</p>
-            </div>
-
-            <div>
-              <h3>איך נראה התהליך</h3>
-              <p>{{ process }}</p>
-            </div>
-
-            <div>
-              <h3>תוצאות וציפיות</h3>
-              <p>{{ expectations }}</p>
-            </div>
-          </div>
-        </article>
-
-        <aside class="page-card page-card--accent">
-          <h2>פגישת ייעוץ אישית</h2>
-          <p>
-            לפני כל טיפול חשוב לבצע התאמה מדויקת לפי מבנה הפנים, מצב העור והמטרה
-            שלך.
-          </p>
-          <NuxtLink to="/consultation" class="cta-button">
-            {{ ctaLabel }}
-          </NuxtLink>
-        </aside>
-      </div>
-    </section>
-
-    <section class="page-section page-section--soft">
-      <div class="container faq-preview">
-        <h2 class="section-title">שאלות נפוצות סביב {{ shortTitle }}</h2>
-        <div class="faq-preview__items">
-          <article
-            v-for="question in questions"
-            :key="question.title"
-            class="page-card"
-          >
-            <h3>{{ question.title }}</h3>
-            <p>{{ question.answer }}</p>
-          </article>
-        </div>
-      </div>
-    </section>
+    <TreatmentFaqSection :short-title="shortTitle" :questions="questions" />
   </div>
 </template>
 
 <script setup>
-defineProps({
+import { computed } from "vue";
+import TreatmentInfoSection from "./TreatmentInfoSection.vue";
+import TreatmentFaqSection from "./TreatmentFaqSection.vue";
+import TreatmentConsultationCta from "./TreatmentConsultationCta.vue";
+
+const props = defineProps({
   eyebrow: {
     type: String,
     default: "טיפולים בקליניקה",
@@ -100,4 +68,21 @@ defineProps({
     required: true,
   },
 });
+
+const treatmentLabel = computed(() => props.shortTitle || props.title);
+
+const suitabilityLead = computed(
+  () =>
+    `הערכת התאמה אישית ל${treatmentLabel.value} לפי מצב רפואי, אזור הטיפול והמטרות שלך.`,
+);
+
+const processLead = computed(
+  () =>
+    `שלבי ${treatmentLabel.value} בקליניקה, משך המפגש והנחיות חשובות לפני ואחרי.`,
+);
+
+const expectationsLead = computed(
+  () =>
+    `מתי רואים שינוי אחרי ${treatmentLabel.value}, כמה זמן נשמר האפקט ומה נחשב לתוצאה ריאלית.`,
+);
 </script>

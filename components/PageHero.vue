@@ -3,7 +3,7 @@
     <div class="container page-hero__content">
       <p v-if="eyebrow" class="page-hero__eyebrow">{{ eyebrow }}</p>
       <h1>{{ title }}</h1>
-      <p v-if="subtitle" class="page-hero__subtitle">{{ subtitle }}</p>
+      <div v-if="subtitle" class="page-hero__subtitle" v-html="subtitle" />
     </div>
   </section>
 </template>
@@ -50,6 +50,18 @@ defineProps({
   color: #4a4a4a;
   font-size: 1.125rem;
   line-height: 1.9;
+}
+
+.page-hero__subtitle :deep(p) {
+  margin: 0 0 0.8rem;
+}
+
+.page-hero__subtitle :deep(p:last-child) {
+  margin-bottom: 0;
+}
+
+.page-hero__subtitle :deep(strong) {
+  font-weight: 700;
 }
 
 @media (max-width: 768px) {
