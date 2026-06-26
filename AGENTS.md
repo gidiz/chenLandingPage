@@ -1,40 +1,42 @@
-# AGENTS.md
+# Agent Instructions
 
-## Project Scope
+## Communication with Me
+- Please start all your responses with Hopa!
 
-- This repo is a Nuxt 3 single-page landing site. SSR is disabled in [nuxt.config.ts](nuxt.config.ts), and the page is assembled in [app.vue](app.vue) from section components in [components/](components).
-- Prefer small, section-scoped edits. Most UI changes belong in one of the section components or in [assets/css/index.css](assets/css/index.css).
+## Security
+- Never commit or expose secrets (tokens, API keys, passwords, cluster credentials, secret values).
 
-## Commands
+## Coding Style
+- Follow the repository coding style defined in `.rule/coding-rules.md`.
 
-- Install dependencies: `npm install`
-- Start local dev server: `npm run dev`
-- Production build: `npm run build`
-- Static site output for deployment: `npm run generate`
-- Preview production build: `npm run preview`
+## Naming Conventions
+- Follow as defined in `.rule/naming-rules.md`.
 
-## Validation
+## Glossary and Terms
+- Use canonical domain terms from `.doc/glossary.md`.
+- Keep new shared terms documented there before broad usage.
 
-- For visual or component changes, run `npm run build`.
-- For changes that affect deployment, runtime config, routing, or public assets, run `npm run generate` because AWS deploys `.output/public`.
-- There is no dedicated test suite configured in [package.json](package.json). Do not claim test coverage that was not run.
+## Architecture and Deployment Docs
+- Architecture overview and component design: `.doc/architecture.md`.
+- Deployment architecture, tech stack, and operational concerns: `.rule/deployment-rules.md`.
+- Keep these docs updated when major component ownership, data flows, deployment strategy, or environment variables change.
 
-## Architecture Notes
+## Planning
+- Follow as defined in `.rule/planning-rules.md`.
 
-- [app.vue](app.vue) is the top-level composition layer. Keep page order changes there.
-- [plugins/analytics.client.ts](plugins/analytics.client.ts) is client-only and owns page-view and custom event tracking through `window.dataLayer`.
-- Analytics config is sourced from Nuxt public runtime config in [nuxt.config.ts](nuxt.config.ts). Use `NUXT_PUBLIC_*` variables when changing analytics behavior.
-- Deployment is handled by [README.md](README.md) and [.github/workflows/deploy.yml](.github/workflows/deploy.yml). Link to those docs instead of copying deployment steps into code comments or new instruction files.
+## Versioning
+- Follow as defined in `.rule/versioning-rules.md`.
 
-## Repo-Specific Pitfalls
+## Product Definition
+- Follow as defined in `.doc/product-definition.md`.
 
-- Keep analytics changes environment-aware. GTM environment support uses `NUXT_PUBLIC_GTM_AUTH`, `NUXT_PUBLIC_GTM_PREVIEW`, `NUXT_PUBLIC_GTM_COOKIES_WIN`, and `NUXT_PUBLIC_APP_ENVIRONMENT`.
-- The analytics plugin currently defaults consent state to granted on mount. If you add consent UI, update the plugin behavior rather than layering duplicate tracking logic elsewhere.
-- CSS files exist in both [assets/css/](assets/css) and [public/assets/css/](public/assets/css). Prefer editing the active Nuxt CSS entrypoint in [assets/css/index.css](assets/css/index.css) unless the task is explicitly about static duplicated assets.
-- The README notes a current `npm run generate` warning around `assets/cover.png`. Treat that as an existing issue unless the task is specifically to clean it up.
+## Error Handling
+- Follow as defined in `.rule/error-handling-rules.md`.
 
-## Working Style
+## Testing
+- Follow as defined in `.rule/testing-rules.md`.
 
-- Preserve the current static-site deployment flow and public runtime config names.
-- Prefer npm over other package managers because the repo includes [package-lock.json](package-lock.json) and the workflow uses `npm ci`.
-- Keep instructions concise and link back to [README.md](README.md) for setup and environment details when possible.
+## UI and Styling
+- UI-specific guidance: `.rule/ui-rules.md`.
+- CSS and styling guidance: `.rule/style-rules.md`.
+- Design tokens, branding, and color palette: defined in `.rule/style-rules.md`.

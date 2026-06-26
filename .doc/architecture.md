@@ -29,24 +29,9 @@
 - There is no authentication layer in this project.
 - There is no organization scoping or tenant isolation.
 - The site is public and does not expose active application API routes.
-
-## External Dependencies
-- Nuxt and Vue provide the application framework.
-- Google Tag Manager and Google Analytics are integrated through the client plugin.
-- AWS S3 is used for static hosting, with CloudFront optional for caching and distribution.
-- Environment variables are injected through Nuxt runtime config and GitHub Actions deployment settings.
-
-## Operational Concerns
-- The site is deployed as a static build.
-- SEO metadata is defined per page.
-- Analytics is client-only and depends on local storage consent state.
-- Runtime behavior is controlled through `NUXT_PUBLIC_*` environment variables.
-- Any recurring build warning, such as the `assets/cover.png` notice, should be tracked separately if it is not being fixed in this change.
+- See `.rule/deployment-rules.md` for hosting and operational details.
 
 ## Change Log
 - 2026-06-27: Initial architecture note for the Nuxt landing site and treatment catalog structure.
-- Add future entries here for major route changes, treatment catalog expansion, analytics flow changes, deployment changes, or any future API/auth boundary additions.
-
-## Update Triggers
-- Update this file when API routes, auth boundaries, org boundaries, or major component ownership changes.
+- Add future entries here for major route changes, treatment catalog expansion, analytics flow changes, or major component ownership changes.
 
