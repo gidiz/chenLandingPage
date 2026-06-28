@@ -7,6 +7,9 @@
 - `org`
     - Canonical meaning: organization tenant/account boundary.
     - Use: always use `org`, not `organization`.
+- `mcp`
+    - Canonical meaning: Model Context Protocol integration surface used by AI tooling.
+    - Use: use `mcp` consistently in file names, server names, and setup docs.
 - `site`
     - Canonical meaning: singular site entity/resource.
     - Use: prefer singular in routes and service names.
