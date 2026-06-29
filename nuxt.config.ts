@@ -31,6 +31,11 @@ export default defineNuxtConfig({
       gtmPreview: process.env.NUXT_PUBLIC_GTM_PREVIEW || "",
       gtmCookiesWin: process.env.NUXT_PUBLIC_GTM_COOKIES_WIN || "x",
       appEnvironment: process.env.NUXT_PUBLIC_APP_ENVIRONMENT || "local",
+      treatmentCatalogSource:
+        process.env.NUXT_PUBLIC_TREATMENT_CATALOG_SOURCE || "db",
+      supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL || "",
+      supabasePublishableKey:
+        process.env.NUXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "",
     },
   },
 });
