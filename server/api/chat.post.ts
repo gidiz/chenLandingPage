@@ -163,6 +163,22 @@ const isProfileQuestion = (message: string): boolean => {
   )
 }
 
+const isLocationQuestion = (message: string): boolean => {
+  const normalized = message.trim().toLowerCase()
+
+  return (
+    normalized.includes("איפה") ||
+    normalized.includes("כתובת") ||
+    normalized.includes("נמצאת") ||
+    normalized.includes("נמצא") ||
+    normalized.includes("נמאת") ||
+    normalized.includes("מיקום") ||
+    normalized.includes("קליניקה") ||
+    normalized.includes("טלפון") ||
+    normalized.includes("יצירת קשר")
+  )
+}
+
 const dedupeChunks = (chunks: RetrievalChunk[]): RetrievalChunk[] => {
   const seen = new Set<string>()
 
@@ -207,6 +223,25 @@ const fetchProfileChunks = async (
   return (data as DirectChunkRow[])
     .filter((item) => item.content_text?.trim().length > 0)
     .map((item, index) => mapDirectChunkRow(item, 1 - index * 0.01))
+}
+
+const fetchLocationChunks = async (
+  supabase: SupabaseClient,
+): Promise<RetrievalChunk[]> => {
+  const { data, error } = await supabase
+    .from("treatment_content_chunks")
+    .select("id, category_slug, service_slug, section_type, section_key, content_text")
+    .eq("source_table", "site_content")
+    .in("source_id", ["home-contact-section", "contact-page-hero", "site-footer-contact"])
+    .order("display_order", { ascending: true })
+
+  if (error || !Array.isArray(data)) {
+    return []
+  }
+
+  return (data as DirectChunkRow[])
+    .filter((item) => item.content_text?.trim().length > 0)
+    .map((item, index) => mapDirectChunkRow(item, 0.99 - index * 0.01))
 }
 
 const createQueryEmbedding = async (
@@ -282,6 +317,7 @@ const fetchRelevantChunks = async (
 
   const supabase = createClient(supabaseUrl, supabaseKey)
   const profileChunks = isProfileQuestion(message) ? await fetchProfileChunks(supabase) : []
+  const locationChunks = isLocationQuestion(message) ? await fetchLocationChunks(supabase) : []
   const { data, error } = await supabase.rpc("match_treatment_content", {
     query_embedding: `[${embedding.join(",")}]`,
     match_count: topK,
@@ -290,12 +326,15 @@ const fetchRelevantChunks = async (
   })
 
   if (error || !Array.isArray(data)) {
-    return profileChunks
+    return dedupeChunks([...profileChunks, ...locationChunks])
   }
 
   const matchedChunks = (data as RetrievalChunk[]).filter((item) => item.content_text?.trim().length > 0)
 
-  return dedupeChunks([...profileChunks, ...matchedChunks]).slice(0, topK + profileChunks.length)
+  return dedupeChunks([...profileChunks, ...locationChunks, ...matchedChunks]).slice(
+    0,
+    topK + profileChunks.length + locationChunks.length,
+  )
 }
 
 const buildContextBlock = (chunks: RetrievalChunk[]): string => {
@@ -342,7 +381,7 @@ const requestOpenAiChat = async (
             {
               role: "system",
               content:
-                "את עוזרת קליניקה רפואית-אסתטית של ד\"ר חן פרדו. השיבי בעברית, בטון מקצועי וחם, בלי להבטיח תוצאה רפואית. השתמשי קודם כל במידע שסופק מהאתר תחת CONTEXT. אם השאלה היא מי זאת ד\"ר חן פרדו או שאלה ביוגרפית עליה, תני עדיפות מפורשת לחלקי אודות, רקע רפואי, לימודים, התמחות וגישה טיפולית שמופיעים ב-CONTEXT. אם השאלה מתייחסת לד\"ר חן פרדו, לקליניקה, לטיפולים, לעמודים באתר או לפרטי קשר, אל תמציאי מידע שלא מופיע ב-CONTEXT. אם המידע לא מופיע ב-CONTEXT, אמרי במפורש שהמידע לא מופיע באתר כרגע. אם יש סימפטומים רפואיים חריגים או דחופים, המליצי לפנות לבדיקה רפואית.",
+                "את עוזרת קליניקה רפואית-אסתטית של ד\"ר חן פרדו. השיבי בעברית, בטון מקצועי וחם, בלי להבטיח תוצאה רפואית. השתמשי קודם כל במידע שסופק מהאתר תחת CONTEXT. אם השאלה היא מי זאת ד\"ר חן פרדו או שאלה ביוגרפית עליה, תני עדיפות מפורשת לחלקי אודות, רקע רפואי, לימודים, התמחות וגישה טיפולית שמופיעים ב-CONTEXT. אם השאלה היא על מיקום הקליניקה, כתובת, טלפון או יצירת קשר, תני עדיפות מפורשת לפרטי הקשר והכתובת שמופיעים ב-CONTEXT. אם השאלה מתייחסת לד\"ר חן פרדו, לקליניקה, לטיפולים, לעמודים באתר או לפרטי קשר, אל תמציאי מידע שלא מופיע ב-CONTEXT. אם המידע לא מופיע ב-CONTEXT, אמרי במפורש שהמידע לא מופיע באתר כרגע. אם יש סימפטומים רפואיים חריגים או דחופים, המליצי לפנות לבדיקה רפואית.",
             },
             {
               role: "system",
