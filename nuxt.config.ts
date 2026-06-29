@@ -29,6 +29,7 @@ export default defineNuxtConfig({
       rateLimitMaxRequests: Number(process.env.RAG_CHAT_RATE_LIMIT_MAX_REQUESTS || 8),
       openAiTimeoutMs: Number(process.env.RAG_CHAT_OPENAI_TIMEOUT_MS || 15000),
       openAiMaxAttempts: Number(process.env.RAG_CHAT_OPENAI_MAX_ATTEMPTS || 3),
+      retrievalTopK: Number(process.env.RAG_CHAT_RETRIEVAL_TOP_K || 6),
     },
     public: {
       gaMeasurementId: process.env.NUXT_PUBLIC_GA_MEASUREMENT_ID || "",

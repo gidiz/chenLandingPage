@@ -4,6 +4,8 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import { getRequestIP, readBody, setResponseStatus } from "h3"
 import type { H3Event } from "h3"
 
+import { basePromptHints, chatRetrievalRules } from "../rag/chat-retrieval-rules"
+
 type ChatRole = "user" | "assistant"
 
 type ChatMessage = {
@@ -151,31 +153,11 @@ const envFirst = (...values: Array<string | undefined>): string => {
   return ""
 }
 
-const isProfileQuestion = (message: string): boolean => {
+const getMatchedRules = (message: string) => {
   const normalized = message.trim().toLowerCase()
 
-  return (
-    normalized.includes("חן פרדו") ||
-    normalized.includes("ד\"ר חן") ||
-    normalized.includes("מי זאת") ||
-    normalized.includes("מי זה") ||
-    normalized.includes("אודות")
-  )
-}
-
-const isLocationQuestion = (message: string): boolean => {
-  const normalized = message.trim().toLowerCase()
-
-  return (
-    normalized.includes("איפה") ||
-    normalized.includes("כתובת") ||
-    normalized.includes("נמצאת") ||
-    normalized.includes("נמצא") ||
-    normalized.includes("נמאת") ||
-    normalized.includes("מיקום") ||
-    normalized.includes("קליניקה") ||
-    normalized.includes("טלפון") ||
-    normalized.includes("יצירת קשר")
+  return chatRetrievalRules.filter((rule) =>
+    rule.matches.some((keyword) => normalized.includes(keyword.toLowerCase())),
   )
 }
 
@@ -206,14 +188,16 @@ const mapDirectChunkRow = (row: DirectChunkRow, similarity: number): RetrievalCh
   }
 }
 
-const fetchProfileChunks = async (
+const fetchSourceChunks = async (
   supabase: SupabaseClient,
+  sourceIds: readonly string[],
+  similarityBase: number,
 ): Promise<RetrievalChunk[]> => {
   const { data, error } = await supabase
     .from("treatment_content_chunks")
     .select("id, category_slug, service_slug, section_type, section_key, content_text")
     .eq("source_table", "site_content")
-    .in("source_id", ["home-about-section", "about-page-hero", "about-page-why"])
+    .in("source_id", [...sourceIds])
     .order("display_order", { ascending: true })
 
   if (error || !Array.isArray(data)) {
@@ -222,17 +206,20 @@ const fetchProfileChunks = async (
 
   return (data as DirectChunkRow[])
     .filter((item) => item.content_text?.trim().length > 0)
-    .map((item, index) => mapDirectChunkRow(item, 1 - index * 0.01))
+    .map((item, index) => mapDirectChunkRow(item, similarityBase - index * 0.01))
 }
 
-const fetchLocationChunks = async (
+const fetchCategoryChunks = async (
   supabase: SupabaseClient,
+  categorySlug: string,
+  similarityBase: number,
+  maxChunks: number,
 ): Promise<RetrievalChunk[]> => {
   const { data, error } = await supabase
     .from("treatment_content_chunks")
     .select("id, category_slug, service_slug, section_type, section_key, content_text")
-    .eq("source_table", "site_content")
-    .in("source_id", ["home-contact-section", "contact-page-hero", "site-footer-contact"])
+    .eq("category_slug", categorySlug)
+    .in("source_table", ["treatment_services", "treatment_questions"])
     .order("display_order", { ascending: true })
 
   if (error || !Array.isArray(data)) {
@@ -241,7 +228,8 @@ const fetchLocationChunks = async (
 
   return (data as DirectChunkRow[])
     .filter((item) => item.content_text?.trim().length > 0)
-    .map((item, index) => mapDirectChunkRow(item, 0.99 - index * 0.01))
+    .slice(0, maxChunks)
+    .map((item, index) => mapDirectChunkRow(item, similarityBase - index * 0.01))
 }
 
 const createQueryEmbedding = async (
@@ -316,8 +304,27 @@ const fetchRelevantChunks = async (
   }
 
   const supabase = createClient(supabaseUrl, supabaseKey)
-  const profileChunks = isProfileQuestion(message) ? await fetchProfileChunks(supabase) : []
-  const locationChunks = isLocationQuestion(message) ? await fetchLocationChunks(supabase) : []
+  const matchedRules = getMatchedRules(message)
+  const preferredChunkBatches = await Promise.all(
+    matchedRules.map(async (rule) => {
+      if (rule.sourceIds && rule.sourceIds.length > 0) {
+        return fetchSourceChunks(supabase, rule.sourceIds, rule.similarityBase)
+      }
+
+      if (rule.categorySlug) {
+        return fetchCategoryChunks(
+          supabase,
+          rule.categorySlug,
+          rule.similarityBase,
+          rule.maxCategoryChunks ?? 8,
+        )
+      }
+
+      return []
+    }),
+  )
+
+  const preferredChunks = preferredChunkBatches.flat()
   const { data, error } = await supabase.rpc("match_treatment_content", {
     query_embedding: `[${embedding.join(",")}]`,
     match_count: topK,
@@ -326,15 +333,26 @@ const fetchRelevantChunks = async (
   })
 
   if (error || !Array.isArray(data)) {
-    return dedupeChunks([...profileChunks, ...locationChunks])
+    return dedupeChunks(preferredChunks)
   }
 
   const matchedChunks = (data as RetrievalChunk[]).filter((item) => item.content_text?.trim().length > 0)
 
-  return dedupeChunks([...profileChunks, ...locationChunks, ...matchedChunks]).slice(
+  return dedupeChunks([...preferredChunks, ...matchedChunks]).slice(
     0,
-    topK + profileChunks.length + locationChunks.length,
+    topK + preferredChunks.length,
   )
+}
+
+const buildSystemPrompt = (message: string): string => {
+  const matchedRules = getMatchedRules(message)
+  const ruleHints = matchedRules.map((rule) => rule.promptHint)
+
+  return [
+    "את עוזרת קליניקה רפואית-אסתטית של ד\"ר חן פרדו. השיבי בעברית, בטון מקצועי וחם, בלי להבטיח תוצאה רפואית.",
+    ...basePromptHints,
+    ...ruleHints,
+  ].join(" ")
 }
 
 const buildContextBlock = (chunks: RetrievalChunk[]): string => {
@@ -381,7 +399,7 @@ const requestOpenAiChat = async (
             {
               role: "system",
               content:
-                "את עוזרת קליניקה רפואית-אסתטית של ד\"ר חן פרדו. השיבי בעברית, בטון מקצועי וחם, בלי להבטיח תוצאה רפואית. השתמשי קודם כל במידע שסופק מהאתר תחת CONTEXT. אם השאלה היא מי זאת ד\"ר חן פרדו או שאלה ביוגרפית עליה, תני עדיפות מפורשת לחלקי אודות, רקע רפואי, לימודים, התמחות וגישה טיפולית שמופיעים ב-CONTEXT. אם השאלה היא על מיקום הקליניקה, כתובת, טלפון או יצירת קשר, תני עדיפות מפורשת לפרטי הקשר והכתובת שמופיעים ב-CONTEXT. אם השאלה מתייחסת לד\"ר חן פרדו, לקליניקה, לטיפולים, לעמודים באתר או לפרטי קשר, אל תמציאי מידע שלא מופיע ב-CONTEXT. אם המידע לא מופיע ב-CONTEXT, אמרי במפורש שהמידע לא מופיע באתר כרגע. אם יש סימפטומים רפואיים חריגים או דחופים, המליצי לפנות לבדיקה רפואית.",
+                buildSystemPrompt(message),
             },
             {
               role: "system",
