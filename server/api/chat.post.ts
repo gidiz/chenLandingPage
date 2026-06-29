@@ -1,4 +1,6 @@
 import { randomUUID } from "node:crypto"
+import { createClient } from "@supabase/supabase-js"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import { getRequestIP, readBody, setResponseStatus } from "h3"
 import type { H3Event } from "h3"
 
@@ -22,6 +24,31 @@ type OpenAiChatResponse = {
   }>
 }
 
+type OpenAiEmbeddingResponse = {
+  data?: Array<{
+    embedding?: number[]
+  }>
+}
+
+type RetrievalChunk = {
+  id: string
+  category_slug: string | null
+  service_slug: string | null
+  section_type: string
+  section_key: string
+  content_text: string
+  similarity: number
+}
+
+type DirectChunkRow = {
+  id: string
+  category_slug: string | null
+  service_slug: string | null
+  section_type: string
+  section_key: string
+  content_text: string
+}
+
 const MAX_MESSAGE_LENGTH = 1200
 const MAX_HISTORY_ITEMS = 12
 
@@ -30,6 +57,7 @@ type ChatRuntimeConfig = {
   rateLimitMaxRequests?: number
   openAiTimeoutMs?: number
   openAiMaxAttempts?: number
+  retrievalTopK?: number
 }
 
 type RateLimitEntry = {
@@ -113,11 +141,185 @@ const shouldRetryStatus = (status: number): boolean => {
   return status === 429 || status === 500 || status === 502 || status === 503 || status === 504
 }
 
+const envFirst = (...values: Array<string | undefined>): string => {
+  for (const value of values) {
+    if (value && value.trim().length > 0) {
+      return value
+    }
+  }
+
+  return ""
+}
+
+const isProfileQuestion = (message: string): boolean => {
+  const normalized = message.trim().toLowerCase()
+
+  return (
+    normalized.includes("חן פרדו") ||
+    normalized.includes("ד\"ר חן") ||
+    normalized.includes("מי זאת") ||
+    normalized.includes("מי זה") ||
+    normalized.includes("אודות")
+  )
+}
+
+const dedupeChunks = (chunks: RetrievalChunk[]): RetrievalChunk[] => {
+  const seen = new Set<string>()
+
+  return chunks.filter((chunk) => {
+    const key = `${chunk.section_type}:${chunk.section_key}:${chunk.content_text}`
+
+    if (seen.has(key)) {
+      return false
+    }
+
+    seen.add(key)
+    return true
+  })
+}
+
+const mapDirectChunkRow = (row: DirectChunkRow, similarity: number): RetrievalChunk => {
+  return {
+    id: row.id,
+    category_slug: row.category_slug,
+    service_slug: row.service_slug,
+    section_type: row.section_type,
+    section_key: row.section_key,
+    content_text: row.content_text,
+    similarity,
+  }
+}
+
+const fetchProfileChunks = async (
+  supabase: SupabaseClient,
+): Promise<RetrievalChunk[]> => {
+  const { data, error } = await supabase
+    .from("treatment_content_chunks")
+    .select("id, category_slug, service_slug, section_type, section_key, content_text")
+    .eq("source_table", "site_content")
+    .in("source_id", ["home-about-section", "about-page-hero", "about-page-why"])
+    .order("display_order", { ascending: true })
+
+  if (error || !Array.isArray(data)) {
+    return []
+  }
+
+  return (data as DirectChunkRow[])
+    .filter((item) => item.content_text?.trim().length > 0)
+    .map((item, index) => mapDirectChunkRow(item, 1 - index * 0.01))
+}
+
+const createQueryEmbedding = async (
+  apiKey: string,
+  model: string,
+  input: string,
+  timeoutMs: number,
+): Promise<number[] | null> => {
+  const controller = new AbortController()
+  const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs)
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/embeddings", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model,
+        input,
+      }),
+    })
+
+    if (!response.ok) {
+      return null
+    }
+
+    const payload = (await response.json()) as OpenAiEmbeddingResponse
+    const embedding = payload.data?.[0]?.embedding
+
+    if (!embedding || embedding.length === 0) {
+      return null
+    }
+
+    return embedding
+  } finally {
+    clearTimeout(timeoutHandle)
+  }
+}
+
+const fetchRelevantChunks = async (
+  event: H3Event,
+  apiKey: string,
+  message: string,
+  timeoutMs: number,
+  topK: number,
+): Promise<RetrievalChunk[]> => {
+  const runtime = useRuntimeConfig(event)
+  const supabaseUrl = envFirst(
+    process.env.SUPABASE_URL,
+    process.env.NUXT_PUBLIC_SUPABASE_URL,
+    runtime.public.supabaseUrl,
+  )
+  const supabaseKey = envFirst(
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    process.env.SUPABASE_ANON_KEY,
+    process.env.NUXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+    runtime.public.supabasePublishableKey,
+  )
+
+  if (!supabaseUrl || !supabaseKey) {
+    return []
+  }
+
+  const embeddingModel = process.env.RAG_OPENAI_EMBEDDING_MODEL || "text-embedding-3-small"
+  const embedding = await createQueryEmbedding(apiKey, embeddingModel, message, timeoutMs)
+
+  if (!embedding) {
+    return []
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey)
+  const profileChunks = isProfileQuestion(message) ? await fetchProfileChunks(supabase) : []
+  const { data, error } = await supabase.rpc("match_treatment_content", {
+    query_embedding: `[${embedding.join(",")}]`,
+    match_count: topK,
+    match_category_slug: null,
+    match_service_slug: null,
+  })
+
+  if (error || !Array.isArray(data)) {
+    return profileChunks
+  }
+
+  const matchedChunks = (data as RetrievalChunk[]).filter((item) => item.content_text?.trim().length > 0)
+
+  return dedupeChunks([...profileChunks, ...matchedChunks]).slice(0, topK + profileChunks.length)
+}
+
+const buildContextBlock = (chunks: RetrievalChunk[]): string => {
+  if (chunks.length === 0) {
+    return ""
+  }
+
+  return chunks
+    .map((chunk, index) => {
+      const location = chunk.service_slug
+        ? `${chunk.category_slug || "general"}/${chunk.service_slug}`
+        : chunk.category_slug || chunk.section_key
+
+      return `${index + 1}. מקור: ${location} | סוג: ${chunk.section_type}\n${chunk.content_text}`
+    })
+    .join("\n\n")
+}
+
 const requestOpenAiChat = async (
   apiKey: string,
   model: string,
   history: ChatMessage[],
   message: string,
+  contextBlock: string,
   timeoutMs: number,
   maxAttempts: number,
 ): Promise<Response> => {
@@ -140,7 +342,11 @@ const requestOpenAiChat = async (
             {
               role: "system",
               content:
-                "את עוזרת קליניקה רפואית-אסתטית. השיבי בעברית, בטון מקצועי וחם, בלי להבטיח תוצאה רפואית. אם יש סימפטומים רפואיים חריגים או דחופים, המליצי לפנות לבדיקה רפואית.",
+                "את עוזרת קליניקה רפואית-אסתטית של ד\"ר חן פרדו. השיבי בעברית, בטון מקצועי וחם, בלי להבטיח תוצאה רפואית. השתמשי קודם כל במידע שסופק מהאתר תחת CONTEXT. אם השאלה היא מי זאת ד\"ר חן פרדו או שאלה ביוגרפית עליה, תני עדיפות מפורשת לחלקי אודות, רקע רפואי, לימודים, התמחות וגישה טיפולית שמופיעים ב-CONTEXT. אם השאלה מתייחסת לד\"ר חן פרדו, לקליניקה, לטיפולים, לעמודים באתר או לפרטי קשר, אל תמציאי מידע שלא מופיע ב-CONTEXT. אם המידע לא מופיע ב-CONTEXT, אמרי במפורש שהמידע לא מופיע באתר כרגע. אם יש סימפטומים רפואיים חריגים או דחופים, המליצי לפנות לבדיקה רפואית.",
+            },
+            {
+              role: "system",
+              content: contextBlock ? `CONTEXT:\n${contextBlock}` : "CONTEXT: אין הקשר רלוונטי זמין מהאתר כרגע.",
             },
             ...history,
             {
@@ -218,6 +424,7 @@ export default defineEventHandler(async (event) => {
   const rateLimitMaxRequests = toPositiveInt(chatConfig.rateLimitMaxRequests, 8)
   const openAiTimeoutMs = toPositiveInt(chatConfig.openAiTimeoutMs, 15_000)
   const openAiMaxAttempts = toPositiveInt(chatConfig.openAiMaxAttempts, 3)
+  const retrievalTopK = toPositiveInt(chatConfig.retrievalTopK, 6)
 
   const requestId = randomUUID()
   const clientKey = getClientKey(event)
@@ -273,11 +480,15 @@ export default defineEventHandler(async (event) => {
   const history = sanitizeHistory(body?.history)
 
   try {
+    const contextChunks = await fetchRelevantChunks(event, apiKey, message, openAiTimeoutMs, retrievalTopK)
+    const contextBlock = buildContextBlock(contextChunks)
+
     const upstream = await requestOpenAiChat(
       apiKey,
       model,
       history,
       message,
+      contextBlock,
       openAiTimeoutMs,
       openAiMaxAttempts,
     )

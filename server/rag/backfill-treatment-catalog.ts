@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from "node:fs"
 import { resolve } from "node:path"
 
 import { treatmentCategories } from "../../composables/treatment-catalog"
+import { siteContentChunkSeeds } from "./site-content"
 
 type ScriptOptions = {
   dryRun: boolean
@@ -61,15 +62,16 @@ type ChunkDraft = {
 }
 
 type ChunkRow = {
-  category_id: string
-  service_id: string
+  category_id: string | null
+  service_id: string | null
   question_id: string | null
-  category_slug: string
-  service_slug: string
+  category_slug: string | null
+  service_slug: string | null
   section_type: string
   section_key: string
   source_table: string
-  source_id: string | null
+  source_id: string
+  page_path: string | null
   content_text: string
   content_html: string | null
   display_order: number
@@ -260,6 +262,26 @@ const getChunkDrafts = (): ChunkDraft[] => {
   return chunks.filter((chunk) => chunk.text.length > 0)
 }
 
+const getSiteChunkRows = (): ChunkRow[] => {
+  return siteContentChunkSeeds
+    .map((chunk) => ({
+      category_id: null,
+      service_id: null,
+      question_id: null,
+      category_slug: null,
+      service_slug: null,
+      section_type: chunk.sectionType,
+      section_key: chunk.sectionKey,
+      source_table: "site_content",
+      source_id: chunk.sourceId,
+      page_path: chunk.pagePath,
+      content_text: normalizeText(chunk.text),
+      content_html: null,
+      display_order: chunk.displayOrder,
+    }))
+    .filter((chunk) => chunk.content_text.length > 0)
+}
+
 const failIfMissing = (name: string, value: string | undefined): string => {
   if (!value || !value.trim()) {
     throw new Error(`Missing required environment variable: ${name}`)
@@ -359,7 +381,7 @@ const createSupabaseCatalogDb = (): CatalogDb => {
     upsertChunks: async (rows) => {
       const { error } = await supabase
         .from("treatment_content_chunks")
-        .upsert(rows, { onConflict: "service_id,section_type,section_key" })
+        .upsert(rows, { onConflict: "source_table,source_id,section_key" })
 
       if (error) {
         throw new Error(`Failed upserting treatment_content_chunks: ${error.message}`)
@@ -481,11 +503,16 @@ const createPostgresCatalogDb = (): CatalogDb => {
 
       await sql`
         insert into treatment_content_chunks
-          ${sql(rows, "category_id", "service_id", "question_id", "category_slug", "service_slug", "section_type", "section_key", "source_table", "source_id", "content_text", "content_html", "display_order")}
-        on conflict (service_id, section_type, section_key) do update set
+          ${sql(rows, "category_id", "service_id", "question_id", "category_slug", "service_slug", "section_type", "section_key", "source_table", "source_id", "page_path", "content_text", "content_html", "display_order")}
+        on conflict (source_table, source_id, section_key) do update set
+          category_id = excluded.category_id,
+          service_id = excluded.service_id,
           question_id = excluded.question_id,
+          category_slug = excluded.category_slug,
+          service_slug = excluded.service_slug,
           source_table = excluded.source_table,
           source_id = excluded.source_id,
+          page_path = excluded.page_path,
           content_text = excluded.content_text,
           content_html = excluded.content_html,
           display_order = excluded.display_order,
@@ -552,12 +579,15 @@ const run = async (): Promise<void> => {
     0
   )
   const chunkDrafts = getChunkDrafts()
+  const siteChunkRows = getSiteChunkRows()
 
   console.log("Backfill plan")
   console.log(`- categories: ${treatmentCategories.length}`)
   console.log(`- services: ${serviceCount}`)
   console.log(`- questions: ${questionCount}`)
-  console.log(`- chunks: ${chunkDrafts.length}`)
+  console.log(`- treatmentChunks: ${chunkDrafts.length}`)
+  console.log(`- siteChunks: ${siteChunkRows.length}`)
+  console.log(`- chunks: ${chunkDrafts.length + siteChunkRows.length}`)
   console.log(`- dryRun: ${options.dryRun}`)
   console.log(`- skipEmbeddings: ${options.skipEmbeddings}`)
 
@@ -651,7 +681,7 @@ const run = async (): Promise<void> => {
     const upsertedQuestions = await db.upsertQuestions(questionRows)
     const questionIdByKey = new Map(upsertedQuestions.map((row) => [`${row.service_id}/${row.display_order}`, row.id]))
 
-    const chunkRows: ChunkRow[] = []
+    const treatmentChunkRows: ChunkRow[] = []
 
     chunkDrafts.forEach((chunk) => {
       const categoryId = categoryIdBySlug.get(chunk.categorySlug)
@@ -671,7 +701,7 @@ const run = async (): Promise<void> => {
           ? questionIdByKey.get(`${serviceId}/${chunk.sourceDisplayOrder}`) ?? null
           : null
 
-      chunkRows.push({
+      treatmentChunkRows.push({
         category_id: categoryId,
         service_id: serviceId,
         question_id: questionId,
@@ -681,13 +711,14 @@ const run = async (): Promise<void> => {
         section_key: chunk.sectionKey,
         source_table: chunk.sourceTable,
         source_id: questionId ?? serviceId,
+        page_path: `/${chunk.categorySlug}/${chunk.serviceSlug}`,
         content_text: chunk.text,
         content_html: chunk.html ?? null,
         display_order: chunk.displayOrder,
       })
     })
 
-    await db.upsertChunks(chunkRows)
+    await db.upsertChunks([...treatmentChunkRows, ...siteChunkRows])
 
     console.log("Data upsert completed")
 

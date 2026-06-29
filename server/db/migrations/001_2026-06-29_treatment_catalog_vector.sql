@@ -61,22 +61,23 @@ create table if not exists treatment_questions (
 
 create table if not exists treatment_content_chunks (
   id uuid primary key default gen_random_uuid(),
-  category_id uuid not null references treatment_categories(id) on delete cascade,
-  service_id uuid not null references treatment_services(id) on delete cascade,
+  category_id uuid references treatment_categories(id) on delete cascade,
+  service_id uuid references treatment_services(id) on delete cascade,
   question_id uuid references treatment_questions(id) on delete cascade,
-  category_slug text not null,
-  service_slug text not null,
+  category_slug text,
+  service_slug text,
   section_type text not null,
   section_key text not null,
   source_table text not null,
-  source_id uuid,
+  source_id text not null,
+  page_path text,
   content_text text not null,
   content_html text,
   embedding vector(1536),
   display_order integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (service_id, section_type, section_key)
+  unique (source_table, source_id, section_key)
 );
 
 alter table treatment_categories disable row level security;
@@ -84,20 +85,28 @@ alter table treatment_services disable row level security;
 alter table treatment_questions disable row level security;
 alter table treatment_content_chunks disable row level security;
 
+drop trigger if exists treatment_categories_set_updated_at on treatment_categories;
+
 create trigger treatment_categories_set_updated_at
 before update on treatment_categories
 for each row
 execute function set_updated_at();
+
+drop trigger if exists treatment_services_set_updated_at on treatment_services;
 
 create trigger treatment_services_set_updated_at
 before update on treatment_services
 for each row
 execute function set_updated_at();
 
+drop trigger if exists treatment_questions_set_updated_at on treatment_questions;
+
 create trigger treatment_questions_set_updated_at
 before update on treatment_questions
 for each row
 execute function set_updated_at();
+
+drop trigger if exists treatment_content_chunks_set_updated_at on treatment_content_chunks;
 
 create trigger treatment_content_chunks_set_updated_at
 before update on treatment_content_chunks
@@ -115,6 +124,9 @@ create index if not exists idx_treatment_questions_service
 
 create index if not exists idx_treatment_content_chunks_route
   on treatment_content_chunks (category_slug, service_slug, section_type);
+
+create index if not exists idx_treatment_content_chunks_source
+  on treatment_content_chunks (source_table, source_id, page_path);
 
 create index if not exists idx_treatment_content_chunks_embedding
   on treatment_content_chunks
