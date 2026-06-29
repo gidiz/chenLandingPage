@@ -53,6 +53,8 @@ type DirectChunkRow = {
 
 const MAX_MESSAGE_LENGTH = 1200
 const MAX_HISTORY_ITEMS = 12
+const CHAT_REPLY_DISCLAIMER =
+  "לתשומת לבך: המידע באתר ובתשובות המערכת נועד להרחבת הידע הכללי בלבד, ואין לראות בו המלצה רפואית או תחליף להתייעצות ישירה עם רופא/ה מוסמך/ת."
 
 type ChatRuntimeConfig = {
   rateLimitWindowMs?: number
@@ -474,6 +476,20 @@ const sanitizeHistory = (history: unknown): ChatMessage[] => {
     }))
 }
 
+const appendDisclaimer = (reply: string): string => {
+  const trimmed = reply.trim()
+
+  if (!trimmed) {
+    return `**${CHAT_REPLY_DISCLAIMER}**`
+  }
+
+  if (trimmed.includes(CHAT_REPLY_DISCLAIMER)) {
+    return trimmed
+  }
+
+  return `${trimmed}\n\n**${CHAT_REPLY_DISCLAIMER}**`
+}
+
 export default defineEventHandler(async (event) => {
   const runtime = useRuntimeConfig(event)
   const chatConfig = (runtime.chat || {}) as ChatRuntimeConfig
@@ -576,7 +592,7 @@ export default defineEventHandler(async (event) => {
     }
 
     return {
-      reply,
+      reply: appendDisclaimer(reply),
       requestId,
     }
   } catch (error) {
