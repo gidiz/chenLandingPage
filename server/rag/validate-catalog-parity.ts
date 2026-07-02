@@ -1,6 +1,9 @@
 import { createClient } from "@supabase/supabase-js"
 import { existsSync, readFileSync } from "node:fs"
 import { resolve } from "node:path"
+import { createConsola } from "consola"
+
+const logger = createConsola({ tag: "chen-parity" })
 
 import { treatmentCategories as staticCategories } from "../../composables/treatment-catalog"
 
@@ -194,37 +197,24 @@ const main = async () => {
     }
   }
 
-  console.log(`static_categories=${staticCategories.length}`)
-  console.log(`db_categories=${db.categories.length}`)
-  console.log(`static_services=${staticServiceKeys.size}`)
-  console.log(`db_services=${dbServiceKeys.size}`)
-  console.log(`static_questions=${staticQuestionCount}`)
-  console.log(`db_questions=${dbQuestionCount}`)
-  console.log(`missing_db_categories=${missingInDbCategories.length}`)
-  console.log(`extra_db_categories=${extraInDbCategories.length}`)
-  console.log(`missing_db_services=${missingInDbServices.length}`)
-  console.log(`extra_db_services=${extraInDbServices.length}`)
-  console.log(`text_field_diffs=${textDiffs.length}`)
-
-  if (missingInDbCategories.length > 0) {
-    console.log(`missing_db_categories_list=${missingInDbCategories.join(",")}`)
-  }
-
-  if (extraInDbCategories.length > 0) {
-    console.log(`extra_db_categories_list=${extraInDbCategories.join(",")}`)
-  }
-
-  if (missingInDbServices.length > 0) {
-    console.log(`missing_db_services_list=${missingInDbServices.join(",")}`)
-  }
-
-  if (extraInDbServices.length > 0) {
-    console.log(`extra_db_services_list=${extraInDbServices.join(",")}`)
-  }
-
-  if (textDiffs.length > 0) {
-    console.log(`text_field_diffs_list=${textDiffs.slice(0, 20).join(";")}`)
-  }
+  logger.info("parity_check", {
+    static_categories: staticCategories.length,
+    db_categories: db.categories.length,
+    static_services: staticServiceKeys.size,
+    db_services: dbServiceKeys.size,
+    static_questions: staticQuestionCount,
+    db_questions: dbQuestionCount,
+    missing_db_categories: missingInDbCategories.length,
+    extra_db_categories: extraInDbCategories.length,
+    missing_db_services: missingInDbServices.length,
+    extra_db_services: extraInDbServices.length,
+    text_field_diffs: textDiffs.length,
+    ...(missingInDbCategories.length > 0 ? { missing_db_categories_list: missingInDbCategories.join(",") } : {}),
+    ...(extraInDbCategories.length > 0 ? { extra_db_categories_list: extraInDbCategories.join(",") } : {}),
+    ...(missingInDbServices.length > 0 ? { missing_db_services_list: missingInDbServices.join(",") } : {}),
+    ...(extraInDbServices.length > 0 ? { extra_db_services_list: extraInDbServices.join(",") } : {}),
+    ...(textDiffs.length > 0 ? { text_field_diffs_list: textDiffs.slice(0, 20).join(";") } : {}),
+  })
 
   if (
     missingInDbCategories.length > 0 ||
@@ -239,6 +229,6 @@ const main = async () => {
 
 main().catch((error: unknown) => {
   const message = error instanceof Error ? error.message : "Unknown error"
-  console.error(`Parity check failed: ${message}`)
+  logger.error("parity_check_failed", { message })
   process.exit(1)
 })

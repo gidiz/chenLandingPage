@@ -2,6 +2,9 @@ import { createClient } from "@supabase/supabase-js"
 import postgres from "postgres"
 import { existsSync, readFileSync } from "node:fs"
 import { resolve } from "node:path"
+import { createConsola } from "consola"
+
+const logger = createConsola({ tag: "chen-backfill" })
 
 import { treatmentCategories } from "../../composables/treatment-catalog"
 import { siteContentChunkSeeds } from "./site-content"
@@ -581,15 +584,16 @@ const run = async (): Promise<void> => {
   const chunkDrafts = getChunkDrafts()
   const siteChunkRows = getSiteChunkRows()
 
-  console.log("Backfill plan")
-  console.log(`- categories: ${treatmentCategories.length}`)
-  console.log(`- services: ${serviceCount}`)
-  console.log(`- questions: ${questionCount}`)
-  console.log(`- treatmentChunks: ${chunkDrafts.length}`)
-  console.log(`- siteChunks: ${siteChunkRows.length}`)
-  console.log(`- chunks: ${chunkDrafts.length + siteChunkRows.length}`)
-  console.log(`- dryRun: ${options.dryRun}`)
-  console.log(`- skipEmbeddings: ${options.skipEmbeddings}`)
+  logger.info("backfill_plan", {
+    categories: treatmentCategories.length,
+    services: serviceCount,
+    questions: questionCount,
+    treatmentChunks: chunkDrafts.length,
+    siteChunks: siteChunkRows.length,
+    chunks: chunkDrafts.length + siteChunkRows.length,
+    dryRun: options.dryRun,
+    skipEmbeddings: options.skipEmbeddings,
+  })
 
   if (options.dryRun) {
     return
@@ -600,7 +604,7 @@ const run = async (): Promise<void> => {
     : failIfMissing("OPENAI_API_KEY or RAG_OPENAI_API_KEY", envFirst("OPENAI_API_KEY", "RAG_OPENAI_API_KEY"))
 
   const { db, mode } = selectDbMode()
-  console.log(`- dbMode: ${mode}`)
+  logger.info("backfill_db_mode", { mode })
 
   try {
     const categoryRows: CategoryRow[] = treatmentCategories.map((category, index) => ({
@@ -720,7 +724,7 @@ const run = async (): Promise<void> => {
 
     await db.upsertChunks([...treatmentChunkRows, ...siteChunkRows])
 
-    console.log("Data upsert completed")
+    logger.success("backfill_upsert_done")
 
     if (options.skipEmbeddings || !openAiApiKey) {
       return
@@ -744,10 +748,10 @@ const run = async (): Promise<void> => {
       })
 
       await Promise.all(updates)
-      console.log(`Embedded ${Math.min(i + batch.length, records.length)} / ${records.length}`)
+      logger.info("backfill_embed_progress", { done: Math.min(i + batch.length, records.length), total: records.length })
     }
 
-    console.log("Embedding backfill completed")
+    logger.success("backfill_embed_done")
   } finally {
     await db.close()
   }
@@ -755,6 +759,6 @@ const run = async (): Promise<void> => {
 
 run().catch((error: unknown) => {
   const message = error instanceof Error ? error.message : "Unknown error"
-  console.error(`Backfill failed: ${message}`)
+  logger.error("backfill_failed", { message })
   process.exit(1)
 })

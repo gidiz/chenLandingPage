@@ -4,7 +4,11 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { Octokit } from "@octokit/rest"
 import { google } from "googleapis"
+import { createConsola } from "consola"
 import { z } from "zod"
+
+// MCP server must write only to stderr to keep the stdio channel clean
+const mcpLogger = createConsola({ stderr: true, tag: "chen-mcp" })
 
 const DEFAULT_AWS_REGION = process.env.AWS_REGION || "us-east-1"
 const DEFAULT_GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY || "gidiz/chenLandingPage"
@@ -445,10 +449,10 @@ server.registerTool(
 async function main(): Promise<void> {
   const transport = new StdioServerTransport()
   await server.connect(transport)
-  console.error("chen-integrations MCP server running on stdio")
+  mcpLogger.info("mcp_server_started")
 }
 
 main().catch((error: unknown) => {
-  console.error("Fatal error while starting the MCP server", error)
+  mcpLogger.fatal("mcp_server_fatal", { error: error instanceof Error ? error.message : "unknown" })
   process.exit(1)
 })

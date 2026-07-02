@@ -5,6 +5,7 @@ import { getRequestIP, readBody, setResponseStatus } from "h3"
 import type { H3Event } from "h3"
 
 import { basePromptHints, chatRetrievalRules } from "../rag/chat-retrieval-rules"
+import { logger } from "../lib/logger"
 
 type ChatRole = "user" | "assistant"
 
@@ -501,9 +502,11 @@ export default defineEventHandler(async (event) => {
 
   const requestId = randomUUID()
   const clientKey = getClientKey(event)
+  logger.info("chat_request", { requestId, clientKey })
   const rate = checkRateLimit(clientKey, rateLimitWindowMs, rateLimitMaxRequests)
 
   if (!rate.allowed) {
+    logger.warn("chat_rate_limited", { clientKey, retryAfterSec: rate.retryAfterSec })
     event.node.res.setHeader("Retry-After", String(rate.retryAfterSec))
     setResponseStatus(event, 429)
 
@@ -523,6 +526,7 @@ export default defineEventHandler(async (event) => {
   const model = process.env.RAG_OPENAI_ANSWER_MODEL || "gpt-4o-mini"
 
   if (!apiKey) {
+    logger.error("chat_api_key_missing", { requestId })
     setResponseStatus(event, 503)
     return {
       error: {
@@ -581,6 +585,7 @@ export default defineEventHandler(async (event) => {
     const reply = payload.choices?.[0]?.message?.content?.trim() || ""
 
     if (!reply) {
+      logger.warn("chat_empty_reply", { requestId })
       setResponseStatus(event, 503)
       return {
         error: {
@@ -596,7 +601,7 @@ export default defineEventHandler(async (event) => {
       requestId,
     }
   } catch (error) {
-    console.error("chat_api_error", {
+    logger.error("chat_api_error", {
       requestId,
       message: error instanceof Error ? error.message : "unknown",
     })

@@ -1,6 +1,9 @@
 import { existsSync, readFileSync } from "node:fs"
 import { resolve } from "node:path"
 import postgres from "postgres"
+import { createConsola } from "consola"
+
+const logger = createConsola({ tag: "chen-migration" })
 
 type Options = {
   file: string
@@ -88,7 +91,7 @@ const run = async (): Promise<void> => {
   try {
     const migrationSql = readFileSync(migrationPath, "utf8")
     await sql.unsafe(migrationSql)
-    console.log(`Migration applied: ${options.file}`)
+    logger.success(`Migration applied: ${options.file}`)
   } finally {
     await sql.end()
   }
@@ -96,6 +99,6 @@ const run = async (): Promise<void> => {
 
 run().catch((error: unknown) => {
   const message = error instanceof Error ? error.message : "Unknown error"
-  console.error(`Migration failed: ${message}`)
+  logger.error("migration_failed", { message })
   process.exit(1)
 })

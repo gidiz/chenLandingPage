@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js"
 
+import { logger } from "../../lib/logger"
 import type {
   TreatmentCategory,
   TreatmentQuestion,
@@ -104,6 +105,7 @@ export default defineEventHandler(async (): Promise<CatalogResponse> => {
   const sourceSetting = String(config.public.treatmentCatalogSource || "db").toLowerCase()
 
   if (sourceSetting === "static") {
+    logger.info("catalog_source", { source: "static", reason: "config" })
     return {
       source: "static",
       categories: staticTreatmentCategories,
@@ -121,6 +123,7 @@ export default defineEventHandler(async (): Promise<CatalogResponse> => {
     ""
 
   if (!supabaseUrl || !supabaseKey) {
+    logger.warn("catalog_fallback_static", { reason: "missing_supabase_config" })
     return {
       source: "static",
       categories: staticTreatmentCategories,
@@ -128,6 +131,7 @@ export default defineEventHandler(async (): Promise<CatalogResponse> => {
   }
 
   try {
+    logger.info("catalog_source", { source: "db" })
     const client = createClient(supabaseUrl, supabaseKey)
 
     const [{ data: categories, error: categoriesError }, { data: services, error: servicesError }, { data: questions, error: questionsError }] = await Promise.all([
@@ -146,9 +150,11 @@ export default defineEventHandler(async (): Promise<CatalogResponse> => {
     ])
 
     if (categoriesError || servicesError || questionsError) {
+      const errorMessage = categoriesError?.message || servicesError?.message || questionsError?.message || "unknown error"
+      logger.error("catalog_query_failed", { message: errorMessage })
       throw createError({
         statusCode: 500,
-        statusMessage: `Catalog query failed: ${categoriesError?.message || servicesError?.message || questionsError?.message || "unknown error"}`,
+        statusMessage: `Catalog query failed: ${errorMessage}`,
       })
     }
 
@@ -184,7 +190,8 @@ export default defineEventHandler(async (): Promise<CatalogResponse> => {
       source: "db",
       categories: categoriesOut,
     }
-  } catch {
+  } catch (err) {
+    logger.warn("catalog_fallback_static", { reason: "db_error", message: err instanceof Error ? err.message : "unknown" })
     return {
       source: "static",
       categories: staticTreatmentCategories,
