@@ -87,10 +87,10 @@ This app now supports loading a GTM environment-specific snippet through Nuxt ru
 Set these variables in your local `.env` file when you want to test a non-live GTM environment:
 
 ```bash
-NUXT_PUBLIC_GA_MEASUREMENT_ID=G-P46K3PK4KD
-NUXT_PUBLIC_GTM_CONTAINER_ID=GTM-WXGV32T9
-NUXT_PUBLIC_GTM_AUTH=UvX2WLFuE3k0QgzT03_Zww
-NUXT_PUBLIC_GTM_PREVIEW=env-21
+NUXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+NUXT_PUBLIC_GTM_CONTAINER_ID=GTM-XXXXXXX
+NUXT_PUBLIC_GTM_AUTH=YOUR_GTM_AUTH_TOKEN
+NUXT_PUBLIC_GTM_PREVIEW=env-XX
 NUXT_PUBLIC_GTM_COOKIES_WIN=x
 NUXT_PUBLIC_APP_ENVIRONMENT=development
 ```
@@ -116,8 +116,8 @@ Notes:
 
 ### Environments used by this repo
 
-- `dev`: `test.drchenpardo.co.il`
-- `prod`: `drchenpardo.co.il`
+- `dev`: `dev.example.com`
+- `prod`: `example.com`
 
 ### Required GitHub configuration
 
@@ -141,8 +141,8 @@ For each environment, add these variables:
 
 Recommended values for `SITE_URL`:
 
-- `dev`: `https://test.drchenpardo.co.il`
-- `prod`: `https://drchenpardo.co.il`
+- `dev`: `https://dev.example.com`
+- `prod`: `https://example.com`
 
 Recommended analytics values:
 
