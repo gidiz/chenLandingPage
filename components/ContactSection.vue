@@ -39,11 +39,13 @@
 
 <script setup>
 import { ref } from "vue";
+import { createConsola } from "consola";
 
 const contactForm = ref(null);
 const alertState = ref("hidden");
 const alertMessage = ref("");
 const { $analytics } = useNuxtApp();
+const consola = createConsola({ tag: "chen-contact" });
 
 const showAlert = (state, message) => {
   alertState.value = state;
@@ -108,18 +110,18 @@ const handleSubmit = async () => {
       });
 
       if (!lambdaSuccess) {
-        console.warn("שגיאה בשליחת מייל (Lambda):", lambdaRes);
+        consola.warn("contact_lambda_failed", lambdaRes);
       }
       if (!makeSuccess) {
-        console.warn("שגיאה בשליחה ל־Make Webhook:", makeRes);
+        consola.warn("contact_make_failed", makeRes);
       }
     } else {
       showAlert("error", "אירעה שגיאה בשליחה.");
-      console.error("שתי השליחות נכשלו:", { lambdaRes, makeRes });
+      consola.error("contact_both_failed", { lambdaRes, makeRes });
     }
   } catch (error) {
     showAlert("error", "שגיאה כללית, נסה שוב.");
-    console.error("שגיאה כללית:", error);
+    consola.error("contact_submit_error", error);
   }
 };
 </script>

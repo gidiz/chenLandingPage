@@ -218,3 +218,77 @@ Example permissions policy:
 
 - The workflow deploys from `develop` to the `dev` environment and from `main` to the `prod` environment.
 - The current static build emits a warning about `assets/cover.png` resolving at runtime during `npm run generate`. Deployment still works, but you may want to clean that asset reference up separately.
+
+## MCP Integrations
+
+This repository now includes a local MCP server for operational and analytics read access.
+
+### What it exposes
+
+- GA4 Admin API tools
+- GA4 Data API tools
+- Google Tag Manager API tools
+- AWS S3 and CloudFront tools
+- GitHub repository and issue tools
+
+### Workspace setup
+
+The shared VS Code workspace configuration lives at `.vscode/mcp.json` and starts the local server with:
+
+```bash
+npm run mcp:start
+```
+
+The workspace config loads environment variables from `.env`. Keep `.env.example` as the tracked template for required keys, and keep real credentials only in your local `.env` or shell environment.
+
+### Required environment variables
+
+Google authentication options:
+
+- `GOOGLE_APPLICATION_CREDENTIALS` pointing to a service-account JSON file
+- `GOOGLE_SERVICE_ACCOUNT_JSON` containing the JSON payload directly
+- or Application Default Credentials if you already have them configured locally
+
+For Google Tag Manager access, prefer a service account. Grant that service account access in the GTM account or container UI, then point the MCP server at the service-account JSON through one of the variables above.
+
+User ADC with the default gcloud client can be blocked for GTM scopes in this workspace, so service-account auth is the reliable path here.
+
+If your organization blocks service-account key creation, use a custom OAuth client instead of the default gcloud client:
+
+```bash
+gcloud auth application-default login --client-id-file=/path/to/oauth-client.json --scopes=https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/tagmanager.readonly
+gcloud auth application-default set-quota-project chen-web-500809
+```
+
+Use the OAuth client JSON you created in Google Cloud Console, not the default gcloud OAuth client.
+
+AWS variables:
+
+- `AWS_REGION`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_SESSION_TOKEN` when you use temporary credentials
+
+GitHub variables:
+
+- `GITHUB_TOKEN` for higher rate limits or private repositories
+- `GITHUB_REPOSITORY` to override the default `gidiz/chenLandingPage`
+
+### Validation
+
+Use these commands locally:
+
+```bash
+npm run mcp:smoke
+npm run mcp:typecheck
+```
+
+Then start the MCP server in VS Code and confirm these read-only tools work:
+
+1. `ga4_list_accounts`
+2. `ga4_run_report`
+3. `gtm_list_accounts`
+4. `aws_list_s3_buckets`
+5. `github_get_repository`
+
+Detailed setup notes and provider-specific permissions are documented in `server/mcp/README.md`.

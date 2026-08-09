@@ -1,0 +1,14 @@
+{
+  "servers": {
+    "chenIntegrations": {
+      "type": "stdio",
+      "command": "npm",
+      "args": ["run", "mcp:start"],
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "dev": {
+        "watch": ["server/mcp/**/*.ts"]
+      }
+    }
+  }
+}
