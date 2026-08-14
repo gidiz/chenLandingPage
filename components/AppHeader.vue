@@ -13,6 +13,7 @@
         <NuxtLink to="/" @click="closeMenu">דף הבית</NuxtLink>
         <NuxtLink to="/about" @click="closeMenu">אודות</NuxtLink>
         <NuxtLink to="/treatments" @click="closeMenu">טיפולים</NuxtLink>
+        <NuxtLink to="/videos" @click="closeMenu">סרטונים</NuxtLink>
 
         <NuxtLink to="/faq" @click="closeMenu">שאלות נפוצות</NuxtLink>
         <NuxtLink to="/contact" @click="closeMenu">יצירת קשר</NuxtLink>

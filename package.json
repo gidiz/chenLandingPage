@@ -6,6 +6,7 @@
     "build": "nuxt build",
     "dev": "nuxt dev",
     "rag:catalog:migrate": "node --import tsx ./server/db/apply-migration.ts",
+    "videos:seed": "node --import tsx ./server/db/seed-clinic-videos.ts",
     "mcp:smoke": "node --import tsx ./server/mcp/smoke-test.ts",
     "generate": "nuxt generate",
     "rag:catalog:dry-run": "node --import tsx ./server/rag/backfill-treatment-catalog.ts --dry-run",
