@@ -6,7 +6,6 @@ import type {
   TreatmentQuestion,
   TreatmentService,
 } from "../../../composables/treatment-catalog"
-import { treatmentCategories as staticTreatmentCategories } from "../../../composables/treatment-catalog"
 
 type CategoryRow = {
   id: string
@@ -49,7 +48,7 @@ type QuestionRow = {
 }
 
 type CatalogResponse = {
-  source: "db" | "static"
+  source: "db"
   categories: TreatmentCategory[]
 }
 
@@ -102,15 +101,6 @@ const toCategory = (
 
 export default defineEventHandler(async (): Promise<CatalogResponse> => {
   const config = useRuntimeConfig()
-  const sourceSetting = String(config.public.treatmentCatalogSource || "db").toLowerCase()
-
-  if (sourceSetting === "static") {
-    logger.info("catalog_source", { source: "static", reason: "config" })
-    return {
-      source: "static",
-      categories: staticTreatmentCategories,
-    }
-  }
 
   const supabaseUrl =
     config.public.supabaseUrl || process.env.SUPABASE_URL || process.env.NUXT_PUBLIC_SUPABASE_URL || ""
@@ -123,11 +113,12 @@ export default defineEventHandler(async (): Promise<CatalogResponse> => {
     ""
 
   if (!supabaseUrl || !supabaseKey) {
-    logger.warn("catalog_fallback_static", { reason: "missing_supabase_config" })
-    return {
-      source: "static",
-      categories: staticTreatmentCategories,
-    }
+    const message = "Missing Supabase config for treatment catalog"
+    logger.error("catalog_config_missing", { message })
+    throw createError({
+      statusCode: 500,
+      statusMessage: message,
+    })
   }
 
   try {
@@ -191,10 +182,11 @@ export default defineEventHandler(async (): Promise<CatalogResponse> => {
       categories: categoriesOut,
     }
   } catch (err) {
-    logger.warn("catalog_fallback_static", { reason: "db_error", message: err instanceof Error ? err.message : "unknown" })
-    return {
-      source: "static",
-      categories: staticTreatmentCategories,
-    }
+    const message = err instanceof Error ? err.message : "unknown"
+    logger.error("catalog_query_failed", { message })
+    throw createError({
+      statusCode: 500,
+      statusMessage: `Catalog query failed: ${message}`,
+    })
   }
 })
