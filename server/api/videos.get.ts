@@ -114,6 +114,9 @@ export default defineEventHandler(async (event): Promise<VideoCatalogResponse> =
     }
   }
 
+  const keyType = process.env.SUPABASE_SERVICE_ROLE_KEY ? "service_role" : "anon"
+  logger.info("videos_supabase_key_type", { keyType })
+
   try {
     const client = createClient(supabaseUrl, supabaseKey)
 
@@ -131,11 +134,23 @@ export default defineEventHandler(async (event): Promise<VideoCatalogResponse> =
         .select("video_id")
         .eq("service_id", (serviceData as { id: string }).id)
 
-      if (linksError || !links || !links.length) {
-        // video_services table may not exist yet — fall back to category-level
+      if (linksError) {
+        logger.warn("video_services_query_error", {
+          code: linksError.code,
+          message: linksError.message,
+          details: linksError.details,
+          hint: linksError.hint,
+          service_id: (serviceData as { id: string }).id,
+        })
+        // Fall back to category-level if the table is missing or inaccessible
         if (categorySlug) {
           return fetchByCategory(client, categorySlug)
         }
+        return { source: "db", videos: [] }
+      }
+
+      if (!links || !links.length) {
+        
         return { source: "db", videos: [] }
       }
 

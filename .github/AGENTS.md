@@ -40,3 +40,14 @@
 - UI-specific guidance: `.rule/ui-rules.md`.
 - CSS and styling guidance: `.rule/style-rules.md`.
 - Design tokens, branding, and color palette: defined in `.rule/style-rules.md`.
+
+## Multi-Agent Team
+Five specialist agents are defined in `.github/agents/`. Invoke via the VS Code agent picker or as subagents.
+
+| File | Agent | Role |
+|---|---|---|
+| `.github/agents/orchestrator.agent.md` | Orchestrator | Task planning, GitHub Issue checklists, loopback coordination |
+| `.github/agents/db-agent.agent.md` | DB Agent | Schema, SQL migrations, pgvector, Supabase RPCs |
+| `.github/agents/backend-agent.agent.md` | Backend Agent | Nitro API routes, RAG pipeline, MCP server |
+| `.github/agents/frontend-agent.agent.md` | Frontend Agent | Vue components, pages, composables, CSS |
+| `.github/agents/qa-agent.agent.md` | QA Agent | Build validation, security audit, PASS/FAIL verdicts |
