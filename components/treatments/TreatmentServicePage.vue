@@ -13,6 +13,8 @@
       :questions="service.questions"
     />
 
+    <TreatmentVideoSection :category-slug="category.slug" :service-slug="service.slug" />
+
     <section class="page-section page-section--soft">
       <div class="container">
         <h2 class="section-title">עוד טיפולים ב{{ category.shortTitle }}</h2>
@@ -45,6 +47,7 @@
 
 <script setup lang="ts">
 import TreatmentPageShell from './TreatmentPageShell.vue';
+import TreatmentVideoSection from './TreatmentVideoSection.vue';
 
 const props = defineProps<{
   categorySlug: string;

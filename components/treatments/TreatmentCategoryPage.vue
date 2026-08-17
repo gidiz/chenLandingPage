@@ -52,6 +52,8 @@
       </div>
     </section>
 
+    <TreatmentVideoSection :category-slug="category.slug" />
+
     <section class="page-section page-section--soft">
       <div class="container">
         <h2 class="section-title">תתי-הטיפולים בקטגוריה</h2>
@@ -72,6 +74,8 @@
 </template>
 
 <script setup lang="ts">
+import TreatmentVideoSection from './TreatmentVideoSection.vue';
+
 const props = defineProps<{
   categorySlug: string;
 }>();
