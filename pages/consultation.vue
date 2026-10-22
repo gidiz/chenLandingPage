@@ -31,10 +31,19 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 useSeoMeta({
   title: "קביעת פגישת ייעוץ | ד\"ר חן פרדו",
   description:
     "עמוד ייעוץ ייעודי ללידים מקמפיינים ולפניות ישירות לקליניקה.",
-});
+  ogTitle: "קביעת פגישת ייעוץ | ד\"ר חן פרדו",
+  ogDescription: "עמוד ייעוץ ייעודי ללידים מקמפיינים. קבעו פגישת ייעוץ עם ד\"ר חן פרדו בכפר סבא.",
+  ogImage: "https://drchenpardo.co.il/og-image.jpg",
+  ogUrl: "https://drchenpardo.co.il/consultation",
+  ogType: "website",
+  twitterCard: "summary_large_image",
+  twitterTitle: "קביעת פגישת ייעוץ | ד\"ר חן פרדו",
+  twitterDescription: "עמוד ייעוץ ייעודי ללידים מקמפיינים. קבעו פגישת ייעוץ עם ד\"ר חן פרדו בכפר סבא.",
+  canonicalUrl: "https://drchenpardo.co.il/consultation",
+})
 </script>

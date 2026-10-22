@@ -46,31 +46,65 @@
 </template>
 
 <script setup lang="ts">
-import TreatmentPageShell from './TreatmentPageShell.vue';
-import TreatmentVideoSection from './TreatmentVideoSection.vue';
+import TreatmentPageShell from './TreatmentPageShell.vue'
+import TreatmentVideoSection from './TreatmentVideoSection.vue'
 
 const props = defineProps<{
   categorySlug: string;
   serviceSlug: string;
 }>();
 
-const { getServiceBySlugs } = useTreatmentCatalog();
-const result = getServiceBySlugs(props.categorySlug, props.serviceSlug);
+const { getServiceBySlugs } = useTreatmentCatalog()
+const result = getServiceBySlugs(props.categorySlug, props.serviceSlug)
 
 if (!result) {
   throw createError({
     statusCode: 404,
     statusMessage: "Treatment service not found",
-  });
+  })
 }
 
-const { category, service } = result;
+const { category, service } = result
 const relatedServices = category.services.filter(
   (relatedService) => relatedService.slug !== service.slug,
-);
+)
+
+const route = useRoute()
+const canonicalUrl = `https://drchenpardo.co.il${route.path}`
 
 useSeoMeta({
   title: service.seoTitle,
   description: service.seoDescription,
-});
+  ogTitle: service.seoTitle,
+  ogDescription: service.seoDescription,
+  ogImage: 'https://drchenpardo.co.il/og-image.jpg',
+  ogUrl: canonicalUrl,
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
+  twitterTitle: service.seoTitle,
+  twitterDescription: service.seoDescription,
+  canonicalUrl,
+})
+
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      key: 'service-schema',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'MedicalProcedure',
+        name: service.seoTitle,
+        description: service.seoDescription,
+        url: canonicalUrl,
+        provider: {
+          '@type': 'MedicalBusiness',
+          '@id': 'https://drchenpardo.co.il/#business',
+          name: 'ד"ר חן פרדו',
+          url: 'https://drchenpardo.co.il',
+        },
+      }),
+    },
+  ],
+})
 </script>

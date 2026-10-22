@@ -165,7 +165,16 @@ const activeVideo = computed(() => {
 useSeoMeta({
   title: 'כל הסרטונים | ד"ר חן פרדו',
   description: "דף וידאו מרכזי עם כל סרטוני הקליניקה ואפשרות סינון מהירה.",
-});
+  ogTitle: 'כל הסרטונים | ד"ר חן פרדו',
+  ogDescription: "דף וידאו מרכזי עם כל סרטוני הקליניקה.",
+  ogImage: "https://drchenpardo.co.il/og-image.jpg",
+  ogUrl: "https://drchenpardo.co.il/videos",
+  ogType: "website",
+  twitterCard: "summary_large_image",
+  twitterTitle: 'כל הסרטונים | ד"ר חן פרדו',
+  twitterDescription: "דף וידאו מרכזי עם כל סרטוני הקליניקה.",
+  canonicalUrl: "https://drchenpardo.co.il/videos",
+})
 </script>
 
 <style scoped>

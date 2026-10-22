@@ -58,6 +58,9 @@ const pathLabelMap: Record<string, string> = {
   "/lp/instagram-botox": "בוטוקס מאינסטגרם",
 };
 
+// Path prefixes that have no page of their own and must never become links.
+const nonNavigablePaths = new Set(["/lp"]);
+
 const toReadableLabel = (segment: string) =>
   decodeURIComponent(segment)
     .replace(/-/g, " ")
@@ -118,12 +121,35 @@ const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
     items.push({
       key: fullPath,
       label: resolveLabel(segments, index, fullPath),
-      to: isLast ? null : fullPath,
+      to: isLast || nonNavigablePaths.has(fullPath) ? null : fullPath,
     });
   }
 
   return items;
 });
+
+useHead(
+  computed(() => ({
+    script: breadcrumbItems.value.length > 0
+      ? [
+          {
+            type: 'application/ld+json',
+            key: 'breadcrumb-schema',
+            innerHTML: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'BreadcrumbList',
+              itemListElement: breadcrumbItems.value.map((item, index) => ({
+                '@type': 'ListItem',
+                position: index + 1,
+                name: item.label,
+                ...(item.to ? { item: `https://drchenpardo.co.il${item.to}` } : {}),
+              })),
+            }),
+          },
+        ]
+      : [],
+  }))
+)
 </script>
 
 <style scoped>

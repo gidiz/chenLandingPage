@@ -74,24 +74,36 @@
 </template>
 
 <script setup lang="ts">
-import TreatmentVideoSection from './TreatmentVideoSection.vue';
+import TreatmentVideoSection from './TreatmentVideoSection.vue'
 
 const props = defineProps<{
   categorySlug: string;
 }>();
 
-const { getCategoryBySlug } = useTreatmentCatalog();
-const category = getCategoryBySlug(props.categorySlug);
+const { getCategoryBySlug } = useTreatmentCatalog()
+const category = getCategoryBySlug(props.categorySlug)
 
 if (!category) {
   throw createError({
     statusCode: 404,
     statusMessage: "Treatment category not found",
-  });
+  })
 }
+
+const route = useRoute()
+const canonicalUrl = `https://drchenpardo.co.il${route.path}`
 
 useSeoMeta({
   title: category.seoTitle,
   description: category.seoDescription,
-});
+  ogTitle: category.seoTitle,
+  ogDescription: category.seoDescription,
+  ogImage: 'https://drchenpardo.co.il/og-image.jpg',
+  ogUrl: canonicalUrl,
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
+  twitterTitle: category.seoTitle,
+  twitterDescription: category.seoDescription,
+  canonicalUrl,
+})
 </script>

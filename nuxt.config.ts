@@ -5,24 +5,53 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-05-15",
   devtools: { enabled: true },
   css: ["@/assets/css/index.css"],
-  nitro: isDev
-    ? {
-        output: {
-          dir: ".output-dev",
-          serverDir: ".output-dev/server",
-          publicDir: ".output-dev/public",
-        },
-      }
-    : undefined,
+  // robots.txt is prerendered so the static S3 build still gets the env-aware server route output.
+  nitro: {
+    prerender: {
+      routes: ["/robots.txt"],
+    },
+    ...(isDev
+      ? {
+          output: {
+            dir: ".output-dev",
+            serverDir: ".output-dev/server",
+            publicDir: ".output-dev/public",
+          },
+        }
+      : {}),
+  },
+  modules: ['@nuxtjs/sitemap'],
+  site: {
+    url: 'https://drchenpardo.co.il',
+  },
+  sitemap: {
+    sitemapName: 'sitemap.xml',
+    sources: ['/api/_sitemap-urls'],
+    exclude: ['/api/**', '/lp/**'],
+  },
   app: {
     head: {
       htmlAttrs: {
         dir: "rtl",
         lang: "he",
       },
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { property: 'og:image', content: 'https://drchenpardo.co.il/og-image.jpg' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:site_name', content: 'ד"ר חן פרדו' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:image', content: 'https://drchenpardo.co.il/og-image.jpg' },
+        { name: 'theme-color', content: '#c8a96e' },
+      ],
+      link: [
+        { rel: 'alternate', hreflang: 'he', href: 'https://drchenpardo.co.il/' },
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      ],
     },
   },
-  ssr: false,
+  ssr: true,
   runtimeConfig: {
     chat: {
       rateLimitWindowMs: Number(process.env.RAG_CHAT_RATE_LIMIT_WINDOW_MS || 60000),

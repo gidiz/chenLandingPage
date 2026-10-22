@@ -70,12 +70,21 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const { treatmentCategories } = useTreatmentCatalog();
 
 useSeoMeta({
   title: 'מפת טיפולים אסתטיים ורפואיים | ד"ר חן פרדו',
   description:
     "עמוד מרכזי לכל קטגוריות הטיפול בקליניקה: הזרקות, הזעת יתר, מכשור טכנולוגי, איכות העור ועוד.",
-});
+  ogTitle: 'מפת טיפולים אסתטיים ורפואיים | ד"ר חן פרדו',
+  ogDescription: "עמוד מרכזי לכל קטגוריות הטיפול האסתטי בקליניקת ד\"ר חן פרדו.",
+  ogImage: "https://drchenpardo.co.il/og-image.jpg",
+  ogUrl: "https://drchenpardo.co.il/treatments",
+  ogType: "website",
+  twitterCard: "summary_large_image",
+  twitterTitle: 'מפת טיפולים אסתטיים ורפואיים | ד"ר חן פרדו',
+  twitterDescription: "עמוד מרכזי לכל קטגוריות הטיפול האסתטי בקליניקת ד\"ר חן פרדו.",
+  canonicalUrl: "https://drchenpardo.co.il/treatments",
+})
 </script>

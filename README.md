@@ -74,13 +74,29 @@ bun run preview
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
 
-## GitHub Actions AWS Deployment
+## Deployment (Vercel)
 
-This project includes a GitHub Actions workflow at `.github/workflows/deploy.yml` that builds the static Nuxt site and deploys `.output/public` to AWS S3.
+This project is deployed on **Vercel**. There is no GitHub Actions workflow — the previous AWS S3 workflow was removed in commit `cc96bdb` ("remove AWS deployment workflow in favor of Vercel deployment").
+
+Vercel runs `nuxt build`, which Nitro compiles with the Vercel preset into `.vercel/output`. Server routes (`server/api/**`, `server/routes/**`) run as serverless functions, so the Supabase-backed catalog, the sitemap source and the chat endpoint all work in production.
+
+### Environment detection
+
+Vercel injects `VERCEL_ENV` automatically on every build (`production`, `preview` or `development`). `server/routes/robots.txt.ts` reads it, so crawling rules are correct without any manual configuration:
+
+| Deployment | `VERCEL_ENV` | `robots.txt` |
+| --- | --- | --- |
+| Production | `production` | `Allow: /` plus the sitemap reference |
+| Preview (branch or PR) | `preview` | `Disallow: /` |
+| Local | unset | `Disallow: /` |
+
+Setting `NUXT_PUBLIC_APP_ENVIRONMENT=production` still forces the production rules if you need to override this.
+
+> Do not add a `public/robots.txt` file. Nitro serves static assets from `public/` before server routes, so it would shadow `server/routes/robots.txt.ts` and ship whatever is hardcoded in it.
 
 ## Analytics environment configuration
 
-This app now supports loading a GTM environment-specific snippet through Nuxt runtime config and GitHub environment variables.
+This app supports loading a GTM environment-specific snippet through Nuxt runtime config and Vercel environment variables.
 
 ### Local environment variables
 
@@ -101,123 +117,22 @@ Notes:
 - `NUXT_PUBLIC_APP_ENVIRONMENT` is pushed into the dataLayer as `app_environment` for debugging and tag routing.
 - In GTM, use the built-in `Environment Name` variable for lookup tables that switch between GA4 Measurement IDs.
 
-### What the workflow does
+### Vercel environment variables
 
-1. Runs on pushes to `develop` and `main`, and on manual dispatch.
-2. Installs dependencies with `npm ci`.
-3. Builds the static site with `npm run generate`.
-4. Selects the GitHub environment automatically:
-   - `develop` branch -> `dev`
-   - `main` branch -> `prod`
-   - Manual dispatch -> whichever target you choose
-5. Assumes an AWS IAM role using GitHub OIDC.
-6. Syncs `.output/public` to your S3 bucket.
-7. Optionally invalidates CloudFront if a distribution ID is configured.
+Set these in the Vercel dashboard under **Settings -> Environment Variables**, scoped per environment (Production / Preview / Development):
 
-### Environments used by this repo
-
-- `dev`: `dev.example.com`
-- `prod`: `example.com`
-
-### Required GitHub configuration
-
-Create two GitHub Environments in the repository:
-
-- `dev`
-- `prod`
-
-For each environment, add these variables:
-
-- `AWS_REGION`: The AWS region for your bucket, for example `us-east-1`.
-- `AWS_S3_BUCKET`: The target bucket name.
-- `AWS_CLOUDFRONT_DISTRIBUTION_ID`: Optional. Set this only if you want automatic cache invalidation.
-- `SITE_URL`: The public domain for that environment.
+- `NUXT_PUBLIC_SUPABASE_URL` and `NUXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: Supabase project credentials.
+- `SUPABASE_SERVICE_ROLE_KEY`: Server-only. Used by the sitemap source route. Never expose it to the client.
 - `NUXT_PUBLIC_GA_MEASUREMENT_ID`: The GA4 Measurement ID for that environment.
 - `NUXT_PUBLIC_GTM_CONTAINER_ID`: Your GTM container ID.
-- `NUXT_PUBLIC_GTM_AUTH`: Optional. The GTM environment auth token.
-- `NUXT_PUBLIC_GTM_PREVIEW`: Optional. The GTM environment preview value such as `env-3`.
-- `NUXT_PUBLIC_GTM_COOKIES_WIN`: Optional. Usually `x` when using GTM environments.
+- `NUXT_PUBLIC_GTM_AUTH`, `NUXT_PUBLIC_GTM_PREVIEW`, `NUXT_PUBLIC_GTM_COOKIES_WIN`: Optional GTM environment values.
 - `NUXT_PUBLIC_APP_ENVIRONMENT`: A readable environment label such as `development` or `production`.
-
-Recommended values for `SITE_URL`:
-
-- `dev`: `https://dev.example.com`
-- `prod`: `https://example.com`
+- `OPENAI_API_KEY` and the `RAG_*` variables: Server-only configuration for the chat endpoint. See `.env.example`.
 
 Recommended analytics values:
 
-- `dev`: use the dev GA4 Measurement ID, dev GTM auth/preview values, and `NUXT_PUBLIC_APP_ENVIRONMENT=development`
-- `prod`: use the prod GA4 Measurement ID, leave GTM auth/preview empty if you want the Live environment, and `NUXT_PUBLIC_APP_ENVIRONMENT=production`
-
-For each environment, add this secret:
-
-- `AWS_ROLE_TO_ASSUME`: The IAM role ARN that GitHub Actions should assume.
-
-You can use different buckets, CloudFront distributions, and IAM roles for `dev` and `prod`.
-
-### Required AWS setup
-
-1. Create an S3 bucket configured for static site hosting or front it with CloudFront.
-2. Create an IAM role trusted by GitHub's OIDC provider.
-3. Allow that role to write to the bucket and optionally create CloudFront invalidations.
-
-Example trust policy:
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Federated": "arn:aws:iam::<aws-account-id>:oidc-provider/token.actions.githubusercontent.com"
-      },
-      "Action": "sts:AssumeRoleWithWebIdentity",
-      "Condition": {
-        "StringEquals": {
-          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
-        },
-        "StringLike": {
-          "token.actions.githubusercontent.com:sub": [
-            "repo:<github-org-or-user>/<repo-name>:ref:refs/heads/develop",
-            "repo:<github-org-or-user>/<repo-name>:ref:refs/heads/main"
-          ]
-        }
-      }
-    }
-  ]
-}
-```
-
-Example permissions policy:
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "s3:PutObject",
-        "s3:DeleteObject",
-        "s3:GetObject",
-        "s3:ListBucket"
-      ],
-      "Resource": ["arn:aws:s3:::<bucket-name>", "arn:aws:s3:::<bucket-name>/*"]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "cloudfront:CreateInvalidation",
-      "Resource": "arn:aws:cloudfront::<aws-account-id>:distribution/<distribution-id>"
-    }
-  ]
-}
-```
-
-### Notes
-
-- The workflow deploys from `develop` to the `dev` environment and from `main` to the `prod` environment.
-- The current static build emits a warning about `assets/cover.png` resolving at runtime during `npm run generate`. Deployment still works, but you may want to clean that asset reference up separately.
+- Preview: the dev GA4 Measurement ID, dev GTM auth/preview values, and `NUXT_PUBLIC_APP_ENVIRONMENT=development`
+- Production: the prod GA4 Measurement ID, empty GTM auth/preview to use the Live environment, and `NUXT_PUBLIC_APP_ENVIRONMENT=production`
 
 ## MCP Integrations
 

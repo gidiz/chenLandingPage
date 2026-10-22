@@ -17,7 +17,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const faqItems = [
   {
     question: "איך יודעים איזה טיפול מתאים לי?",
@@ -45,5 +45,35 @@ useSeoMeta({
   title: "שאלות נפוצות על טיפולים אסתטיים והזעת יתר",
   description:
     "FAQ מרכזי על טיפולים אסתטיים, תהליך הטיפול, החלמה והתאמה אישית בקליניקה.",
-});
+  ogTitle: "שאלות נפוצות על טיפולים אסתטיים והזעת יתר",
+  ogDescription: "FAQ מרכזי על טיפולים אסתטיים, תהליך הטיפול, החלמה והתאמה אישית בקליניקה.",
+  ogImage: "https://drchenpardo.co.il/og-image.jpg",
+  ogUrl: "https://drchenpardo.co.il/faq",
+  ogType: "website",
+  twitterCard: "summary_large_image",
+  twitterTitle: "שאלות נפוצות על טיפולים אסתטיים והזעת יתר",
+  twitterDescription: "FAQ מרכזי על טיפולים אסתטיים, תהליך הטיפול, החלמה והתאמה אישית בקליניקה.",
+  canonicalUrl: "https://drchenpardo.co.il/faq",
+})
+
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      key: 'faq-schema',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqItems.map((item) => ({
+          '@type': 'Question',
+          name: item.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: item.answer,
+          },
+        })),
+      }),
+    },
+  ],
+})
 </script>
