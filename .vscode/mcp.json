@@ -9,6 +9,10 @@
       "dev": {
         "watch": ["server/mcp/**/*.ts"]
       }
+    },
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=giaahwesswfnwxltjtdi&features=database,docs,debugging,development"
     }
   }
 }
