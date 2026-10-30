@@ -5,7 +5,6 @@
       :title="service.title"
       :short-title="service.shortTitle"
       :subtitle="service.description"
-      :summary="service.summary"
       :suitability="service.suitability"
       :process="service.process"
       :expectations="service.expectations"

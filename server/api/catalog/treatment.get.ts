@@ -29,7 +29,6 @@ type ServiceRow = {
   nav_title: string
   description: string
   short_description: string
-  summary: string
   suitability: string
   process: string
   expectations: string
@@ -75,7 +74,6 @@ const toCategory = (
       navTitle: serviceRow.nav_title,
       description: serviceRow.description,
       shortDescription: serviceRow.short_description,
-      summary: serviceRow.summary,
       suitability: serviceRow.suitability,
       process: serviceRow.process,
       expectations: serviceRow.expectations,
@@ -132,7 +130,7 @@ export default defineEventHandler(async (): Promise<CatalogResponse> => {
         .order("display_order", { ascending: true }),
       client
         .from("treatment_services")
-        .select("id, category_id, slug, title, short_title, nav_title, description, short_description, summary, suitability, process, expectations, cta_label, seo_title, seo_description, display_order")
+        .select("id, category_id, slug, title, short_title, nav_title, description, short_description, suitability, process, expectations, cta_label, seo_title, seo_description, display_order")
         .order("display_order", { ascending: true }),
       client
         .from("treatment_questions")

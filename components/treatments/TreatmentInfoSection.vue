@@ -3,30 +3,16 @@
     <div class="container page-grid treatment-info-section__grid">
       <article class="page-card treatment-info-section__main-card">
         <h2 class="section-title">מה חשוב לדעת לפני הטיפול</h2>
-        <div class="rich-text" v-html="summary" />
+        <div class="rich-text" v-html="suitability" />
 
         <ul class="info-list" aria-label="מידע לפני הטיפול">
           <li>
-            <h3>התאמה רפואית</h3>
-            <p class="info-list__lead">
-              {{ suitabilityLead }}
-            </p>
-            <div class="rich-text" v-html="suitability" />
-          </li>
-
-          <li>
             <h3>מהלך הטיפול</h3>
-            <p class="info-list__lead">
-              {{ processLead }}
-            </p>
             <div class="rich-text" v-html="process" />
           </li>
 
           <li>
-            <h3>תוצאות צפויות ותיאום ציפיות</h3>
-            <p class="info-list__lead">
-              {{ expectationsLead }}
-            </p>
+            <h3>לאחר הטיפול</h3>
             <div class="rich-text" v-html="expectations" />
           </li>
         </ul>
@@ -39,29 +25,13 @@
 
 <script setup>
 defineProps({
-  summary: {
-    type: String,
-    required: true,
-  },
-  suitabilityLead: {
-    type: String,
-    default: "הערכת התאמה אישית לפי מצב רפואי, אזור הטיפול והמטרות שלך.",
-  },
   suitability: {
     type: String,
     required: true,
   },
-  processLead: {
-    type: String,
-    default: "שלבי הטיפול בקליניקה, משך המפגש והנחיות חשובות לפני ואחרי.",
-  },
   process: {
     type: String,
     required: true,
-  },
-  expectationsLead: {
-    type: String,
-    default: "מתי רואים שינוי, כמה זמן נשמר האפקט ומה נחשב לתוצאה ריאלית.",
   },
   expectations: {
     type: String,
@@ -83,10 +53,6 @@ defineProps({
   list-style: none;
   margin: 0;
   padding: 0;
-}
-
-.info-list__lead {
-  font-weight: 500;
 }
 
 .rich-text :deep(p) {

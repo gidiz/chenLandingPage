@@ -3,12 +3,8 @@
     <PageHero :eyebrow="eyebrow" :title="title" :subtitle="subtitle" />
 
     <TreatmentInfoSection
-      :summary="summary"
-      :suitability-lead="suitabilityLead"
       :suitability="suitability"
-      :process-lead="processLead"
       :process="process"
-      :expectations-lead="expectationsLead"
       :expectations="expectations"
     >
       <template #cta>
@@ -21,12 +17,11 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
 import TreatmentInfoSection from "./TreatmentInfoSection.vue";
 import TreatmentFaqSection from "./TreatmentFaqSection.vue";
 import TreatmentConsultationCta from "./TreatmentConsultationCta.vue";
 
-const props = defineProps({
+defineProps({
   eyebrow: {
     type: String,
     default: "טיפולים בקליניקה",
@@ -40,10 +35,6 @@ const props = defineProps({
     required: true,
   },
   subtitle: {
-    type: String,
-    required: true,
-  },
-  summary: {
     type: String,
     required: true,
   },
@@ -68,21 +59,4 @@ const props = defineProps({
     required: true,
   },
 });
-
-const treatmentLabel = computed(() => props.shortTitle || props.title);
-
-const suitabilityLead = computed(
-  () =>
-    `הערכת התאמה אישית ל${treatmentLabel.value} לפי מצב רפואי, אזור הטיפול והמטרות שלך.`,
-);
-
-const processLead = computed(
-  () =>
-    `שלבי ${treatmentLabel.value} בקליניקה, משך המפגש והנחיות חשובות לפני ואחרי.`,
-);
-
-const expectationsLead = computed(
-  () =>
-    `מתי רואים שינוי אחרי ${treatmentLabel.value}, כמה זמן נשמר האפקט ומה נחשב לתוצאה ריאלית.`,
-);
 </script>
