@@ -7,7 +7,15 @@
 <script setup lang="ts">
 import { getMedicalBusinessSchema, getPersonSchema, getWebSiteSchema } from '~/composables/useSchemaOrg'
 
+const route = useRoute()
+
 useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: () => `https://drchenpardo.co.il${route.path}`,
+    },
+  ],
   script: [
     {
       type: 'application/ld+json',

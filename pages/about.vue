@@ -32,6 +32,5 @@ useSeoMeta({
   twitterCard: "summary_large_image",
   twitterTitle: "אודות ד\"ר חן פרדו | אסתטיקה רפואית בכפר סבא",
   twitterDescription: "הכירו את ד\"ר חן פרדו, הגישה הטיפולית בקליניקה ואת הפילוסופיה של טיפול אסתטי רפואי בכפר סבא.",
-  canonicalUrl: "https://drchenpardo.co.il/about",
 })
 </script>

@@ -1,5 +1,8 @@
 <template>
-  <section class="page-section page-section--soft treatment-faq-section">
+  <section
+    v-if="questions.length"
+    class="page-section page-section--soft treatment-faq-section"
+  >
     <div class="container faq-preview">
       <h2 class="section-title">שאלות נפוצות סביב {{ shortTitle }}</h2>
       <div class="faq-preview__items treatment-faq-section__items">

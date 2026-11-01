@@ -3,16 +3,20 @@
     <div class="container page-grid treatment-info-section__grid">
       <article class="page-card treatment-info-section__main-card">
         <h2 class="section-title">מה חשוב לדעת לפני הטיפול</h2>
-        <div class="rich-text" v-html="suitability" />
 
         <ul class="info-list" aria-label="מידע לפני הטיפול">
+          <li>
+            <h3>על הטיפול ולמי הוא מתאים</h3>
+            <div class="rich-text" v-html="suitability" />
+          </li>
+
           <li>
             <h3>מהלך הטיפול</h3>
             <div class="rich-text" v-html="process" />
           </li>
 
           <li>
-            <h3>לאחר הטיפול</h3>
+            <h3>תוצאות ומה צפוי לאחר הטיפול</h3>
             <div class="rich-text" v-html="expectations" />
           </li>
         </ul>

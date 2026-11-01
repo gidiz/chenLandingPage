@@ -44,6 +44,5 @@ useSeoMeta({
   twitterCard: "summary_large_image",
   twitterTitle: "קביעת פגישת ייעוץ | ד\"ר חן פרדו",
   twitterDescription: "עמוד ייעוץ ייעודי ללידים מקמפיינים. קבעו פגישת ייעוץ עם ד\"ר חן פרדו בכפר סבא.",
-  canonicalUrl: "https://drchenpardo.co.il/consultation",
 })
 </script>

@@ -82,7 +82,6 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
   twitterTitle: service.seoTitle,
   twitterDescription: service.seoDescription,
-  canonicalUrl,
 })
 
 useHead({
@@ -104,6 +103,27 @@ useHead({
         },
       }),
     },
+    ...(service.questions.length
+      ? [
+          {
+            type: 'application/ld+json',
+            key: 'service-faq-schema',
+            innerHTML: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'FAQPage',
+              '@id': `${canonicalUrl}#faq`,
+              mainEntity: service.questions.map((question) => ({
+                '@type': 'Question',
+                name: question.title,
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: question.answer,
+                },
+              })),
+            }),
+          },
+        ]
+      : []),
   ],
 })
 </script>

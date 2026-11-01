@@ -53,7 +53,6 @@ useSeoMeta({
   twitterCard: "summary_large_image",
   twitterTitle: "שאלות נפוצות על טיפולים אסתטיים והזעת יתר",
   twitterDescription: "FAQ מרכזי על טיפולים אסתטיים, תהליך הטיפול, החלמה והתאמה אישית בקליניקה.",
-  canonicalUrl: "https://drchenpardo.co.il/faq",
 })
 
 useHead({

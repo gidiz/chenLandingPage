@@ -76,6 +76,46 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
   twitterTitle: category.seoTitle,
   twitterDescription: category.seoDescription,
-  canonicalUrl,
+})
+
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      key: 'category-schema',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        '@id': `${canonicalUrl}#collection`,
+        name: category.title,
+        description: category.description,
+        url: canonicalUrl,
+        isPartOf: {
+          '@type': 'WebSite',
+          '@id': 'https://drchenpardo.co.il/#website',
+        },
+        about: {
+          '@type': 'MedicalBusiness',
+          '@id': 'https://drchenpardo.co.il/#business',
+          name: 'ד"ר חן פרדו',
+          url: 'https://drchenpardo.co.il',
+        },
+        mainEntity: {
+          '@type': 'ItemList',
+          numberOfItems: category.services.length,
+          itemListElement: category.services.map((service, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            item: {
+              '@type': 'MedicalProcedure',
+              name: service.title,
+              description: service.shortDescription,
+              url: `https://drchenpardo.co.il/${category.slug}/${service.slug}`,
+            },
+          })),
+        },
+      }),
+    },
+  ],
 })
 </script>

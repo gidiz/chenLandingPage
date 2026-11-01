@@ -22,6 +22,5 @@ useSeoMeta({
   twitterCard: "summary_large_image",
   twitterTitle: "יצירת קשר עם ד\"ר חן פרדו | תיאום ייעוץ",
   twitterDescription: "עמוד יצירת קשר לקליניקה של ד\"ר חן פרדו בכפר סבא. טלפון, מייל ומפה.",
-  canonicalUrl: "https://drchenpardo.co.il/contact",
 })
 </script>

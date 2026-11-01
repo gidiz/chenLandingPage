@@ -173,7 +173,6 @@ useSeoMeta({
   twitterCard: "summary_large_image",
   twitterTitle: 'כל הסרטונים | ד"ר חן פרדו',
   twitterDescription: "דף וידאו מרכזי עם כל סרטוני הקליניקה.",
-  canonicalUrl: "https://drchenpardo.co.il/videos",
 })
 </script>
 
