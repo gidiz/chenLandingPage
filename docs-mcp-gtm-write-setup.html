@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>הרשאות כתיבה ל-GTM דרך MCP — מדריך הגדרה</title>
+  <style>
+    :root {
+      --primary: #1a73e8;
+      --success: #188038;
+      --error: #d93025;
+      --warning: #e37400;
+      --bg: #f8f9fa;
+      --card: #ffffff;
+      --border: #dadce0;
+      --text: #202124;
+      --muted: #5f6368;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", "Heebo", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 2rem 1rem;
+      line-height: 1.7;
+    }
+    .container { max-width: 860px; margin: 0 auto; }
+    header {
+      background: linear-gradient(135deg, #188038, #1a73e8);
+      color: #fff;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    header h1 { margin: 0 0 .5rem; font-size: 1.6rem; }
+    header p { margin: 0; opacity: .9; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card h2 { margin-top: 0; font-size: 1.25rem; color: var(--primary); }
+    code, .email {
+      background: #f1f3f4;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .1rem .45rem;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: .9em;
+      direction: ltr;
+      unicode-bidi: embed;
+      display: inline-block;
+    }
+    .copy-box {
+      background: #f1f3f4;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .75rem 1rem;
+      font-family: Consolas, monospace;
+      direction: ltr;
+      text-align: left;
+      word-break: break-all;
+      margin: .5rem 0 1rem;
+    }
+    ol.steps { padding-right: 1.25rem; }
+    ol.steps li { margin-bottom: .6rem; }
+    ul.tools { padding-right: 1.25rem; }
+    ul.tools li { margin-bottom: .4rem; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { border: 1px solid var(--border); padding: .6rem .8rem; text-align: right; }
+    th { background: #f1f3f4; }
+    tr.required td { background: #e8f0fe; }
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: .05rem .6rem;
+      font-size: .8em;
+      font-weight: 600;
+      color: #fff;
+    }
+    .badge.green { background: var(--success); }
+    .badge.blue { background: var(--primary); }
+    .badge.red { background: var(--error); }
+    .note {
+      background: #fef7e0;
+      border: 1px solid #feefc3;
+      border-radius: 8px;
+      padding: .75rem 1rem;
+      margin-top: 1rem;
+    }
+    .note strong { color: var(--warning); }
+    .safe {
+      background: #e6f4ea;
+      border: 1px solid #ceead6;
+      border-radius: 8px;
+      padding: .75rem 1rem;
+      margin-top: 1rem;
+    }
+    .safe strong { color: var(--success); }
+    footer { text-align: center; color: var(--muted); font-size: .85rem; margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>הרשאות כתיבה ל-GTM דרך שרת ה-MCP</h1>
+      <p>שרת ה-MCP הורחב עם כלי כתיבה ל-Tag Manager, מוגבלים ל-Development בלבד — Live מוגן</p>
+    </header>
+
+    <div class="card">
+      <h2>🤖 ה-service account</h2>
+      <p>כל הפעולות מתבצעות דרך המשתמש האוטומטי:</p>
+      <div class="copy-box">mcp-ga-gtm-readonly@chen-web-500809.iam.gserviceaccount.com</div>
+      <p>נתוני היעד שנמצאו בחשבון שלך:</p>
+      <table>
+        <tbody>
+          <tr><td>חשבון GTM</td><td><code>6351372197</code> — drchenpardo.co.il</td></tr>
+          <tr><td>Container</td><td><code>250235754</code> — <code>GTM-WXGV32T9</code></td></tr>
+          <tr><td>Workspace</td><td><code>11</code> — Default Workspace</td></tr>
+          <tr><td>Environment לפיתוח</td><td><code>21</code> — <strong>Development</strong> (היעד היחיד לפריסות)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>🔑 אילו הרשאות לתת ל-service account</h2>
+
+      <h3>ב-Google Tag Manager (נדרש לכתיבה)</h3>
+      <table>
+        <thead>
+          <tr><th>רמה</th><th>הרשאה</th><th>בשביל מה</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Account permissions</td><td><span class="badge blue">User</span></td><td>גישה בסיסית לחשבון (לא צריך Admin)</td></tr>
+          <tr class="required"><td rowspan="3">Container permissions<br/>(drchenpardo.co.il)</td><td><span class="badge green">Edit</span></td><td>יצירה ועריכה של תגים, טריגרים ומשתנים ב-workspace</td></tr>
+          <tr class="required"><td><span class="badge green">Approve</span></td><td>יצירת גרסאות container (<code>gtm_create_version</code>)</td></tr>
+          <tr class="required"><td><span class="badge green">Publish</span></td><td>עדכון ה-Development environment (<code>gtm_deploy_version_to_environment</code>)</td></tr>
+        </tbody>
+      </table>
+      <p>בפועל ב-GTM בוחרים רמה אחת מצטברת — לכן יש לבחור <strong>Publish</strong> (שכוללת Edit ו-Approve).</p>
+
+      <h3>ב-Google Analytics (לקריאת דוחות)</h3>
+      <table>
+        <tbody>
+          <tr class="required"><td>Account Access Management</td><td><span class="badge blue">Viewer</span></td><td>כלי ה-GA4 ב-MCP הם קריאה בלבד — Viewer מספיק</td></tr>
+        </tbody>
+      </table>
+
+      <div class="safe">
+        <strong>למה זה בטוח לתת Publish?</strong>
+        שרת ה-MCP לעולם לא מבקש את ה-OAuth scope של <code>tagmanager.publish</code>,
+        כך ש-Google חוסמת פרסום ל-Live ברמת ה-token — גם אם למשתמש יש הרשאת Publish.
+        בנוסף, כלי הפריסה בודק את סוג ה-environment ומסרב ל-Live ול-Latest.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🛠️ שלבי ההגדרה ב-GTM (כ-2 דקות)</h2>
+      <ol class="steps">
+        <li>היכנס ל-<a href="https://tagmanager.google.com" target="_blank">Google Tag Manager</a>.</li>
+        <li>לחץ על <strong>Admin</strong> (ניהול).</li>
+        <li>בעמודת החשבון לחץ על <strong>User Management</strong> (ניהול משתמשים).</li>
+        <li>מצא את <code>mcp-ga-gtm-readonly@chen-web-500809.iam.gserviceaccount.com</code> ולחץ עליו.</li>
+        <li>תחת <strong>Container Permissions</strong> של <code>drchenpardo.co.il</code> בחר <strong>Publish</strong>.</li>
+        <li>שמור.</li>
+        <li>ב-VS Code: פתח את <code>.vscode/mcp.json</code> ולחץ <strong>Restart</strong> מעל השרת <code>chenIntegrations</code>.</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>🧰 הכלים החדשים בשרת ה-MCP</h2>
+      <ul class="tools">
+        <li><code>gtm_list_triggers</code> / <code>gtm_list_variables</code> / <code>gtm_get_tag</code> — קריאה</li>
+        <li><code>gtm_create_tag</code> / <code>gtm_update_tag</code> — יצירה ועדכון תגים</li>
+        <li><code>gtm_create_trigger</code> / <code>gtm_create_variable</code> — טריגרים ומשתנים</li>
+        <li><code>gtm_create_version</code> — יצירת גרסה מה-workspace (ללא פרסום)</li>
+        <li><code>gtm_deploy_version_to_environment</code> — פריסה ל-environments מותאמים בלבד (Development)</li>
+      </ul>
+      <div class="note">
+        <strong>תהליך עבודה מומלץ:</strong> עריכה ב-workspace ← <code>gtm_create_version</code> ←
+        פריסה ל-Development עם <code>gtm_deploy_version_to_environment</code> ← בדיקה באתר עם snippet של
+        ה-Development environment ← פרסום ל-Live ידנית מממשק GTM כשמרוצים.
+      </div>
+    </div>
+
+    <footer>נוצר אוטומטית · פרויקט chenLandingPage · נובמבר 2026</footer>
+  </div>
+</body>
+</html>

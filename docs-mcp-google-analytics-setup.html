@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>חיבור Google Analytics ל-MCP — מדריך התקנה</title>
+  <style>
+    :root {
+      --primary: #1a73e8;
+      --success: #188038;
+      --error: #d93025;
+      --warning: #e37400;
+      --bg: #f8f9fa;
+      --card: #ffffff;
+      --border: #dadce0;
+      --text: #202124;
+      --muted: #5f6368;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", "Heebo", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 2rem 1rem;
+      line-height: 1.7;
+    }
+    .container { max-width: 860px; margin: 0 auto; }
+    header {
+      background: linear-gradient(135deg, #1a73e8, #6c3fc5);
+      color: #fff;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    header h1 { margin: 0 0 .5rem; font-size: 1.6rem; }
+    header p { margin: 0; opacity: .9; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card h2 { margin-top: 0; font-size: 1.25rem; color: var(--primary); }
+    .status { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .status .item {
+      flex: 1 1 240px;
+      border-radius: 10px;
+      padding: 1rem;
+      border: 1px solid var(--border);
+    }
+    .item.ok { background: #e6f4ea; border-color: #ceead6; }
+    .item.bad { background: #fce8e6; border-color: #fad2cf; }
+    .item strong { display: block; margin-bottom: .25rem; }
+    .ok strong { color: var(--success); }
+    .bad strong { color: var(--error); }
+    code, .email {
+      background: #f1f3f4;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .1rem .45rem;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: .9em;
+      direction: ltr;
+      unicode-bidi: embed;
+      display: inline-block;
+    }
+    .copy-box {
+      background: #f1f3f4;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .75rem 1rem;
+      font-family: Consolas, monospace;
+      direction: ltr;
+      text-align: left;
+      word-break: break-all;
+      margin: .5rem 0 1rem;
+    }
+    ol.steps { padding-right: 1.25rem; }
+    ol.steps li { margin-bottom: .6rem; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { border: 1px solid var(--border); padding: .6rem .8rem; text-align: right; }
+    th { background: #f1f3f4; }
+    tr.recommended td { background: #e8f0fe; }
+    .note {
+      background: #fef7e0;
+      border: 1px solid #feefc3;
+      border-radius: 8px;
+      padding: .75rem 1rem;
+      margin-top: 1rem;
+    }
+    .note strong { color: var(--warning); }
+    footer { text-align: center; color: var(--muted); font-size: .85rem; margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>חיבור Google Analytics ל-MCP (יחד עם GTM)</h1>
+      <p>מדריך צירוף ה-service account של שרת ה-MCP לחשבון ה-Analytics של drchenpardo.co.il</p>
+    </header>
+
+    <div class="card">
+      <h2>📊 מצב נוכחי</h2>
+      <div class="status">
+        <div class="item ok">
+          <strong>✅ Google Tag Manager — מחובר</strong>
+          ה-service account צורף לחשבון <code>drchenpardo.co.il</code> (ID: 6351372197) וכלי ה-GTM ב-MCP עובדים.
+        </div>
+        <div class="item bad">
+          <strong>❌ Google Analytics — לא מחובר</strong>
+          ה-service account לא צורף לחשבון ה-Analytics, ולכן Google לא חושף לו נתונים (רשימת החשבונות חוזרת ריקה).
+        </div>
+      </div>
+      <p>שרת ה-MCP משתמש ב"משתמש רובוט" (service account) של Google. בדיוק כמו שאדם לא רואה את ה-Analytics שלך בלי הזמנה — גם הרובוט צריך צירוף ידני:</p>
+      <div class="copy-box">mcp-ga-gtm-readonly@chen-web-500809.iam.gserviceaccount.com</div>
+    </div>
+
+    <div class="card">
+      <h2>🛠️ שלבי החיבור (כ-2 דקות)</h2>
+      <ol class="steps">
+        <li>היכנס ל-<a href="https://analytics.google.com" target="_blank">Google Analytics</a> עם החשבון שמנהל את האתר.</li>
+        <li>לחץ על ⚙️ <strong>Admin</strong> (ניהול) בפינה השמאלית התחתונה.</li>
+        <li>בעמודת <strong>Account</strong> לחץ על <strong>Account Access Management</strong> (ניהול גישה לחשבון).</li>
+        <li>לחץ על כפתור <strong>+</strong> ← <strong>Add users</strong> (הוספת משתמשים).</li>
+        <li>הדבק את כתובת ה-service account:
+          <div class="copy-box">mcp-ga-gtm-readonly@chen-web-500809.iam.gserviceaccount.com</div>
+        </li>
+        <li>בטל את הסימון <strong>Notify new users by email</strong> (אין צורך — זה רובוט).</li>
+        <li>בחר את רמת ההרשאה (ראה טבלה בהמשך). לקריאה בלבד: <strong>Viewer</strong>.</li>
+        <li>לחץ <strong>Add</strong>.</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>🔐 רמות הרשאה ב-Google Analytics</h2>
+      <table>
+        <thead>
+          <tr><th>תפקיד</th><th>מה מותר</th></tr>
+        </thead>
+        <tbody>
+          <tr class="recommended"><td><strong>Viewer</strong> (מומלץ)</td><td>צפייה בדוחות בלבד — הבטוח ביותר</td></tr>
+          <tr><td>Analyst</td><td>צפייה + יצירת דשבורדים ואודיינסים משותפים</td></tr>
+          <tr><td>Marketer</td><td>Analyst + ניהול אודיינסים ואירועי המרה</td></tr>
+          <tr><td>Editor</td><td>עריכה מלאה של הגדרות הנכס (אירועים, מסננים, streams)</td></tr>
+          <tr><td>Administrator</td><td>הכל, כולל ניהול משתמשים</td></tr>
+        </tbody>
+      </table>
+      <p>ב-<strong>GTM</strong> הרמות ברמת ה-container הן: <code>Read</code> / <code>Edit</code> / <code>Approve</code> / <code>Publish</code>.</p>
+      <div class="note">
+        <strong>שים לב:</strong> שרת ה-MCP בפרויקט בנוי כרגע <strong>לקריאה בלבד</strong> (scopes של
+        <code>analytics.readonly</code> ו-<code>tagmanager.readonly</code>, וכל הכלים הם כלי list/report).
+        גם אם תעניק Editor בצד Google — ה-MCP לא יוכל לכתוב עד שמרחיבים אותו עם scopes וכלי כתיבה.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>✅ אחרי הצירוף</h2>
+      <ol class="steps">
+        <li>ב-VS Code: פתח את <code>.vscode/mcp.json</code> ולחץ <strong>Restart</strong> מעל השרת <code>chenIntegrations</code> (כדי שיטען את ההרשאות מה-<code>.env</code>).</li>
+        <li>בקש מהצ'אט להריץ <code>ga4_list_accounts</code> — אמור להופיע חשבון ה-Analytics.</li>
+        <li>הנכס של האתר: <code>G-P46K3PK4KD</code> (GTM container: <code>GTM-WXGV32T9</code>).</li>
+      </ol>
+    </div>
+
+    <footer>נוצר אוטומטית · פרויקט chenLandingPage · נובמבר 2026</footer>
+  </div>
+</body>
+</html>

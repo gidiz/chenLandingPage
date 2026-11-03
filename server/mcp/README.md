@@ -10,6 +10,8 @@ It exposes read-only tools for:
 - AWS S3 and CloudFront
 - GitHub repository metadata and issues
 
+It also exposes GTM write tools (`gtm_create_tag`, `gtm_update_tag`, `gtm_create_trigger`, `gtm_create_variable`, `gtm_create_version`, `gtm_deploy_version_to_environment`) that are limited to workspace edits and custom-environment deploys. The `tagmanager.publish` scope is intentionally omitted, and `gtm_deploy_version_to_environment` refuses Live/Latest environments, so the Live container can never be published through this server.
+
 ## Start Modes
 
 - VS Code workspace MCP config: `.vscode/mcp.json`
@@ -53,6 +55,10 @@ Required scopes:
 
 - `https://www.googleapis.com/auth/analytics.readonly`
 - `https://www.googleapis.com/auth/tagmanager.readonly`
+- `https://www.googleapis.com/auth/tagmanager.edit.containers` (GTM write tools)
+- `https://www.googleapis.com/auth/tagmanager.edit.containerversions` (GTM version creation)
+
+For the GTM write tools, the service account also needs container-level **Edit** permission in GTM (plus **Approve** for `gtm_create_version` and **Publish** for `gtm_deploy_version_to_environment`). Even with Publish permission in GTM, publishing the Live environment stays blocked because the publish OAuth scope is never requested.
 
 ### AWS
 

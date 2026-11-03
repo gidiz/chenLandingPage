@@ -10,10 +10,19 @@ const EXPECTED_TOOL_NAMES = [
   "ga4_run_report",
   "github_get_repository",
   "github_list_issues",
+  "gtm_create_tag",
+  "gtm_create_trigger",
+  "gtm_create_variable",
+  "gtm_create_version",
+  "gtm_deploy_version_to_environment",
+  "gtm_get_tag",
   "gtm_list_accounts",
   "gtm_list_containers",
   "gtm_list_tags",
+  "gtm_list_triggers",
+  "gtm_list_variables",
   "gtm_list_workspaces",
+  "gtm_update_tag",
 ] as const
 
 function formatList(items: readonly string[]): string {
