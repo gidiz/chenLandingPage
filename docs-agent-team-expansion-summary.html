@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>סיכום ביצוע — הרחבת צוות ה-Agents (תוכנית 006)</title>
+  <style>
+    :root {
+      --primary: #8B6F61;
+      --accent: #6b8e8a;
+      --success: #188038;
+      --error: #d93025;
+      --warning: #e37400;
+      --bg: #F5F3EA;
+      --card: #ffffff;
+      --border: #E5D8C5;
+      --text: #202124;
+      --muted: #5f6368;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", "Heebo", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 2rem 1rem;
+      line-height: 1.7;
+    }
+    .container { max-width: 960px; margin: 0 auto; }
+    header {
+      background: linear-gradient(135deg, #8B6F61, #6b8e8a);
+      color: #fff;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    header h1 { margin: 0 0 .5rem; font-size: 1.6rem; }
+    header p { margin: 0; opacity: .92; }
+    header a { color: #fff; font-weight: 600; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card h2 { margin-top: 0; font-size: 1.25rem; color: var(--primary); }
+    .card h3 { font-size: 1.05rem; margin: 1rem 0 .4rem; }
+    .card p { margin: .4rem 0; }
+    code {
+      background: #f1f3f4;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .1rem .45rem;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: .9em;
+      direction: ltr;
+      unicode-bidi: embed;
+      display: inline-block;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: .75rem 0;
+      font-size: .95rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: .55rem .7rem;
+      text-align: right;
+      vertical-align: top;
+    }
+    th { background: #faf7f1; }
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: .1rem .7rem;
+      font-size: .8rem;
+      font-weight: 600;
+      color: #fff;
+      vertical-align: middle;
+      margin-inline-start: .5rem;
+    }
+    .badge--done { background: var(--success); }
+    .badge--new { background: var(--accent); }
+    .issue-link { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .issue-link:hover { text-decoration: underline; }
+    .label { font-weight: 600; color: var(--primary); }
+    ul, ol { margin: .3rem 0 .6rem; padding-inline-start: 1.3rem; }
+    li { margin: .2rem 0; }
+    .checklist { list-style: none; padding-inline-start: 0; }
+    .checklist li::before { content: "✅ "; }
+    .note {
+      background: #fff8e6;
+      border: 1px solid #f3dc9a;
+      border-radius: 8px;
+      padding: .8rem 1rem;
+      margin: .75rem 0;
+    }
+    .next {
+      background: #eef5f4;
+      border: 1px solid #cfe0dd;
+      border-radius: 8px;
+      padding: .8rem 1rem;
+    }
+    .flow {
+      background: #faf7f1;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .8rem 1rem;
+      font-size: 1rem;
+      line-height: 2;
+    }
+    footer { color: var(--muted); font-size: .85rem; text-align: center; margin-top: 2rem; }
+
+    /* --- Loopback simulation (docs-agent-loop.js) --- */
+    .loop__controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem 1rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      font-size: .9rem;
+    }
+    .loop__controls label { color: var(--muted); }
+    .loop__controls input[type="number"], .loop__controls select {
+      padding: .25rem .5rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font: inherit;
+    }
+    .loop__controls input[type="range"] { width: 140px; }
+    .loop__value { font-weight: 600; min-width: 3ch; }
+    .loop__button {
+      background: var(--primary);
+      color: #fff;
+      border: 0;
+      border-radius: 8px;
+      padding: .45rem 1rem;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .loop__button:disabled { opacity: .5; cursor: default; }
+    .loop__button--ghost { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+    .loop__button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    .loop__chain {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: .5rem;
+      margin-bottom: 1rem;
+    }
+    .loop__node {
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: .6rem .7rem;
+      background: #faf7f1;
+      min-height: 86px;
+      transition: border-color .25s, background .25s, transform .25s;
+    }
+    .loop__node--reviewer { background: #eef5f4; }
+    .loop__node--optional { border-style: dashed; }
+    .loop__node-name { font-weight: 600; font-size: .9rem; }
+    .loop__node-meta { font-size: .75rem; color: var(--muted); }
+    .loop__node-retry { font-size: .75rem; color: var(--warning); font-weight: 600; min-height: 1.2em; }
+    .loop__node.is-active { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+    .loop__node.is-pass { border-color: var(--success); background: #e6f4ea; }
+    .loop__node.is-fail { border-color: var(--error); background: #fce8e6; }
+    .loop__node.is-blocked { border-color: #000; background: #f1f3f4; }
+    .loop__status {
+      padding: .6rem .9rem;
+      border-radius: 8px;
+      background: #faf7f1;
+      border: 1px solid var(--border);
+      font-weight: 600;
+      margin-bottom: .75rem;
+    }
+    .loop__status--pass { background: #e6f4ea; border-color: var(--success); }
+    .loop__status--blocked { background: #fce8e6; border-color: var(--error); }
+    .loop__log {
+      max-height: 260px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .5rem .75rem;
+      font-size: .88rem;
+      background: #fff;
+    }
+    .loop__log-line { padding: .2rem 0; border-bottom: 1px dashed #eee; }
+    .loop__log-line:last-child { border-bottom: 0; }
+    .loop__log-line--pass { color: var(--success); }
+    .loop__log-line--fail { color: var(--error); }
+    .loop__log-line--loop { color: var(--warning); }
+    .loop__log-line--blocked { color: #000; font-weight: 600; }
+    .loop__log-line--done { color: var(--success); font-weight: 600; }
+    .loop__advisory { color: var(--muted); font-weight: 400; }
+    .loop__sev {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 0 .5rem;
+      font-size: .75rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .loop__sev--critical { background: #7a0000; }
+    .loop__sev--high { background: var(--error); }
+    .loop__sev--medium { background: var(--warning); }
+    .loop__sev--low { background: var(--muted); }
+    @media (prefers-reduced-motion: reduce) {
+      .loop__node { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>סיכום ביצוע — הרחבת צוות ה-Agents (תוכנית 006)</h1>
+      <p>Epic <a href="https://github.com/gidiz/chenLandingPage/issues/14">#14</a> · תוכנית <code>.plan/006-2026-11-03-agent-team-expansion.md</code> · סטטוס: <strong>done</strong> · QA: <strong>PASS</strong> · 04.11.2026</p>
+    </header>
+
+    <section class="card">
+      <h2>1. GitHub Issue <span class="badge badge--done">סגור</span></h2>
+      <p><span class="label">Title:</span> <code>[Orchestrator]: Expand multi-agent team — security, content, SEO, analytics, RAG, compliance, ops agents</code></p>
+      <p><span class="label">Labels:</span> <code>agent:orchestrator</code>, <code>status:done</code></p>
+      <h3>Acceptance Criteria</h3>
+      <ul class="checklist">
+        <li>Plan file created at <code>.plan/006-2026-11-03-agent-team-expansion.md</code></li>
+        <li>Epic #14 + child issues #6–#13 opened and closed</li>
+        <li>8 agent files created in <code>.github/agents/</code></li>
+        <li><code>orchestrator.agent.md</code> — agents list, Team table, Step 3 order, Security section</li>
+        <li><code>.github/AGENTS.md</code> lists 13 agents</li>
+        <li><code>docs-agents-recommendation.html</code> updated</li>
+        <li>QA Agent verdict: PASS (<code>npm run build</code> → exit 0)</li>
+        <li>Plan status updated to <code>done</code></li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>2. הצוות: מ-5 ל-13 Agents</h2>
+      <table>
+        <thead>
+          <tr><th>סוג</th><th>Agents</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>תיאום</td><td>Orchestrator</td></tr>
+          <tr><td>מבצעים</td><td>DB · Backend · Frontend · <strong>Content</strong> · <strong>SEO/GEO</strong> · <strong>Analytics &amp; Campaign</strong> · <strong>RAG Quality</strong> · <strong>Release/Ops</strong></td></tr>
+          <tr><td>סוקרים (read-only)</td><td><strong>Backend Security</strong> · <strong>Frontend Security</strong> · <strong>Compliance &amp; Accessibility</strong> · QA</td></tr>
+        </tbody>
+      </table>
+      <p>מודגשים — ה-8 החדשים.</p>
+    </section>
+
+    <section class="card">
+      <h2>3. הקבצים שנוצרו</h2>
+      <table>
+        <thead>
+          <tr><th>קובץ</th><th>Agent</th><th>כלים</th><th>Issue</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>frontend-security-agent.agent.md</code></td><td>Frontend Security Agent</td><td>read, search</td><td><a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/6">#6</a></td></tr>
+          <tr><td><code>backend-security-agent.agent.md</code></td><td>Backend Security Agent</td><td>read, search, execute (audit / typecheck / build בלבד)</td><td><a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/7">#7</a></td></tr>
+          <tr><td><code>content-agent.agent.md</code></td><td>Content Agent</td><td>read, edit, search</td><td><a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/8">#8</a></td></tr>
+          <tr><td><code>compliance-accessibility-agent.agent.md</code></td><td>Compliance &amp; Accessibility Reviewer</td><td>read, search</td><td><a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/9">#9</a></td></tr>
+          <tr><td><code>seo-geo-agent.agent.md</code></td><td>SEO / GEO Agent</td><td>read, edit, search, execute</td><td><a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/10">#10</a></td></tr>
+          <tr><td><code>analytics-campaign-agent.agent.md</code></td><td>Analytics &amp; Campaign Agent</td><td>read, edit, search, execute</td><td><a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/11">#11</a></td></tr>
+          <tr><td><code>rag-quality-agent.agent.md</code></td><td>RAG Quality Agent</td><td>read, edit, search, execute</td><td><a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/12">#12</a></td></tr>
+          <tr><td><code>release-ops-agent.agent.md</code></td><td>Release / Ops Agent</td><td>read, edit, search, execute</td><td><a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/13">#13</a></td></tr>
+        </tbody>
+      </table>
+      <p><span class="label">קבצים שעודכנו:</span> <code>.github/agents/orchestrator.agent.md</code>, <code>.github/AGENTS.md</code>, <code>docs-agents-recommendation.html</code>, <code>.plan/006-2026-11-03-agent-team-expansion.md</code></p>
+    </section>
+
+    <section class="card">
+      <h2>4. סדר ההפעלה החדש</h2>
+      <div class="flow">
+        DB → Backend → Frontend → <em>(on-demand: Content / SEO / Analytics / RAG Quality / Release-Ops)</em> → <strong>Backend Security</strong> → <strong>Frontend Security</strong> → <strong>Compliance &amp; Accessibility</strong> → QA
+      </div>
+      <p>סוקרים פולטים PASS / FAIL. ממצאי <strong>Medium ומעלה</strong> חוסמים ומחזירים ל-agent המבצע; <strong>Low</strong> = advisory בלבד. תקציב loopback: 3 ניסיונות ל-issue.</p>
+    </section>
+
+    <section class="card">
+      <h2>4ב. סימולציית ה-Loopback (אינטראקטיבי)</h2>
+      <p>הדגמה חיה של לולאת האירועים של ה-Orchestrator: כל סוקר מגריל ממצא; Medium+ מחזיר ל-agent המבצע, הסוקר רץ שוב, ואחרי 3 כישלונות רצופים — <code>status:blocked</code>. אותו <code>seed</code> תמיד מייצר את אותה ריצה.</p>
+      <div id="agent-loop"></div>
+      <p class="loop__footnote" style="color:var(--muted);font-size:.85rem;margin-top:.6rem">הלוגיקה נמצאת ב-<code>docs-agent-loop.js</code> (ללא תלויות). הממצאים הם דוגמאות מתוך הצ'קליסטים של ה-agents, לא תוצאות סריקה אמיתיות.</p>
+    </section>
+
+    <section class="card">
+      <h2>5. תוצאות QA <span class="badge badge--done">PASS</span></h2>
+      <ul class="checklist">
+        <li>8 קבצים עם frontmatter תקין (<code>description</code>, <code>tools</code>, <code>user-invocable</code>, <code>name</code>)</li>
+        <li>הגבלות כלים תואמות תפקיד — סוקרים בלי <code>edit</code>; Backend Security עם allow-list ל-<code>execute</code></li>
+        <li>כל קובץ מכיל <strong>Hopa!</strong>, prefix <code>[Name]</code>, <code>Tracking issue: #N</code>, סעיף Output Format</li>
+        <li>כל ההפניות ל-<code>.rule/</code> ו-<code>.doc/</code> קיימות בדיסק</li>
+        <li><code>orchestrator.agent.md</code> → <code>agents:</code> = 12 שמות מדויקים</li>
+        <li><code>AGENTS.md</code> = 13 קבצים קיימים</li>
+        <li>אין סודות, tokens או נתיבים אבסולוטיים</li>
+        <li><code>npm run build</code> → exit 0, אפס שגיאות TypeScript</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>6. הערות שדורשות טיפול</h2>
+      <div class="note">
+        <strong>הקבצים לא committed.</strong> <code>.plan/006</code>, 8 קבצי ה-agents והעדכונים ל-Orchestrator / AGENTS.md / HTML הם untracked או modified. נדרש <code>git add</code> + commit.
+      </div>
+      <div class="note">
+        <strong>שינויים מחוץ לתוכנית ב-working tree:</strong> <code>.vscode/mcp.json</code> ו-<code>server/db/migrations/011_…botox_copy_revision.sql</code> — לא חלק מ-006. מומלץ לטפל בהם בתוכנית <code>007</code> נפרדת.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>7. הצעד הבא</h2>
+      <div class="next">
+        <ol>
+          <li>רענון חלון VS Code כדי שה-agents החדשים יופיעו ב-picker</li>
+          <li>הרצה ראשונה של <strong>Backend Security Agent</strong> + <strong>Frontend Security Agent</strong> על העץ הנוכחי → פתיחת issues לממצאים הפתוחים: CSRF על <code>/api/chat</code>, zod ב-chat route, RLS על <code>match_treatment_content()</code>, security headers, כלי MCP כותבים</li>
+          <li><strong>Compliance Reviewer</strong> — בדיקת קיום דף <code>/accessibility</code> (דרישה חוקית)</li>
+          <li><strong>Content Agent</strong> — מילוי <code>title</code> / <code>subtitle</code> החסרים ב-<code>chen-treatment-notes.json</code></li>
+        </ol>
+      </div>
+    </section>
+
+    <footer>docs-agent-team-expansion-summary.html · נוצר מסיכום ה-Orchestrator לתוכנית 006 · ראה גם <code>docs-agents-recommendation.html</code></footer>
+  </div>
+  <script src="./docs-agent-loop.js" defer></script>
+</body>
+</html>

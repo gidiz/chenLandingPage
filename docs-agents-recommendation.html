@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>המלצה — אילו Agents לבנות לאתר ד"ר חן פרדו</title>
+  <style>
+    :root {
+      --primary: #8B6F61;
+      --accent: #6b8e8a;
+      --success: #188038;
+      --error: #d93025;
+      --warning: #e37400;
+      --bg: #F5F3EA;
+      --card: #ffffff;
+      --border: #E5D8C5;
+      --text: #202124;
+      --muted: #5f6368;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", "Heebo", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 2rem 1rem;
+      line-height: 1.7;
+    }
+    .container { max-width: 960px; margin: 0 auto; }
+    header {
+      background: linear-gradient(135deg, #8B6F61, #6b8e8a);
+      color: #fff;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    header h1 { margin: 0 0 .5rem; font-size: 1.6rem; }
+    header p { margin: 0; opacity: .92; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card h2 { margin-top: 0; font-size: 1.25rem; color: var(--primary); }
+    .card h3 { font-size: 1.05rem; margin: 1rem 0 .4rem; }
+    .card p { margin: .4rem 0; }
+    code {
+      background: #f1f3f4;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .1rem .45rem;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: .9em;
+      direction: ltr;
+      unicode-bidi: embed;
+      display: inline-block;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: .75rem 0;
+      font-size: .95rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: .55rem .7rem;
+      text-align: right;
+      vertical-align: top;
+    }
+    th { background: #faf7f1; }
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: .1rem .7rem;
+      font-size: .8rem;
+      font-weight: 600;
+      color: #fff;
+      vertical-align: middle;
+      margin-inline-start: .5rem;
+    }
+    .badge--p1 { background: var(--error); }
+    .badge--p2 { background: var(--warning); }
+    .badge--p3 { background: var(--accent); }
+    .badge--opt { background: var(--muted); }
+    .badge--exists { background: var(--success); }
+    .badge--built { background: var(--success); }
+    .issue-link { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .issue-link:hover { text-decoration: underline; }
+    .agent {
+      border-inline-start: 4px solid var(--primary);
+      padding-inline-start: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .agent:last-child { margin-bottom: 0; }
+    .label { font-weight: 600; color: var(--primary); }
+    ul { margin: .3rem 0 .6rem; padding-inline-start: 1.3rem; }
+    li { margin: .2rem 0; }
+    .note {
+      background: #fff8e6;
+      border: 1px solid #f3dc9a;
+      border-radius: 8px;
+      padding: .8rem 1rem;
+      margin: .75rem 0;
+    }
+    .next {
+      background: #eef5f4;
+      border: 1px solid #cfe0dd;
+      border-radius: 8px;
+      padding: .8rem 1rem;
+    }
+    footer { color: var(--muted); font-size: .85rem; text-align: center; margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>המלצה — אילו Agents לבנות לאתר ד"ר חן פרדו</h1>
+      <p>סקירת תוכן האתר, ה-RAG, האנליטיקס וה-MCP מול צוות ה-Agents הקיים, והמלצה לפי סדר עדיפות. נכתב: 03.11.2026 · <strong>סטטוס: כל ה-Agents נבנו</strong> (תוכנית <code>.plan/006-2026-11-03-agent-team-expansion.md</code>, Epic <a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/14">#14</a>)</p>
+    </header>
+
+    <section class="card">
+      <h2>1. מצב קיים</h2>
+      <p>ב-<code>.github/agents/</code> מוגדרים חמישה Agents שמכסים היטב את <strong>הקוד</strong>:</p>
+      <table>
+        <thead>
+          <tr><th>Agent</th><th>קובץ</th><th>תחום</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Orchestrator</td><td><code>orchestrator.agent.md</code></td><td>תכנון, GitHub Issues, loopback</td></tr>
+          <tr><td>DB Agent</td><td><code>db-agent.agent.md</code></td><td>סכמה, מיגרציות, pgvector, RPC</td></tr>
+          <tr><td>Backend Agent</td><td><code>backend-agent.agent.md</code></td><td>Nitro API, RAG pipeline, MCP</td></tr>
+          <tr><td>Frontend Agent</td><td><code>frontend-agent.agent.md</code></td><td>Vue, pages, composables, CSS</td></tr>
+          <tr><td>QA Agent</td><td><code>qa-agent.agent.md</code></td><td>build, סקיוריטי, PASS/FAIL</td></tr>
+        </tbody>
+      </table>
+      <p><strong>הפער:</strong> אף Agent לא אחראי על <strong>תוכן, שיווק, איכות הצ'אט ורגולציה</strong> — וזה מה שאתר קליניקה חי ונושם ממנו.</p>
+    </section>
+
+    <section class="card">
+      <h2>2. Agents מומלצים — לפי סדר עדיפות</h2>
+
+      <div class="agent">
+        <h3>Frontend Security Agent — סוקר אבטחה צד-לקוח <span class="badge badge--p1">עדיפות 1</span><span class="badge badge--built">נבנה · <a class="issue-link" style="color:#fff" href="https://github.com/gidiz/chenLandingPage/issues/6">#6</a></span></h3>
+        <p><span class="label">למה:</span> ה-QA Agent בודק build וסטנדרטים, לא אבטחה צד-לקוח. באתר יש <code>v-html</code> (PageHero, TreatmentInfoSection), הזרקות JSON-LD דרך <code>innerHTML</code>, GTM/GA4 ו-YouTube embeds — ואין security headers ב-<code>nuxt.config.ts</code>.</p>
+        <p><span class="label">תחומי אחריות:</span></p>
+        <ul>
+          <li>קריאה בלבד — פולט <code>Security Verdict: PASS / FAIL</code> שמשתלב ב-loopback</li>
+          <li>v-html חדש, JSON-LD escaping (<code>&lt;</code> → <code>\u003c</code>), סודות ב-bundle (רק <code>NUXT_PUBLIC_*</code>)</li>
+          <li><code>rel="noopener noreferrer"</code>, PII ב-dataLayer, origins של סקריפטים חיצוניים</li>
+          <li>המלצת CSP / security headers דרך <code>routeRules</code></li>
+        </ul>
+        <p><span class="label">קובץ:</span> <code>.github/agents/frontend-security-agent.agent.md</code> · כלים: read, search</p>
+      </div>
+
+      <div class="agent">
+        <h3>Backend Security Agent — סוקר אבטחה צד-שרת <span class="badge badge--p1">עדיפות 1</span><span class="badge badge--built">נבנה · <a class="issue-link" style="color:#fff" href="https://github.com/gidiz/chenLandingPage/issues/7">#7</a></span></h3>
+        <p><span class="label">למה:</span> ממצאים פתוחים מתוכנית 003 (CSRF על <code>/api/chat</code>, RLS על ה-RPC), ולידציה ידנית במקום zod, וכלי <strong>כתיבה</strong> ב-MCP (<code>gtm_create_*</code>, <code>gtm_deploy_version_to_environment</code>) בניגוד לכלל "MCP read-only".</p>
+        <p><span class="label">תחומי אחריות:</span></p>
+        <ul>
+          <li>קריאה בלבד + <code>npm audit --omit=dev</code>, <code>mcp:typecheck</code>, <code>build</code></li>
+          <li>zod בגבול ה-route, <code>MAX_MESSAGE_LENGTH</code>/<code>MAX_HISTORY_ITEMS</code> כגבולות אבטחה, rate limiting</li>
+          <li>חשיפת <code>SUPABASE_SERVICE_ROLE_KEY</code>/<code>OPENAI_API_KEY</code>, צורת שגיאות, אין <code>console.*</code></li>
+          <li><code>CHAT_REPLY_DISCLAIMER</code> (הסרה = Critical), prompt injection, timeouts, SQL/RLS, כלי MCP כותבים</li>
+        </ul>
+        <p><span class="label">קובץ:</span> <code>.github/agents/backend-security-agent.agent.md</code> · כלים: read, search, execute</p>
+      </div>
+
+      <div class="agent">
+        <h3>Content Agent — קופירייטר רפואי בעברית <span class="badge badge--p1">עדיפות 1</span><span class="badge badge--built">נבנה · <a class="issue-link" style="color:#fff" href="https://github.com/gidiz/chenLandingPage/issues/8">#8</a></span></h3>
+        <p><span class="label">למה:</span> האתר תוכן-כבד. ב-<code>server/db/content/chen-treatment-notes.json</code> יש טיפולים עם <code>title</code>/<code>subtitle</code> ריקים (skin-booster, mesotherapy), ה-FAQ, דפי הטיפולים (suitability / process / expectations) ושדות <code>seoTitle</code>/<code>seoDescription</code> בקטלוג — אף Agent לא אחראי עליהם.</p>
+        <p><span class="label">תחומי אחריות:</span></p>
+        <ul>
+          <li>כתיבה בעברית בלשון נקבה עקבית ("מתאים למי שהעור שלה…")</li>
+          <li>ניסוח שמרני ורגולטורי — בלי "מבטיח", "ללא סיכון", "תוצאות מובטחות"</li>
+          <li>התאמה למונחים ב-<code>.doc/glossary.md</code></li>
+          <li>מילוי שדות חסרים בקטלוג ובקובץ ה-notes</li>
+          <li>מסירה ל-DB Agent להרצת <code>npm run rag:chunks:backfill</code> אחרי כל שינוי תוכן</li>
+        </ul>
+        <p><span class="label">קבצים:</span> <code>server/db/content/</code>, <code>composables/treatment-catalog/</code>, <code>pages/faq.vue</code>, <code>pages/about.vue</code></p>
+      </div>
+
+      <div class="agent">
+        <h3>SEO / GEO Agent <span class="badge badge--p2">עדיפות 2</span><span class="badge badge--built">נבנה · <a class="issue-link" style="color:#fff" href="https://github.com/gidiz/chenLandingPage/issues/10">#10</a></span></h3>
+        <p><span class="label">למה:</span> תוכנית <code>.plan/005-2026-08-17-seo-geo-optimization.md</code> הקימה תשתית (JSON-LD, sitemap, useSeoMeta), אבל אין מי שמתחזק אותה. כל דף טיפול חדש צריך meta, canonical, סכמת <code>MedicalService</code>, קישורים פנימיים ומילות מפתח בעברית ("בוטוקס כפר סבא", "טיפול בהזעת יתר").</p>
+        <p><span class="label">תחומי אחריות:</span></p>
+        <ul>
+          <li>ביקורת meta/OG/canonical על כל דף</li>
+          <li>תחזוקת <code>composables/useSchemaOrg.ts</code> ו-JSON-LD לפי סוג דף</li>
+          <li>וידוא שדפי טיפול חדשים נכנסים ל-<code>server/api/_sitemap-urls.get.ts</code></li>
+          <li>אסטרטגיית מילות מפתח ו-GEO (AI Overviews, Perplexity, ChatGPT Search)</li>
+          <li>בעתיד: Search Console דרך MCP</li>
+        </ul>
+        <p><span class="label">כלים:</span> read, edit, search</p>
+      </div>
+
+      <div class="agent">
+        <h3>Analytics &amp; Campaign Agent — GTM / GA4 <span class="badge badge--p2">עדיפות 2</span><span class="badge badge--built">נבנה · <a class="issue-link" style="color:#fff" href="https://github.com/gidiz/chenLandingPage/issues/11">#11</a></span></h3>
+        <p><span class="label">למה:</span> שרת ה-MCP (<code>chenIntegrations</code>) כבר חושף כלי <strong>כתיבה</strong> ל-GTM (<code>gtm_create_tag</code>, <code>gtm_create_trigger</code>, <code>gtm_create_variable</code>, <code>gtm_deploy_version_to_environment</code>) ודוחות GA4 (<code>ga4_run_report</code>) — ואף Agent לא משתמש בהם. דף הקמפיין <code>pages/lp/instagram-botox.vue</code> הוא שלד בלי UTM ובלי אירועי המרה. ה-KPIs ב-<code>.doc/product-definition.md</code> (CTA CTR, השלמת טופס, bounce) לא נמדדים.</p>
+        <p><span class="label">תחומי אחריות:</span></p>
+        <ul>
+          <li>הגדרת אירועי <code>dataLayer</code> ב-<code>plugins/analytics.client.ts</code> (CTA click, form submit, video play, chat open)</li>
+          <li>יצירת tags / triggers / variables ב-GTM ופריסה לסביבות dev/prod</li>
+          <li>דוחות GA4 שבועיים מול יעדי ה-KPI</li>
+          <li>בניית variants לדפי LP ממומנים עם לכידת UTM</li>
+        </ul>
+        <p><span class="label">כלים:</span> read, edit, MCP tools (<code>ga4_*</code>, <code>gtm_*</code>)</p>
+      </div>
+
+      <div class="agent">
+        <h3>RAG Quality Agent — איכות הצ'אט <span class="badge badge--p3">עדיפות 3</span><span class="badge badge--built">נבנה · <a class="issue-link" style="color:#fff" href="https://github.com/gidiz/chenLandingPage/issues/12">#12</a></span></h3>
+        <p><span class="label">למה:</span> ב-<code>server/rag/chat-retrieval-rules.ts</code> יש רק 4 חוקים (profile, location, consultation, hyperhidrosis). אין כיסוי ל-botox, morpheus ולכל קטגוריית skin-quality (PRP, רדיאס היברידי, מזותרפיה, פילינג רפואי, skin-booster). ה-Backend Agent עסוק בקוד, לא ב"האם הצ'אט עונה נכון".</p>
+        <p><span class="label">תחומי אחריות:</span></p>
+        <ul>
+          <li>סט שאלות בדיקה בעברית (golden set) ובדיקות רגרסיה על התשובות</li>
+          <li>הוספת retrieval rules לטיפולים ולקטגוריות חדשות</li>
+          <li>בדיקת הזיות מול ה-CONTEXT ווידוא שהמודל אומר "לא מופיע באתר" כשצריך</li>
+          <li>וידוא שה-<code>CHAT_REPLY_DISCLAIMER</code> לא נמחק (דרישת compliance)</li>
+          <li>כוונון <code>similarityBase</code> / <code>retrievalTopK</code></li>
+        </ul>
+        <p><span class="label">קבצים:</span> <code>server/rag/</code>, <code>server/api/chat.post.ts</code>, <code>server/db/backfill-content-chunks.ts</code></p>
+      </div>
+
+      <div class="agent">
+        <h3>Compliance &amp; Accessibility Reviewer — קריאה בלבד <span class="badge badge--p1">עדיפות 1</span><span class="badge badge--built">נבנה · <a class="issue-link" style="color:#fff" href="https://github.com/gidiz/chenLandingPage/issues/9">#9</a></span></h3>
+        <p><span class="label">למה:</span> אתר רפואי בישראל כפוף לכללי פרסום רופאים (משרד הבריאות) <strong>ולחוק שוויון זכויות לאנשים עם מוגבלות — תקן 5568 / WCAG 2.0 AA</strong>. זו חובה חוקית עם חשיפה לתביעות. ה-QA Agent בודק build וסקיוריטי, לא את זה.</p>
+        <p><span class="label">תחומי אחריות:</span></p>
+        <ul>
+          <li>סריקת ניסוחים בעייתיים ("תוצאות מובטחות", "ללא סיכון", "הטוב בישראל")</li>
+          <li>וידוא דיסקליימרים רפואיים בדפי טיפול ובצ'אט</li>
+          <li><code>alt</code> לכל תמונה, <code>aria-label</code> בעברית, ניווט מקלדת, focus states</li>
+          <li>ניגודיות צבעים בפלטה — Soft Sand <code>#E5D8C5</code> על Ivory <code>#F5F3EA</code> עלול להיכשל ב-AA</li>
+          <li>הצהרת נגישות (דף חובה)</li>
+          <li>פולט PASS / FAIL מובנה כמו QA Agent, ומשתלב ב-loopback של ה-Orchestrator</li>
+        </ul>
+        <p><span class="label">כלים:</span> read, search בלבד (לא עורך קבצים)</p>
+      </div>
+
+      <div class="agent">
+        <h3>Release / Ops Agent <span class="badge badge--opt">שלב ב'</span><span class="badge badge--built">נבנה · <a class="issue-link" style="color:#fff" href="https://github.com/gidiz/chenLandingPage/issues/13">#13</a></span></h3>
+        <p><span class="label">תחומי אחריות:</span> מטריצת env ב-Vercel, סדר הרצת מיגרציות (<code>rag:catalog:migrate</code> → <code>rag:chunks:backfill</code> → <code>videos:seed</code>), בדיקת <code>robots.txt</code> לפי <code>VERCEL_ENV</code>, release checklist, rollback, עדכון <code>.plan</code> ו-versioning. עורך רק README / <code>.env.example</code> / <code>.plan</code>.</p>
+        <p><span class="label">קובץ:</span> <code>.github/agents/release-ops-agent.agent.md</code></p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. טבלת סיכום</h2>
+      <table>
+        <thead>
+          <tr><th>Agent</th><th>עדיפות</th><th>סוג</th><th>ערך עיקרי</th><th>Issue</th><th>סטטוס</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Frontend Security Agent</td><td>1</td><td>קריאה בלבד</td><td>XSS, סודות ב-bundle, headers, PII באנליטיקס</td><td><a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/6">#6</a></td><td>✅ נבנה</td></tr>
+          <tr><td>Backend Security Agent</td><td>1</td><td>קריאה בלבד + audit</td><td>zod, CSRF, סודות, דיסקליימר, prompt injection, MCP</td><td><a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/7">#7</a></td><td>✅ נבנה</td></tr>
+          <tr><td>Content Agent</td><td>1</td><td>עורך</td><td>תוכן חסר, ניסוח רגולטורי, הזנת RAG</td><td><a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/8">#8</a></td><td>✅ נבנה</td></tr>
+          <tr><td>Compliance &amp; Accessibility Reviewer</td><td>1</td><td>קריאה בלבד</td><td>הגנה משפטית — נגישות ופרסום רפואי</td><td><a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/9">#9</a></td><td>✅ נבנה</td></tr>
+          <tr><td>SEO / GEO Agent</td><td>2</td><td>עורך</td><td>תחזוקת תשתית SEO וקידום אורגני</td><td><a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/10">#10</a></td><td>✅ נבנה</td></tr>
+          <tr><td>Analytics &amp; Campaign Agent</td><td>2</td><td>עורך + MCP</td><td>מדידת KPI, GTM, דפי קמפיין</td><td><a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/11">#11</a></td><td>✅ נבנה</td></tr>
+          <tr><td>RAG Quality Agent</td><td>3</td><td>עורך</td><td>כיסוי טיפולים בצ'אט, מניעת הזיות</td><td><a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/12">#12</a></td><td>✅ נבנה</td></tr>
+          <tr><td>Release / Ops Agent</td><td>שלב ב'</td><td>עורך docs בלבד</td><td>פריסה, env, מיגרציות, rollback</td><td><a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/13">#13</a></td><td>✅ נבנה</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>4. סדר ההפעלה החדש ב-Orchestrator</h2>
+      <p>DB → Backend → Frontend → <em>(on-demand: Content / SEO / Analytics / RAG Quality / Release-Ops)</em> → <strong>Backend Security</strong> → <strong>Frontend Security</strong> → <strong>Compliance &amp; Accessibility</strong> → QA</p>
+      <p>סוקרים פולטים PASS / FAIL. ממצאי Medium ומעלה חוסמים ומחזירים ל-agent המבצע; Low הם advisories בלבד. תקציב ה-loopback נשאר 3 ניסיונות ל-issue.</p>
+    </section>
+
+    <section class="card">
+      <h2>5. הערות ופעולות נלוות</h2>
+      <div class="note">
+        <strong>כפילות:</strong> כל Agent קיים מופיע פעמיים ברשימת ה-Agents הזמינים — כנראה נרשם משני מקומות. שווה לבדוק שאין כפילות ב-config של VS Code / Copilot.
+      </div>
+      <div class="note">
+        <strong>עודכנו:</strong> <code>agents:</code> ב-<code>orchestrator.agent.md</code>, טבלת "Multi-Agent Team" ב-<code>.github/AGENTS.md</code> (13 agents), וסעיף "Cross-cutting Domain Awareness" ב-Orchestrator.
+      </div>
+      <div class="note">
+        <strong>ממצאי אבטחה פתוחים</strong> שה-Security Agents ידווחו כ-Medium עד שייפתרו בתוכניות המשך: CSRF על <code>/api/chat</code>, zod ב-chat route, RLS על <code>match_treatment_content()</code>, security headers, כלי MCP כותבים.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>6. מה הלאה</h2>
+      <div class="next">
+        <ol>
+          <li><strong>QA Agent</strong> — אימות קבצי ה-agents (frontmatter, כלים לפי תפקיד, הפניות ל-<code>.rule/</code>)</li>
+          <li>סגירת issues <a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/6">#6</a>–<a class="issue-link" href="https://github.com/gidiz/chenLandingPage/issues/14">#14</a> וסימון תוכנית 006 כ-<code>done</code></li>
+          <li>הרצה ראשונה: Backend Security + Frontend Security על העץ הנוכחי → פתיחת issues לממצאים הפתוחים</li>
+          <li>Compliance Reviewer — בדיקת קיום דף <code>/accessibility</code> (דרישה חוקית)</li>
+          <li>Content Agent — מילוי <code>title</code>/<code>subtitle</code> החסרים ב-<code>chen-treatment-notes.json</code></li>
+        </ol>
+      </div>
+    </section>
+
+    <footer>docs-agents-recommendation.html · נוצר אוטומטית מסקירת הפרויקט chenLandingPage</footer>
+  </div>
+</body>
+</html>
