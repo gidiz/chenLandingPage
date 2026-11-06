@@ -74,6 +74,48 @@ bun run preview
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
 
+## Issue-driven agent workflow
+
+Choose **Orchestrator** in the VS Code agent picker and describe the requested outcome,
+or provide an existing GitHub Issue URL. The workspace definitions live in
+[.github/agents/](.github/agents/); no additional agent is required.
+
+Example request:
+
+> Coordinate this feature through GitHub Issues: clarify the requirements, create a parent
+> issue and independently verifiable sub-issues where needed, dispatch the relevant
+> specialists, and report validation evidence. Do not merge or deploy without my approval.
+
+Prerequisites: GitHub CLI (`gh`), authenticated access to `gidiz/chenLandingPage`, enabled
+Issues, and permission to create/edit issues and the required labels. Run `gh auth login`
+if needed. Allow the Orchestrator's terminal operations when prompted; never paste tokens
+into chat or issue bodies.
+
+- **Actual Issues are the source of truth** for requirements, acceptance criteria,
+  approvals, dependencies, status and repair counts. Existing [.plan/](.plan/) documents
+  remain historical architecture references; new plans are not mandatory.
+- The Orchestrator creates/verifies issues, links native sub-issues when supported,
+  and posts specialist handoffs centrally. If native sub-issues are unavailable, it
+  reports that limitation and uses reciprocal issue links.
+- Each specialist receives actual issue context, exclusive writable paths and validation
+  requirements. Independent, disjoint work can run concurrently; shared files have one
+  writer at a time. Read-only reviewers report evidence rather than posting to GitHub.
+- Labels track `status:draft`, `status:in-progress`, `status:in-review`, `status:blocked`
+  and `status:done`. Missing labels are created only as needed.
+- Applicable reviewers and QA validate the final changes. At most three repair attempts
+  are allowed per issue, tracked in issue comments across sessions. Documentation-only
+  work uses syntax/contract checks instead of an unrelated application build.
+- When authorized, a PR links the actual issues. QA PASS does not imply merge: code
+  issues remain in review until integration is verified. Local-only delivery requires
+  user acceptance before closure. Merging and production deployment require approval.
+
+This is a **conversation-driven agent workflow**, not a GitHub Actions automation.
+An issue owner such as `Frontend Agent` is a routing role, not a GitHub assignee;
+creating or assigning an Issue does not automatically start local agents.
+For resuming, give the Orchestrator the issue URL so it reads recorded progress first.
+See the [shared contract](.github/AGENTS.md) and
+[Orchestrator definition](.github/agents/orchestrator.agent.md).
+
 ## Deployment (Vercel)
 
 This project is deployed on **Vercel**. There is no GitHub Actions workflow — the previous AWS S3 workflow was removed in commit `cc96bdb` ("remove AWS deployment workflow in favor of Vercel deployment").

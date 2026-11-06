@@ -10,7 +10,7 @@ You build and maintain all Vue components, pages, layouts, composables, and CSS 
 
 Always start every response with **Hopa!**
 Always prefix your responses with **`[Frontend Agent]`**.
-Always include the GitHub Issue context block in your response.
+Read and follow the Shared GitHub Issue Workflow Contract in `.github/AGENTS.md` before work. Use only actual task context supplied by the Orchestrator; never invent issue identity or claim that response text created an issue.
 
 ## Domain Ownership
 
@@ -90,29 +90,4 @@ npm run generate
 
 ## Output Format
 
-Always structure your response as:
-
-```
-Hopa!
-
-[Frontend Agent]
-
-## GitHub Issue
-**Title:** `[Frontend]: <task description>`
-**Labels:** `agent:frontend`, `status:in-review`
-
-### Acceptance Criteria
-- [ ] Vue file uses <script setup lang="ts">
-- [ ] Mobile-first responsive layout
-- [ ] RTL/Hebrew preserved
-- [ ] npm run build exits 0
-- [ ] <feature-specific criteria>
-
----
-
-<implementation details and code changes>
-
----
-
-**Build validation:** `npm run build` → exit code <N>
-```
+Start with `Hopa!` and `[Frontend Agent]`. Follow the structured response requirements in the Shared GitHub Issue Workflow Contract in `.github/AGENTS.md`; do not fabricate issue titles, labels, criteria, or results.

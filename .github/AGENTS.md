@@ -21,8 +21,10 @@
 - Deployment architecture, tech stack, and operational concerns: `.rule/deployment-rules.md`.
 - Keep these docs updated when major component ownership, data flows, deployment strategy, or environment variables change.
 
-## Planning
-- Follow as defined in `.rule/planning-rules.md`.
+## Issue Workflow and Planning
+- Follow `.rule/planning-rules.md` and the **Shared GitHub Issue Workflow Contract** below.
+- GitHub Issues are authoritative for task requirements, acceptance criteria, dependencies, approval, status, and retry counts.
+- `.plan/` files are historical architecture/reference material. Do not treat them as current task requirements or create/update plans automatically.
 
 ## Versioning
 - Follow as defined in `.rule/versioning-rules.md`.
@@ -43,7 +45,7 @@
 
 ## Multi-Agent Team
 Thirteen agents are defined in `.github/agents/`. Invoke via the VS Code agent picker or as subagents.
-Plans: `.plan/004-2026-08-17-multi-agent-setup.md` (core five), `.plan/006-2026-11-03-agent-team-expansion.md` (expansion).
+Historical architecture references: `.plan/004-2026-08-17-multi-agent-setup.md` (core five), `.plan/006-2026-11-03-agent-team-expansion.md` (expansion).
 
 ### Coordination
 | File | Agent | Role |
@@ -69,3 +71,13 @@ Plans: `.plan/004-2026-08-17-multi-agent-setup.md` (core five), `.plan/006-2026-
 | `.github/agents/frontend-security-agent.agent.md` | Frontend Security Agent | Client-side security audit (XSS, secrets, headers), PASS/FAIL |
 | `.github/agents/compliance-accessibility-agent.agent.md` | Compliance & Accessibility Reviewer | Medical wording, IS 5568 / WCAG 2.0 AA, PASS/FAIL |
 | `.github/agents/qa-agent.agent.md` | QA Agent | Build validation, coding standards, PASS/FAIL verdicts |
+
+### Shared GitHub Issue Workflow Contract
+
+- **The Orchestrator is the sole GitHub writer.** Only the Orchestrator creates or edits issues, comments, labels, status, dependency links, or retry records. Specialists report findings and results for the Orchestrator to post.
+- GitHub Issues are the source of truth for requirements, acceptance criteria, dependencies, approval, status, and retry counts. `.plan/` files remain historical architecture/reference material; do not make a new plan automatically or use one as task authority or an approval gate.
+- Before work, every specialist reads this file and the actual assigned GitHub issue context. The Orchestrator supplies the real repository, issue number and URL, parent/child issue numbers and URLs when applicable, current scope and non-goals, criteria and dependencies, assigned role, exclusive writable paths, validation, and required reviews. Specialists must not infer missing task details from unrelated historical issues or plans.
+- Work only within the assigned issue and exclusive writable paths. Do not edit shared files in parallel with another specialist. Preserve each role's domain, read-only, security, and medical-compliance restrictions.
+- Use only real issue identity supplied by the Orchestrator. A response title block, labels, or proposed issue text does not create an issue. Do not bind a task to an unrelated permanent/historical issue. If launched without a real issue and sufficient context, ask for the issue or return proposed issue requirements; never claim an issue was created.
+- Return a structured report identifying the supplied repository and actual issue number/URL (plus parent/child issue numbers/URLs when provided), changed paths (or none), evidence for every acceptance criterion, validation commands and results, and risks. Reviewers additionally give an explicit PASS/FAIL verdict; every failure identifies the exact criterion, target agent, and required fix. Do not post to GitHub.
+- The Orchestrator records retry counts in comments on the authoritative issue. Allow at most three failed repair attempts per issue; the count persists across sessions and must never be silently reset. At the limit, mark the task blocked through the Orchestrator and request human intervention.
