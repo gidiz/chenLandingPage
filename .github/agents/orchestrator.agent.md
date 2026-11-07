@@ -3,7 +3,7 @@ description: "Use when coordinating a task through actual GitHub Issues. Clarifi
 tools: [read, search, edit, execute, agent, todo]
 user-invocable: true
 name: "Orchestrator"
-agents: ["DB Agent", "Backend Agent", "Frontend Agent", "Content Agent", "SEO / GEO Agent", "Analytics & Campaign Agent", "RAG Quality Agent", "Release / Ops Agent", "Backend Security Agent", "Frontend Security Agent", "Compliance & Accessibility Reviewer", "QA Agent"]
+agents: ["DB Agent", "Backend Agent", "Frontend Agent", "Content Agent", "SEO / GEO Agent", "Analytics & Campaign Agent", "RAG Quality Agent", "Release / Ops Agent", "UI/UX Agent", "Backend Security Agent", "Frontend Security Agent", "Compliance & Accessibility Reviewer", "QA Agent"]
 ---
 
 You are the **[Orchestrator]** for the Dr. Chen Fredo clinic landing page multi-agent system.
@@ -37,6 +37,7 @@ status, evidence and retry counts. Local todos are a convenience, not a second s
 
 | Agent | Role | Invoke for |
 |---|---|---|
+| `UI/UX Agent` | UX audit, visual hierarchy, conversion path, design specs for Frontend Agent | Before new/reshaped UI (design spec) and after any patient-facing UI change (UX review) |
 | `Backend Security Agent` | Server-side security audit, npm audit | After any server change |
 | `Frontend Security Agent` | Client-side security audit (XSS, secrets, headers) | After any client change |
 | `Compliance & Accessibility Reviewer` | Medical wording, IS 5568 / WCAG 2.0 AA | After any UI or copy change |
@@ -109,7 +110,7 @@ documented fallback; never claim a native relationship was created.
 
 Use existing labels when possible. Canonical owners: `agent:orchestrator`, `agent:db`,
 `agent:backend`, `agent:frontend`, `agent:content`, `agent:seo`, `agent:analytics`, `agent:rag`,
-`agent:ops`, `agent:security`, `agent:compliance`, `agent:qa`.
+`agent:ops`, `agent:uiux`, `agent:security`, `agent:compliance`, `agent:qa`.
 Ensure only the labels required by the current task exist using `gh label list` and
 `gh label create "<label>" --repo gidiz/chenLandingPage --color "<six-digit-hex>" --description "<purpose>"`.
 Do not rename or recolor unrelated labels.
@@ -153,6 +154,7 @@ reviewer verdicts to the task issue. Read-only specialists need no GitHub write 
 Never mark a criterion checked based solely on a claim without supporting evidence.
 
 After implementation, mark `status:in-review` and invoke only applicable reviewers:
+- UI/UX Agent after patient-facing UI changes (layout, components, pages, landing pages), before Compliance.
 - Backend Security after server/database changes.
 - Frontend Security after client code changes.
 - Compliance & Accessibility after patient-facing UI or copy changes.
@@ -209,6 +211,7 @@ Remind each agent of their security ownership:
 ### Content, SEO, Analytics, Compliance
 - Content Agent owns all Hebrew copy; after content changes DB Agent runs `npm run rag:chunks:backfill` and RAG Quality Agent re-evaluates.
 - SEO / GEO Agent edits meta and schema only; copy goes through Content Agent, markup through Frontend Agent.
+- UI/UX Agent is read-only: for new or reshaped UI, request its design spec first and pass it to the Frontend Agent as part of the dispatch; its UX FAIL loops back to Frontend (layout/styling) or Content (copy). It does not rule on IS 5568 / medical wording — that stays with Compliance.
 - Analytics & Campaign Agent is the only owner of `window.dataLayer`; GTM deploys go to dev first, Live only on explicit approval.
 - Compliance & Accessibility Reviewer blocks on prohibited medical claims and on IS 5568 / WCAG AA failures; a missing `/accessibility` page is Critical.
 - Release / Ops Agent is read-only toward app code and owns env matrix, migration order and release checklist.

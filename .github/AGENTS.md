@@ -67,6 +67,7 @@ Historical architecture references: `.plan/004-2026-08-17-multi-agent-setup.md` 
 ### Reviewers (read-only)
 | File | Agent | Role |
 |---|---|---|
+| `.github/agents/ui-ux-agent.agent.md` | UI/UX Agent | UX audit, visual hierarchy, conversion path, design specs, PASS/FAIL |
 | `.github/agents/backend-security-agent.agent.md` | Backend Security Agent | Server-side security audit, npm audit, PASS/FAIL |
 | `.github/agents/frontend-security-agent.agent.md` | Frontend Security Agent | Client-side security audit (XSS, secrets, headers), PASS/FAIL |
 | `.github/agents/compliance-accessibility-agent.agent.md` | Compliance & Accessibility Reviewer | Medical wording, IS 5568 / WCAG 2.0 AA, PASS/FAIL |
