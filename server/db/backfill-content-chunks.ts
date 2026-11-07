@@ -331,6 +331,11 @@ const embedBatch = async (
 }
 
 const run = async (): Promise<void> => {
+  const args = process.argv.slice(2)
+  if (args.length > 1 || args.some((arg) => !/^--category=[a-z0-9]+(?:-[a-z0-9]+)*$/.test(arg))) {
+    throw new Error("Usage: rag:chunks:backfill [--category=<category-slug>]")
+  }
+  const categorySlug = args[0]?.slice("--category=".length)
   loadDotEnvFiles()
 
   const supabaseUrl = envFirst("SUPABASE_URL", "NUXT_PUBLIC_SUPABASE_URL")
@@ -352,10 +357,36 @@ const run = async (): Promise<void> => {
 
   const supabase = createClient(supabaseUrl, supabaseKey)
 
+  let categoryId: string | undefined
+  if (categorySlug) {
+    const { data, error } = await supabase
+      .from("treatment_categories")
+      .select("id")
+      .eq("slug", categorySlug)
+      .single()
+
+    if (error || !data) {
+      throw new Error(`Cannot backfill category ${categorySlug}: ${error?.message ?? "category not found"}`)
+    }
+    categoryId = data.id
+  }
+
+  const categoriesQuery = supabase.from("treatment_categories").select("*").order("display_order")
+  const servicesQuery = supabase.from("treatment_services").select("*").order("display_order")
+  if (categoryId) {
+    categoriesQuery.eq("id", categoryId)
+    servicesQuery.eq("category_id", categoryId)
+  }
+
   const [categoriesResult, servicesResult, questionsResult] = await Promise.all([
-    supabase.from("treatment_categories").select("*").order("display_order"),
-    supabase.from("treatment_services").select("*").order("display_order"),
-    supabase.from("treatment_questions").select("*").order("display_order"),
+    categoriesQuery,
+    servicesQuery,
+    categoryId
+      ? supabase.from("treatment_questions")
+          .select("*, treatment_services!inner(category_id)")
+          .eq("treatment_services.category_id", categoryId)
+          .order("display_order")
+      : supabase.from("treatment_questions").select("*").order("display_order"),
   ])
 
   for (const result of [categoriesResult, servicesResult, questionsResult]) {
@@ -370,7 +401,7 @@ const run = async (): Promise<void> => {
       (servicesResult.data ?? []) as Record<string, string>[],
       (questionsResult.data ?? []) as Record<string, string>[],
     ),
-    ...siteContentChunks.map((chunk): ChunkRow => ({ ...chunk })),
+    ...(categorySlug ? [] : siteContentChunks.map((chunk): ChunkRow => ({ ...chunk }))),
   ]
 
   if (!chunks.length) {

@@ -12,6 +12,16 @@
       :questions="service.questions"
     />
 
+    <section v-if="category.slug === 'hyperhidrosis'" class="page-section">
+      <div class="container page-card">
+        <p>
+          המידע באתר הוא כללי ואינו מחליף ייעוץ, בדיקה או אבחון רפואי אישי.
+          התאמת הטיפול והסיכונים נבחנים בנפרד לכל אזור ולכל אדם. אין הבטחה
+          להפסקת הזעה מלאה או לתוצאה קבועה.
+        </p>
+      </div>
+    </section>
+
     <TreatmentVideoSection :category-slug="category.slug" :service-slug="service.slug" />
 
     <section class="page-section page-section--soft">

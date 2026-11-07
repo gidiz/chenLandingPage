@@ -176,6 +176,45 @@ Recommended analytics values:
 - Preview: the dev GA4 Measurement ID, dev GTM auth/preview values, and `NUXT_PUBLIC_APP_ENVIRONMENT=development`
 - Production: the prod GA4 Measurement ID, empty GTM auth/preview to use the Live environment, and `NUXT_PUBLIC_APP_ENVIRONMENT=production`
 
+## Medical hyperhidrosis catalog
+
+The standalone category `/hyperhidrosis` uses the existing dynamic catalog routes.
+The seven service paths are `/hyperhidrosis/armpits`, `/hyperhidrosis/face`,
+`/hyperhidrosis/hands`, `/hyperhidrosis/chest`, `/hyperhidrosis/intimate-areas`,
+`/hyperhidrosis/scalp` and `/hyperhidrosis/nape`. The legacy
+`/treatments/hyperhidrosis` URL continues redirecting to the category.
+
+After medical-content approval, back up any existing `hyperhidrosis` records and
+confirm the migration runner's `RAG_POSTGRES_URL` (or `SUPABASE_DB_URL` / `DATABASE_URL`)
+points to the same Supabase project as the site's catalog, not an unrelated local database.
+Apply only the new data migration; do not replay older content migrations:
+
+```powershell
+npm run rag:catalog:migrate -- --file=server\db\migrations\012_2026-11-06_hyperhidrosis_catalog.sql
+npm run rag:chunks:backfill -- --category=hyperhidrosis
+```
+
+The migration upserts only this category, the seven named services and their first
+three FAQs, preserving unrelated records. Existing target content requires a before-image
+backup for lossless rollback; deletion is appropriate only for verified clean inserts.
+Verify the catalog API contains all seven services, three FAQs each, and that the sitemap
+source includes the eight routes. The optional `--category` backfill flag updates only
+that category's retrieval chunks; omitting it preserves the existing whole-site backfill.
+The chunk command requires Supabase write access and an embeddings API key. Neither
+command deploys the application. Content remains subject to clinician confirmation
+of regional suitability and the applicable product indications.
+
+## Treatment FAQs
+
+The prepared FAQ source for issue #17 is
+[`server/db/content/treatment-faqs.json`](./server/db/content/treatment-faqs.json):
+it adds 8 questions per treatment, preserving the existing hyperhidrosis questions.
+Treatment pages render `treatment_questions` from the catalog API, and the RAG chunk
+backfill indexes the same rows. Apply migration 013 only to the verified site Supabase
+project; it is transactional, insert-only, idempotent, and aborts if the live catalog
+or FAQ baseline differs from its preconditions. After applying it, run the full
+`npm run rag:chunks:backfill` command to refresh all treatment and site-content chunks.
+
 ## MCP Integrations
 
 This repository now includes a local MCP server for operational and analytics read access.

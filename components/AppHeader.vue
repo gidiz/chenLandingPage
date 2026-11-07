@@ -13,6 +13,9 @@
         <NuxtLink to="/" @click="closeMenu">דף הבית</NuxtLink>
         <NuxtLink to="/about" @click="closeMenu">אודות</NuxtLink>
         <NuxtLink to="/treatments" @click="closeMenu">טיפולים</NuxtLink>
+        <NuxtLink v-if="getCategoryBySlug('hyperhidrosis')" to="/hyperhidrosis" @click="closeMenu">
+          טיפול בהזעת יתר
+        </NuxtLink>
         <NuxtLink to="/videos" @click="closeMenu">סרטונים</NuxtLink>
 
         <NuxtLink to="/faq" @click="closeMenu">שאלות נפוצות</NuxtLink>
@@ -23,39 +26,40 @@
   </header>
 </template>
 
-<script setup>
-import { onBeforeUnmount, onMounted, ref } from "vue";
+<script setup lang="ts">
+import { onBeforeUnmount, onMounted, ref } from "vue"
 
-const isOpen = ref(false);
-const isScrolled = ref(false);
-const SCROLL_ENTER_THRESHOLD = 48;
-const SCROLL_EXIT_THRESHOLD = 12;
+const isOpen = ref(false)
+const { getCategoryBySlug } = useTreatmentCatalog()
+const isScrolled = ref(false)
+const SCROLL_ENTER_THRESHOLD = 48
+const SCROLL_EXIT_THRESHOLD = 12
 
-const updateScrollState = () => {
-  const scrollY = window.scrollY;
+const updateScrollState = (): void => {
+  const scrollY = window.scrollY
 
   if (!isScrolled.value && scrollY > SCROLL_ENTER_THRESHOLD) {
-    isScrolled.value = true;
-    return;
+    isScrolled.value = true
+    return
   }
 
   if (isScrolled.value && scrollY < SCROLL_EXIT_THRESHOLD) {
-    isScrolled.value = false;
+    isScrolled.value = false
   }
-};
+}
 
 onMounted(() => {
-  updateScrollState();
-  window.addEventListener("scroll", updateScrollState, { passive: true });
-});
+  updateScrollState()
+  window.addEventListener("scroll", updateScrollState, { passive: true })
+})
 
 onBeforeUnmount(() => {
-  window.removeEventListener("scroll", updateScrollState);
-});
+  window.removeEventListener("scroll", updateScrollState)
+})
 
-const closeMenu = () => {
-  isOpen.value = false;
-};
+const closeMenu = (): void => {
+  isOpen.value = false
+}
 </script>
 
 <style scoped>
