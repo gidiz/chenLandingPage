@@ -3,7 +3,7 @@
     <PageHero
       eyebrow="שאלות נפוצות"
       title="תשובות ברורות לפני שמתחילים טיפול"
-      subtitle="עמוד מרכזי לשאלות על טיפולים אסתטיים, הזעת יתר, החלמה ותיאום ציפיות."
+      subtitle="ריכזנו כאן את השאלות שעולות הכי הרבה בפגישות הייעוץ: על טיפולים אסתטיים, הזעת יתר, זמני החלמה ותיאום ציפיות."
     />
 
     <section class="page-section">
@@ -41,18 +41,20 @@ const faqItems = [
   },
 ];
 
+const seoDescription =
+  "תשובות לשאלות נפוצות על טיפולים אסתטיים והזעת יתר בקליניקה של ד\"ר חן פרדו בכפר סבא: התאמה אישית, תהליך הטיפול, זמני החלמה ותוצאות."
+
 useSeoMeta({
-  title: "שאלות נפוצות על טיפולים אסתטיים והזעת יתר",
-  description:
-    "FAQ מרכזי על טיפולים אסתטיים, תהליך הטיפול, החלמה והתאמה אישית בקליניקה.",
-  ogTitle: "שאלות נפוצות על טיפולים אסתטיים והזעת יתר",
-  ogDescription: "FAQ מרכזי על טיפולים אסתטיים, תהליך הטיפול, החלמה והתאמה אישית בקליניקה.",
+  title: "שאלות נפוצות על טיפולים אסתטיים והזעת יתר | ד\"ר חן פרדו",
+  description: seoDescription,
+  ogTitle: "שאלות נפוצות על טיפולים אסתטיים והזעת יתר | ד\"ר חן פרדו",
+  ogDescription: seoDescription,
   ogImage: "https://drchenpardo.co.il/og-image.jpg",
   ogUrl: "https://drchenpardo.co.il/faq",
   ogType: "website",
   twitterCard: "summary_large_image",
-  twitterTitle: "שאלות נפוצות על טיפולים אסתטיים והזעת יתר",
-  twitterDescription: "FAQ מרכזי על טיפולים אסתטיים, תהליך הטיפול, החלמה והתאמה אישית בקליניקה.",
+  twitterTitle: "שאלות נפוצות על טיפולים אסתטיים והזעת יתר | ד\"ר חן פרדו",
+  twitterDescription: seoDescription,
 })
 
 useHead({

@@ -3,7 +3,7 @@
     <PageHero
       eyebrow="פגישת ייעוץ"
       title="בואי נבנה יחד את הטיפול המתאים"
-      subtitle="עמוד ייעודי ללידים עם מסר ברור, טופס קצר וקריאה לפעולה אחת."
+      subtitle="פגישת ייעוץ אישית עם ד&quot;ר חן פרדו בכפר סבא: אבחון, הסבר בגובה העיניים והתאמה של תוכנית טיפול שמתאימה לך."
     />
 
     <section class="page-section">
@@ -20,8 +20,12 @@
         <article class="page-card page-card--accent">
           <h2>השאירי פרטים ונחזור אלייך</h2>
           <p>
-            הדף הזה נועד לקמפיינים ולתנועה ממוקדת, ולכן הוא שומר על מסלול קצר
-            וברור עד להשארת ליד.
+            ממלאים את הטופס הקצר למטה, ואנחנו חוזרים אלייך לתיאום מועד נוח
+            לפגישה בקליניקה. אפשר גם להתקשר ישירות או לכתוב לנו בוואטסאפ.
+          </p>
+          <p class="consultation-note">
+            המידע באתר הוא כללי ואינו מחליף ייעוץ או בדיקה רפואית אישית.
+            ההתאמה לטיפול נקבעת רק לאחר הערכה רפואית בפגישה.
           </p>
         </article>
       </div>
@@ -32,17 +36,26 @@
 </template>
 
 <script setup lang="ts">
+const seoDescription =
+  "קביעת פגישת ייעוץ אישית עם ד\"ר חן פרדו בכפר סבא: אבחון רפואי, הסבר על אפשרויות הטיפול והתאמה אישית של תוכנית טיפול."
+
 useSeoMeta({
   title: "קביעת פגישת ייעוץ | ד\"ר חן פרדו",
-  description:
-    "עמוד ייעוץ ייעודי ללידים מקמפיינים ולפניות ישירות לקליניקה.",
+  description: seoDescription,
   ogTitle: "קביעת פגישת ייעוץ | ד\"ר חן פרדו",
-  ogDescription: "עמוד ייעוץ ייעודי ללידים מקמפיינים. קבעו פגישת ייעוץ עם ד\"ר חן פרדו בכפר סבא.",
+  ogDescription: seoDescription,
   ogImage: "https://drchenpardo.co.il/og-image.jpg",
   ogUrl: "https://drchenpardo.co.il/consultation",
   ogType: "website",
   twitterCard: "summary_large_image",
   twitterTitle: "קביעת פגישת ייעוץ | ד\"ר חן פרדו",
-  twitterDescription: "עמוד ייעוץ ייעודי ללידים מקמפיינים. קבעו פגישת ייעוץ עם ד\"ר חן פרדו בכפר סבא.",
+  twitterDescription: seoDescription,
 })
 </script>
+
+<style scoped>
+.consultation-note {
+  font-size: 0.95rem;
+  color: #5f5f5f;
+}
+</style>

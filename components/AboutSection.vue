@@ -20,7 +20,7 @@
           </p>
         </div>
         <div class="about-image">
-          <img src="/assets/about-doctor.jpeg" alt="Dr. Chen Pardo" />
+          <img src="/assets/about-doctor.jpeg" alt="ד&quot;ר חן פרדו בקליניקה" />
         </div>
       </div>
     </div>

@@ -2,7 +2,7 @@
   <header class="main-header" :class="{ scrolled: isScrolled }">
     <div class="container">
       <NuxtLink to="/" class="logo-link" @click="closeMenu">
-        <img src="/assets/logo.png" alt="Dr. Chen Pardo Logo" class="logo" />
+        <img src="/assets/logo.png" alt="ד&quot;ר חן פרדו - אסתטיקה רפואית" class="logo" />
       </NuxtLink>
 
       <button class="menu-toggle" aria-label="תפריט" @click="isOpen = !isOpen">

@@ -3,7 +3,7 @@
     <PageHero
       eyebrow="מרכז וידאו"
       title="כל הסרטונים"
-      subtitle="כל סרטוני הקליניקה במקום אחד, עם אפשרות סינון מהירה לפי מספר סרטון או מזהה."
+      subtitle="סרטוני הסבר קצרים של ד&quot;ר חן פרדו על טיפולים, תהליך הייעוץ ושאלות שחוזרות בקליניקה. אפשר לסנן לפי תחום טיפול או לחפש נושא."
     />
 
     <section class="page-section page-section--soft videos-page">
@@ -25,15 +25,15 @@
 
         <article class="page-card videos-filter-card">
           <h3>סינון סרטונים</h3>
-          <label for="videos-search" class="videos-filter-label">חיפוש</label>
+          <label for="videos-search" class="videos-filter-label">חיפוש נושא</label>
           <input
             id="videos-search"
             v-model="query"
             type="search"
             class="videos-filter-input"
-            placeholder="לדוגמה: 3 או hrgkr"
+            placeholder="לדוגמה: בוטוקס, הזעת יתר"
           />
-          <label for="videos-category" class="videos-filter-label">קטגוריה</label>
+          <label for="videos-category" class="videos-filter-label">תחום טיפול</label>
           <select id="videos-category" v-model="selectedCategory" class="videos-filter-input">
             <option value="all">הכל</option>
             <option v-for="category in categoryOptions.filter((item) => item !== 'all')" :key="category" :value="category">
@@ -60,7 +60,6 @@
             <div class="video-card__body">
               <strong>{{ video.title }}</strong>
               <p>{{ video.shortDesc }}</p>
-              <small>{{ video.videoId }}</small>
             </div>
           </button>
         </div>
@@ -130,7 +129,7 @@ const filteredVideos = computed(() => {
   const value = query.value.trim().toLowerCase();
   return videos.value.filter((video) => {
     const matchesQuery =
-      !value || [video.title, video.videoId, video.shortDesc, video.desc].some((field) => field.toLowerCase().includes(value));
+      !value || [video.title, video.shortDesc, video.desc].some((field) => field.toLowerCase().includes(value));
 
     const matchesCategory =
       selectedCategory.value === "all" || video.categoriesInHebrow.includes(selectedCategory.value);
@@ -162,17 +161,20 @@ const activeVideo = computed(() => {
   );
 });
 
+const seoDescription =
+  "סרטוני הסבר של ד\"ר חן פרדו על טיפולים אסתטיים, הזעת יתר ותהליך הייעוץ בקליניקה בכפר סבא."
+
 useSeoMeta({
-  title: 'כל הסרטונים | ד"ר חן פרדו',
-  description: "דף וידאו מרכזי עם כל סרטוני הקליניקה ואפשרות סינון מהירה.",
-  ogTitle: 'כל הסרטונים | ד"ר חן פרדו',
-  ogDescription: "דף וידאו מרכזי עם כל סרטוני הקליניקה.",
+  title: 'סרטוני הסבר על טיפולים | ד"ר חן פרדו',
+  description: seoDescription,
+  ogTitle: 'סרטוני הסבר על טיפולים | ד"ר חן פרדו',
+  ogDescription: seoDescription,
   ogImage: "https://drchenpardo.co.il/og-image.jpg",
   ogUrl: "https://drchenpardo.co.il/videos",
   ogType: "website",
   twitterCard: "summary_large_image",
-  twitterTitle: 'כל הסרטונים | ד"ר חן פרדו',
-  twitterDescription: "דף וידאו מרכזי עם כל סרטוני הקליניקה.",
+  twitterTitle: 'סרטוני הסבר על טיפולים | ד"ר חן פרדו',
+  twitterDescription: seoDescription,
 })
 </script>
 
@@ -300,10 +302,6 @@ useSeoMeta({
   margin: 0;
   color: #505050;
   font-size: 0.95rem;
-}
-
-.video-card__body small {
-  color: #6f6f6f;
 }
 
 @media (max-width: 900px) {
