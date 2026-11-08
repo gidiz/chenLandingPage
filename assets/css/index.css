@@ -92,6 +92,13 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
