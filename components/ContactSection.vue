@@ -1,6 +1,6 @@
 <template>
   <div>
-    <footer id="contact" class="contact-footer">
+    <footer id="contact" class="contact-footer" v-reveal>
       <div class="container">
         <h3 class="footer-title">יצירת קשר</h3>
 
@@ -128,7 +128,7 @@ const handleSubmit = async () => {
 
 <style scoped>
 .contact-footer {
-  background-color: #f0ece6;
+  background: linear-gradient(145deg, var(--color-surface-warm), var(--color-accent-tint));
   padding: 2rem 1rem;
   text-align: center;
   direction: rtl;
@@ -140,14 +140,14 @@ const handleSubmit = async () => {
 
 .footer-title {
   font-size: 1.8rem;
-  color: #5a7c7a;
+  color: var(--color-primary-deep);
   margin-bottom: 1rem;
 }
 
 .footer-address,
 .footer-phone {
   font-size: 1.1rem;
-  color: #333;
+  color: var(--color-text);
   margin: 0.3rem 0;
 }
 
@@ -168,10 +168,25 @@ const handleSubmit = async () => {
 #contact-form input,
 #contact-form textarea {
   padding: 0.75rem 1rem;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
   font-size: 1rem;
   font-family: inherit;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+#contact-form input:focus,
+#contact-form textarea:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(90, 124, 122, 0.15);
+}
+
+#contact-form input::placeholder,
+#contact-form textarea::placeholder {
+  color: var(--color-text-soft);
 }
 
 #contact-form input[type="tel" i] {
@@ -184,18 +199,18 @@ const handleSubmit = async () => {
 }
 
 #contact-form button {
-  background-color: #a9c4c0;
+  background: var(--gradient-primary);
   color: white;
   border: none;
   padding: 0.75rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 1.1rem;
   transition: background 0.3s ease;
 }
 
 #contact-form button:hover {
-  background-color: #5a7c7a;
+  background: var(--gradient-primary-hover);
 }
 
 
@@ -203,7 +218,7 @@ const handleSubmit = async () => {
   max-width: 500px;
   margin: 1.5rem auto 0;
   padding: 1rem 1.5rem;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   font-size: 1rem;
   text-align: center;
   transition: opacity 0.3s ease;
@@ -211,15 +226,15 @@ const handleSubmit = async () => {
 }
 
 .form-alert.success {
-  background-color: #d6efed;
-  color: #2f4f4e;
-  border: 1px solid #a9c4c0;
+  background-color: var(--color-success-bg);
+  color: var(--color-success-text);
+  border: 1px solid var(--color-success-border);
 }
 
 .form-alert.error {
-  background-color: #ffe0e0;
-  color: #722e2e;
-  border: 1px solid #ddaaaa;
+  background-color: var(--color-error-bg);
+  color: var(--color-error-text);
+  border: 1px solid var(--color-error-border);
 }
 
 .hidden {

@@ -1,6 +1,6 @@
 <template>
   <section class="page-hero">
-    <div class="container page-hero__content">
+    <div class="container page-hero__content" v-reveal>
       <p v-if="eyebrow" class="page-hero__eyebrow">{{ eyebrow }}</p>
       <h1>{{ title }}</h1>
       <div v-if="subtitle" class="page-hero__subtitle" v-html="subtitle" />
@@ -27,19 +27,38 @@ defineProps({
 
 <style scoped>
 .page-hero {
-  background: linear-gradient(135deg, #f7f5f2, #efe7dd);
-  padding: 4rem 1.5rem 3rem;
+  position: relative;
+  overflow: hidden;
+  background: var(--gradient-soft);
+  padding: clamp(3rem, 7vw, 5rem) 1.5rem;
   text-align: center;
 }
 
+.page-hero::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: -4rem;
+  bottom: -6rem;
+  width: 14rem;
+  height: 14rem;
+  border: 1px solid rgba(90, 124, 122, 0.14);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1.5rem rgba(90, 124, 122, 0.035),
+    0 0 0 3rem rgba(200, 169, 110, 0.035);
+  pointer-events: none;
+}
+
 .page-hero__content {
+  position: relative;
+  z-index: 1;
   max-width: 900px;
   margin: 0 auto;
 }
 
 .page-hero__eyebrow {
   margin: 0 0 1rem;
-  color: #5a7c7a;
+  color: var(--color-primary);
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -47,8 +66,8 @@ defineProps({
 .page-hero__subtitle {
   max-width: 760px;
   margin: 1rem auto 0;
-  color: #4a4a4a;
-  font-size: 1.125rem;
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
   line-height: 1.9;
 }
 

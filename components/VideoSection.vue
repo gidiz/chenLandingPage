@@ -1,5 +1,5 @@
 <template>
-  <section id="video" class="video-section">
+  <section id="video" class="video-section" v-reveal>
     <div class="container">
       <h2 class="section-title">סרטון מהקליניקה</h2>
       <p class="video-description">
@@ -84,8 +84,8 @@ const activeVideo = computed(() => validVideos.value[selectedIndex.value] ?? val
 
 <style scoped>
 .video-section {
-  background: linear-gradient(180deg, #f7f5f2 0%, #efe9e1 100%);
-  padding: 3.5rem 1.5rem;
+  background: var(--gradient-soft-vertical);
+  padding: var(--space-section-sm) 1.5rem;
   direction: rtl;
   text-align: center;
 }
@@ -93,29 +93,29 @@ const activeVideo = computed(() => validVideos.value[selectedIndex.value] ?? val
 .video-description {
   margin: 0 auto 1.5rem;
   max-width: 680px;
-  color: #4a4a4a;
+  color: var(--color-text-muted);
   line-height: 1.8;
 }
 
 .video-catalog-link {
   display: inline-block;
   margin-bottom: 1.25rem;
-  color: #5a7c7a;
+  color: var(--color-primary);
   text-decoration: none;
   font-weight: 600;
 }
 
 .video-catalog-link:hover {
-  color: #3d5c5a;
+  color: var(--color-primary-deep);
 }
 
 .video-frame {
   position: relative;
   width: min(960px, 100%);
   margin: 0 auto;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.14);
+  box-shadow: var(--shadow-lg);
   background-color: #000;
 }
 
@@ -143,14 +143,14 @@ const activeVideo = computed(() => validVideos.value[selectedIndex.value] ?? val
 
 .video-thumb {
   border: 2px solid transparent;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   background: #111;
   cursor: pointer;
   padding: 0;
   transition:
-    transform 0.2s ease,
-    border-color 0.2s ease;
+    transform var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out);
 }
 
 .video-thumb:hover {
@@ -158,7 +158,7 @@ const activeVideo = computed(() => validVideos.value[selectedIndex.value] ?? val
 }
 
 .video-thumb--active {
-  border-color: #5a7c7a;
+  border-color: var(--color-primary);
 }
 
 .video-thumb img {
@@ -172,16 +172,16 @@ const activeVideo = computed(() => validVideos.value[selectedIndex.value] ?? val
 .video-note {
   margin: 1rem auto 0;
   max-width: 680px;
-  color: #4a4a4a;
+  color: var(--color-text-muted);
 }
 
 .video-error {
   margin: 1rem auto 0;
   max-width: 680px;
-  color: #722e2e;
-  background: #ffe0e0;
-  border: 1px solid #ddaaaa;
-  border-radius: 12px;
+  color: var(--color-error-text);
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius-md);
   padding: 0.75rem 1rem;
 }
 </style>

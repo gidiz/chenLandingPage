@@ -10,10 +10,10 @@
 
    
 
-    <section class="page-section page-section--soft">
+    <section class="page-section page-section--soft" v-reveal>
       <div class="container">
         <h2 class="section-title">תתי-הטיפולים בקטגוריה</h2>
-        <div class="page-cards-grid">
+        <div class="page-cards-grid reveal--stagger" v-reveal>
           <NuxtLink
             v-for="service in category.services"
             :key="service.slug"
@@ -27,7 +27,7 @@
       </div>
     </section>
      <TreatmentVideoSection :category-slug="category.slug" />
-     <section class="page-section">
+     <section class="page-section" v-reveal>
       <div class="container page-grid">
         
         <aside class="page-card page-card--accent">

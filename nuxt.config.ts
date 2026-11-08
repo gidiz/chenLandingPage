@@ -46,6 +46,12 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#c8a96e' },
       ],
       link: [
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Assistant:wght@200..800&display=swap',
+        },
         { rel: 'alternate', hreflang: 'he', href: 'https://drchenpardo.co.il/' },
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       ],
