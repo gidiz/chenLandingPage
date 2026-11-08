@@ -1,5 +1,5 @@
 <template>
-  <section id="about" class="about-section">
+  <section id="about" class="about-section" v-reveal>
     <div class="container">
       <div class="about-content">
         <div class="about-text">
@@ -29,7 +29,7 @@
 
 <style scoped>
 .about-section {
-  background-color: #f9f8f6;
+  background: var(--gradient-soft);
   padding: 4rem 1rem;
   direction: rtl;
   text-align: right;
@@ -46,7 +46,7 @@
   flex: 1 1 500px;
   font-size: 1.125rem;
   line-height: 2;
-  color: #444;
+  color: var(--color-text);
 }
 
 .about-image {
@@ -58,6 +58,7 @@
   max-width: 100%;
   height: auto;
   border-radius: 1rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: var(--shadow-lg);
 }
 </style>

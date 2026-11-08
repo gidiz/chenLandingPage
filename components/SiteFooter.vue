@@ -1,5 +1,5 @@
 <template>
-  <footer class="site-footer">
+  <footer class="site-footer" v-reveal>
     <div class="container site-footer__content">
       <div class="site-footer__brand">
         <h2 class="site-footer__title">ד&quot;ר חן פרדו</h2>
@@ -64,8 +64,8 @@ const { treatmentCategories } = useTreatmentCatalog();
 
 <style scoped>
 .site-footer {
-  background-color: #3d5c5a;
-  color: #fff;
+  background: var(--gradient-footer);
+  color: var(--color-on-primary);
   padding: 2rem 1.5rem;
   direction: rtl;
   text-align: right;
@@ -84,7 +84,7 @@ const { treatmentCategories } = useTreatmentCatalog();
 
 .site-footer__title {
   margin: 0 0 0.75rem;
-  color: #fff;
+  color: var(--color-on-primary);
   font-size: 1.5rem;
 }
 
@@ -140,7 +140,7 @@ const { treatmentCategories } = useTreatmentCatalog();
 }
 
 .site-footer a {
-  color: #fff;
+  color: var(--color-on-primary);
   text-decoration: none;
 }
 

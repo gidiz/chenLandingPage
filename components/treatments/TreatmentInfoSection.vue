@@ -1,5 +1,5 @@
 <template>
-  <section class="page-section treatment-info-section">
+  <section class="page-section treatment-info-section" v-reveal>
     <div class="container page-grid treatment-info-section__grid">
       <article class="page-card treatment-info-section__main-card">
         <h2 class="section-title">מה חשוב לדעת לפני הטיפול</h2>

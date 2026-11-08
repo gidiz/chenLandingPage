@@ -154,7 +154,7 @@ useHead(
 
 <style scoped>
 .breadcrumbs {
-  background-color: #f7f3ee;
+  background-color: var(--color-surface-soft);
   border-bottom: 1px solid rgba(90, 124, 122, 0.14);
 }
 
@@ -172,7 +172,7 @@ useHead(
   justify-content: flex-end;
   gap: 0.45rem;
   direction: rtl;
-  color: #567472;
+  color: var(--color-primary-deep);
   font-size: 0.94rem;
 }
 
@@ -183,17 +183,17 @@ useHead(
 }
 
 .breadcrumbs__link {
-  color: #567472;
+  color: var(--color-primary-deep);
   text-decoration: none;
 }
 
 .breadcrumbs__link:hover {
-  color: #3d5c5a;
+  color: var(--color-primary);
   text-decoration: underline;
 }
 
 .breadcrumbs__current {
-  color: #3a3a3a;
+  color: var(--color-text);
   font-weight: 600;
 }
 

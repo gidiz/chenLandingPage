@@ -1,8 +1,8 @@
 <template>
-  <section id="treatments" class="treatments-section">
+  <section id="treatments" class="treatments-section" v-reveal>
     <div class="container">
       <h2 class="section-title">השירותים שלנו</h2>
-      <div class="treatment-category-grid">
+      <div class="treatment-category-grid reveal--stagger" v-reveal>
         <NuxtLink
           v-for="category in treatmentCategories"
           :key="category.slug"
@@ -41,8 +41,8 @@ const trackClick = (eventName, clickLocation) => {
 
 <style scoped>
 .treatments-section {
-  background-color: #f7f5f2;
-  padding: 3rem 1.5rem;
+  background: var(--gradient-soft-vertical);
+  padding: var(--space-section) 1.5rem;
   direction: rtl;
   text-align: right;
 }
@@ -62,7 +62,12 @@ const trackClick = (eventName, clickLocation) => {
   margin-top: 0;
 }
 
+.treatment-category-card {
+  min-height: 100%;
+}
+
 .cta {
   text-align: center;
+  margin-top: 2rem;
 }
 </style>

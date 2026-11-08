@@ -12,7 +12,7 @@
       :questions="service.questions"
     />
 
-    <section v-if="category.slug === 'hyperhidrosis'" class="page-section">
+    <section v-if="category.slug === 'hyperhidrosis'" class="page-section" v-reveal>
       <div class="container page-card">
         <p>
           המידע באתר הוא כללי ואינו מחליף ייעוץ, בדיקה או אבחון רפואי אישי.
@@ -24,10 +24,10 @@
 
     <TreatmentVideoSection :category-slug="category.slug" :service-slug="service.slug" />
 
-    <section class="page-section page-section--soft">
+    <section class="page-section page-section--soft" v-reveal>
       <div class="container">
         <h2 class="section-title">עוד טיפולים ב{{ category.shortTitle }}</h2>
-        <div class="page-cards-grid">
+        <div class="page-cards-grid reveal--stagger" v-reveal>
           <NuxtLink
             v-for="relatedService in relatedServices"
             :key="relatedService.slug"

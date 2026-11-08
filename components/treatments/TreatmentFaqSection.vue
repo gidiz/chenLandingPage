@@ -2,10 +2,11 @@
   <section
     v-if="questions.length"
     class="page-section page-section--soft treatment-faq-section"
+    v-reveal
   >
     <div class="container faq-preview">
       <h2 class="section-title">שאלות נפוצות סביב {{ shortTitle }}</h2>
-      <div class="faq-preview__items treatment-faq-section__items">
+      <div class="faq-preview__items treatment-faq-section__items reveal--stagger" v-reveal>
         <article v-for="question in questions" :key="question.title" class="page-card">
           <h3>{{ question.title }}</h3>
           <p>{{ question.answer }}</p>

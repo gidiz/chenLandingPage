@@ -6,7 +6,7 @@
       subtitle="סרטוני הסבר קצרים של ד&quot;ר חן פרדו על טיפולים, תהליך הייעוץ ושאלות שחוזרות בקליניקה. אפשר לסנן לפי תחום טיפול או לחפש נושא."
     />
 
-    <section class="page-section page-section--soft videos-page">
+    <section class="page-section page-section--soft videos-page" v-reveal>
       <div class="container videos-layout">
         <article class="page-card videos-player-card">
           <h2 class="section-title">נגן וידאו</h2>
@@ -45,7 +45,7 @@
       </div>
     </section>
 
-    <section class="page-section videos-grid-section">
+    <section class="page-section videos-grid-section" v-reveal>
       <div class="container">
         <div class="videos-grid" role="list">
           <button
@@ -196,7 +196,7 @@ useSeoMeta({
 
 .videos-player {
   position: relative;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   background: #000;
 }
@@ -218,7 +218,7 @@ useSeoMeta({
 .videos-empty {
   text-align: center;
   padding: 2rem 1rem;
-  color: #555;
+  color: var(--color-text-muted);
 }
 
 .videos-filter-card {
@@ -228,21 +228,21 @@ useSeoMeta({
 .videos-filter-label {
   display: block;
   margin-bottom: 0.35rem;
-  color: #4a4a4a;
+  color: var(--color-text-muted);
   font-weight: 600;
 }
 
 .videos-filter-input {
   width: 100%;
-  border: 1px solid #d8d2cb;
-  border-radius: 10px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
   padding: 0.65rem 0.85rem;
   font: inherit;
 }
 
 .videos-count {
   margin: 0.8rem 0 0;
-  color: #666;
+  color: var(--color-text-soft);
 }
 
 .videos-grid-section {
@@ -258,26 +258,26 @@ useSeoMeta({
 .video-card {
   display: block;
   width: 100%;
-  border: 1px solid #e5ddd4;
-  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   overflow: hidden;
-  background: #fff;
+  background: var(--color-surface);
   text-align: right;
   cursor: pointer;
   padding: 0;
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
+    transform var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out);
 }
 
 .video-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-md);
 }
 
 .video-card--active {
-  border-color: #5a7c7a;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 2px rgba(90, 124, 122, 0.16);
 }
 
@@ -295,12 +295,12 @@ useSeoMeta({
 }
 
 .video-card__body strong {
-  color: #333;
+  color: var(--color-text);
 }
 
 .video-card__body p {
   margin: 0;
-  color: #505050;
+  color: var(--color-text-muted);
   font-size: 0.95rem;
 }
 
