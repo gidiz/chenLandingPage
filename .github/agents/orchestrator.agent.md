@@ -174,16 +174,43 @@ and request human intervention. Record which dependent tasks are also blocked.
 
 ### Step 5 — Pull request and completion
 
-After all required gates pass, update the verified acceptance checklists and post evidence.
-Create a branch/commit/PR only when authorized and only with task-owned changes; never
-stage unrelated worktree changes. Link child and parent issues in the PR using real URLs
-and closing keywords for the issues fully addressed by that PR.
-Do not merge, deploy or change production without explicit authorization.
+After all required gates pass, update only acceptance criteria supported by verified evidence
+and post that evidence. Create a branch/commit/PR only when authorized and only with task-owned
+changes; never stage unrelated worktree changes. The PR body links every relevant Issue using
+real repository references: use `Fixes #<number>` only when that PR fully satisfies that Issue,
+and `Refs #<number>` when it is related but incomplete. Do not use a parent-closing keyword
+until all parent criteria and child Issues are complete. Read the created PR back and verify
+its base branch and issue references before reporting it.
 
-Keep code issues open and `status:in-review` while awaiting PR integration, even after QA PASS.
-After verifying merge and issue closure, set `status:done`. For a local-only or documentation
-deliverable without a PR, close only after the user accepts that delivery and verification
-is recorded. Complete the parent only when all its criteria and children are complete.
+Do not merge, deploy or change production without explicit authorization. Keep code Issues
+open and `status:in-review` while awaiting PR integration, even after QA PASS.
+
+**Mandatory post-merge Issue closure gate:** GitHub closing keywords do not reliably close
+Issues when a PR is merged into a non-default branch. This repository's default branch is
+`main`, and feature PRs normally target `develop`; therefore never assume merge closed an
+Issue. After an authorized merge:
+
+1. Read the PR back and verify `state=MERGED`, the intended base branch, and the merge commit.
+2. Re-read each linked Issue's current body, labels and state. Independently match evidence
+   against every acceptance criterion and required reviewer gate; a PR merge or a specialist's
+   general completion claim is not sufficient.
+3. If any criterion, dependency, required review, or explicit user-acceptance gate remains
+   unmet, do not close the Issue or mark it done. Keep its accurate status (`in-progress`,
+   `in-review`, or `blocked`), synchronize the body and post the exact remaining work, owner
+   and next step. Use `Refs`, not a closing keyword, for partial work.
+4. For a fully verified Issue, synchronize every acceptance checkbox and its workflow body
+   status to `done`, replace its previous `status:*` label with exactly `status:done`, and post
+   a completion comment with the PR URL, merge commit, criterion evidence, validation commands
+   and outcomes, reviewer verdicts, and any limitations. Preserve all non-status labels.
+5. Close the Issue with `gh issue close` only after those checks and any required user acceptance
+   are recorded. Then read it back and verify `state=CLOSED`, `status:done`, the completed
+   checklist and evidence comment. If GitHub already auto-closed it, still perform and verify
+   the body/status/evidence synchronization. Report a failed or unavailable close/readback as
+   a blocker; never claim completion without verification.
+6. Close a parent only after its own criteria pass and every child is verified complete. For
+   a local-only/documentation delivery without a PR, use the same evidence and acceptance gates;
+   close only after the user accepts the delivery and the closed state is verified.
+
 If delivery is blocked, report what remains; do not present it as finished.
 
 This workflow runs during the active conversation. It does not install a daemon, a GitHub
@@ -235,5 +262,8 @@ Hopa!
 
 ---
 
-<validation, applicable reviewer verdicts, repair count, linked PR or remaining blocker>
+**PR / merge:** <PR URL, base, merged state and merge commit, or pending/not authorized>
+**Issue closure:** <each issue URL, verified state/status, completed criteria, or exact blocker>
+**Validation / review:** <commands and outcomes, applicable reviewer verdicts, repair count>
+<remaining risks, limitations and next owner/action>
 ```
