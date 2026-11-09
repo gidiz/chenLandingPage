@@ -37,93 +37,77 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from "vue";
-import { createConsola } from "consola";
+<script setup lang="ts">
+import { ref } from "vue"
 
-const contactForm = ref(null);
-const alertState = ref("hidden");
-const alertMessage = ref("");
-const { $analytics } = useNuxtApp();
-const consola = createConsola({ tag: "chen-contact" });
+const contactForm = ref<HTMLFormElement | null>(null)
+const alertState = ref<"hidden" | "success" | "error">("hidden")
+const alertMessage = ref("")
+const nuxtApp = useNuxtApp() as {
+  $analytics?: {
+    trackEvent?: (eventName: string, payload: Record<string, unknown>) => void
+  }
+}
 
-const showAlert = (state, message) => {
-  alertState.value = state;
-  alertMessage.value = message;
+const showAlert = (state: "success" | "error", message: string): void => {
+  alertState.value = state
+  alertMessage.value = message
 
   window.setTimeout(() => {
-    alertState.value = "hidden";
-    alertMessage.value = "";
-  }, 5000);
-};
+    alertState.value = "hidden"
+    alertMessage.value = ""
+  }, 5000)
+}
 
-const trackClick = (eventName, clickLocation) => {
-  $analytics.trackEvent(eventName, {
+const trackClick = (eventName: string, clickLocation: string): void => {
+  nuxtApp.$analytics?.trackEvent?.(eventName, {
     click_location: clickLocation,
     page_path: window.location.pathname,
-  });
-};
+  })
+}
 
-const handleSubmit = async () => {
+const handleSubmit = async (): Promise<void> => {
   if (!contactForm.value) {
-    return;
+    return
   }
 
-  const formData = new FormData(contactForm.value);
+  const formData = new FormData(contactForm.value)
 
   const data = {
-    name: formData.get("name"),
-    email: formData.get("email"),
-    phone: formData.get("phone"),
-    message: formData.get("message"),
-  };
+    name: String(formData.get("name") ?? ""),
+    email: String(formData.get("email") ?? ""),
+    phone: String(formData.get("phone") ?? ""),
+    message: String(formData.get("message") ?? ""),
+  }
 
   try {
-    const [lambdaRes, makeRes] = await Promise.allSettled([
-      fetch(
-        "https://vxu8elp5u8.execute-api.us-east-1.amazonaws.com/v1/sendContactEmail",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        },
-      ),
-      fetch("https://hook.eu1.make.com/2754n2mdnhkuwadra1tp8m7pkr4f3el6", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      }),
-    ]);
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
 
-    const lambdaSuccess =
-      lambdaRes.status === "fulfilled" && lambdaRes.value.ok;
-    const makeSuccess = makeRes.status === "fulfilled" && makeRes.value.ok;
-
-    if (lambdaSuccess || makeSuccess) {
-      showAlert("success", "הטופס נשלח בהצלחה!");
-      contactForm.value.reset();
-      $analytics.trackEvent("contact_form_submit", {
+    if (response.ok) {
+      const result: {
+        delivery: { lambda: boolean; make: boolean }
+      } = await response.json()
+      showAlert("success", "הטופס נשלח בהצלחה!")
+      contactForm.value.reset()
+      nuxtApp.$analytics?.trackEvent?.("contact_form_submit", {
         form_id: "contact-form",
         form_location: "footer_contact_section",
-        transport_lambda: lambdaSuccess,
-        transport_make: makeSuccess,
-      });
-
-      if (!lambdaSuccess) {
-        consola.warn("contact_lambda_failed", lambdaRes);
-      }
-      if (!makeSuccess) {
-        consola.warn("contact_make_failed", makeRes);
-      }
+        transport_lambda: result.delivery.lambda,
+        transport_make: result.delivery.make,
+      })
     } else {
-      showAlert("error", "אירעה שגיאה בשליחה.");
-      consola.error("contact_both_failed", { lambdaRes, makeRes });
+      showAlert("error", response.status === 429
+        ? "נשלחו יותר מדי פניות. נא להמתין דקה ולנסות שוב."
+        : "אירעה שגיאה בשליחה. נא לנסות שוב מאוחר יותר.")
     }
-  } catch (error) {
-    showAlert("error", "שגיאה כללית, נסה שוב.");
-    consola.error("contact_submit_error", error);
+  } catch {
+    showAlert("error", "שגיאה כללית, נסה שוב.")
   }
-};
+}
 </script>
 
 <style scoped>

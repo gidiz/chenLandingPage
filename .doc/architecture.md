@@ -38,3 +38,15 @@
 - 2026-06-28: Added a local MCP integrations server for read-only GA4, GTM, AWS, and GitHub access.
 - Add future entries here for major route changes, treatment catalog expansion, analytics flow changes, or major component ownership changes.
 
+## Contact form security boundary
+
+`components/ContactSection.vue` submits only to same-origin `POST /api/contact`.
+`server/api/contact.post.ts` resolves private runtime configuration from
+`CONTACT_MAKE_WEBHOOK_URL` and `CONTACT_LAMBDA_URL`; `server/lib/contact.ts`
+validates the four required fields, limits body size/read time and per-IP traffic,
+and forwards the same JSON to configured destinations with bounded delivery time.
+Either successful delivery reports success, including single-destination operation.
+If neither destination is configured, the request fails explicitly before sending.
+No contact PII or destination URLs are logged.
+The clinic owner must revoke/rotate the exposed Make capability URL and configure
+only the replacement. There is no legacy endpoint fallback.

@@ -59,6 +59,10 @@ export default defineNuxtConfig({
   },
   ssr: true,
   runtimeConfig: {
+    contact: {
+      makeWebhookUrl: "",
+      lambdaUrl: "",
+    },
     chat: {
       rateLimitWindowMs: Number(process.env.RAG_CHAT_RATE_LIMIT_WINDOW_MS || 60000),
       rateLimitMaxRequests: Number(process.env.RAG_CHAT_RATE_LIMIT_MAX_REQUESTS || 8),

@@ -26,6 +26,28 @@
 
 ## Hosting and Deployment
 
+### Contact API requirement
+
+The contact form now requires a running Nitro server for same-origin
+`POST /api/contact`. A static S3 deployment alone cannot handle submissions:
+route `/api/contact` through the same public origin to a Nitro deployment,
+without wildcard CORS. This fix does not change or deploy infrastructure.
+Set private **server runtime** variables `CONTACT_MAKE_WEBHOOK_URL` (a newly
+rotated Make URL, never the exposed legacy value) and `CONTACT_LAMBDA_URL`
+(the existing clinic AWS contact destination). At least one is required; each
+configured destination is attempted, and either success reports success. If neither
+is configured, an explicit 503 is returned without forwarding PII. Do not put these
+in `NUXT_PUBLIC_*`, client assets, or build-only static hosting configuration.
+
+The in-memory contact limiter allows five attempts/minute per socket IP.
+It ignores untrusted forwarded IP headers. A reverse proxy may therefore share
+one quota across users; configure a verified client-IP boundary before production
+proxy use, and replace the limiter with a shared store before multiple instances.
+Preserve the public Host and overwrite/strip caller-supplied X-Forwarded-Proto
+at trusted TLS termination so origin checks see the correct public protocol.
+Request bodies are limited to 16 KiB / five seconds; each delivery to eight seconds.
+No automatic delivery retries are performed to avoid duplicate contact messages.
+
 - The site is deployed as a **static build** to AWS S3.
 - Build artifacts are generated via `npm run generate`, which outputs to `.output/public`.
 - GitHub Actions workflow handles automated builds and S3 deployment.
