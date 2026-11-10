@@ -7,16 +7,25 @@
         <form
           id="contact-form"
           ref="contactForm"
+          :aria-busy="isSubmitting"
           @submit.prevent="handleSubmit"
         >
-          <input type="text" name="name" placeholder="שם מלא" required />
-          <input type="email" name="email" placeholder="אימייל" required />
-          <input type="tel" name="phone" placeholder="טלפון" required />
-          <textarea name="message" placeholder="הודעה" required></textarea>
-          <button type="submit">שלח</button>
+          <input type="text" name="name" placeholder="שם מלא" aria-label="שם מלא" maxlength="100" required />
+          <input type="email" name="email" placeholder="אימייל" aria-label="אימייל" maxlength="254" required />
+          <input type="tel" name="phone" placeholder="טלפון" aria-label="טלפון" maxlength="32" required />
+          <textarea name="message" placeholder="הודעה" aria-label="הודעה" maxlength="2000" required></textarea>
+          <button type="submit" :disabled="isSubmitting || isRetryBlocked">
+            {{ isSubmitting ? "שולח..." : isRetryBlocked ? "נא להמתין" : "שלח" }}
+          </button>
         </form>
 
-        <div id="form-alert" :class="['form-alert', alertState]">
+        <div
+          id="form-alert"
+          :class="['form-alert', alertState]"
+          :role="alertState === 'error' ? 'alert' : 'status'"
+          :aria-live="alertState === 'error' ? 'assertive' : 'polite'"
+          aria-atomic="true"
+        >
           {{ alertMessage }}
         </div>
 
@@ -37,93 +46,106 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from "vue";
-import { createConsola } from "consola";
+<script setup lang="ts">
+import { onBeforeUnmount, ref } from "vue"
 
-const contactForm = ref(null);
-const alertState = ref("hidden");
-const alertMessage = ref("");
-const { $analytics } = useNuxtApp();
-const consola = createConsola({ tag: "chen-contact" });
+const contactForm = ref<HTMLFormElement | null>(null)
+const alertState = ref<"hidden" | "success" | "error">("hidden")
+const alertMessage = ref("")
+const isSubmitting = ref(false)
+const isRetryBlocked = ref(false)
+let retryTimeout: ReturnType<typeof setTimeout> | null = null
+const nuxtApp = useNuxtApp() as {
+  $analytics?: {
+    trackEvent?: (eventName: string, payload: Record<string, unknown>) => void
+  }
+}
 
-const showAlert = (state, message) => {
-  alertState.value = state;
-  alertMessage.value = message;
+const showAlert = (state: "success" | "error", message: string): void => {
+  alertState.value = state
+  alertMessage.value = message
+}
 
-  window.setTimeout(() => {
-    alertState.value = "hidden";
-    alertMessage.value = "";
-  }, 5000);
-};
+onBeforeUnmount(() => {
+  if (retryTimeout !== null) {
+    clearTimeout(retryTimeout)
+  }
+})
 
-const trackClick = (eventName, clickLocation) => {
-  $analytics.trackEvent(eventName, {
+const trackClick = (eventName: string, clickLocation: string): void => {
+  nuxtApp.$analytics?.trackEvent?.(eventName, {
     click_location: clickLocation,
     page_path: window.location.pathname,
-  });
-};
+  })
+}
 
-const handleSubmit = async () => {
-  if (!contactForm.value) {
-    return;
+const handleSubmit = async (): Promise<void> => {
+  if (!contactForm.value || isSubmitting.value || isRetryBlocked.value) {
+    return
   }
 
-  const formData = new FormData(contactForm.value);
+  isSubmitting.value = true
+  alertState.value = "hidden"
+  alertMessage.value = ""
+  const formData = new FormData(contactForm.value)
 
   const data = {
-    name: formData.get("name"),
-    email: formData.get("email"),
-    phone: formData.get("phone"),
-    message: formData.get("message"),
-  };
+    name: String(formData.get("name") ?? ""),
+    email: String(formData.get("email") ?? ""),
+    phone: String(formData.get("phone") ?? ""),
+    message: String(formData.get("message") ?? ""),
+  }
 
   try {
-    const [lambdaRes, makeRes] = await Promise.allSettled([
-      fetch(
-        "https://vxu8elp5u8.execute-api.us-east-1.amazonaws.com/v1/sendContactEmail",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        },
-      ),
-      fetch("https://hook.eu1.make.com/2754n2mdnhkuwadra1tp8m7pkr4f3el6", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      }),
-    ]);
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
 
-    const lambdaSuccess =
-      lambdaRes.status === "fulfilled" && lambdaRes.value.ok;
-    const makeSuccess = makeRes.status === "fulfilled" && makeRes.value.ok;
-
-    if (lambdaSuccess || makeSuccess) {
-      showAlert("success", "הטופס נשלח בהצלחה!");
-      contactForm.value.reset();
-      $analytics.trackEvent("contact_form_submit", {
+    if (response.ok) {
+      const result: {
+        success: boolean
+        delivery: { lambda: boolean; make: boolean }
+      } = await response.json()
+      if (
+        result?.success !== true ||
+        typeof result.delivery?.lambda !== "boolean" ||
+        typeof result.delivery?.make !== "boolean" ||
+        (!result.delivery.lambda && !result.delivery.make)
+      ) {
+        showAlert("error", "לא התקבל אישור לשליחת הטופס. נא לנסות שוב מאוחר יותר.")
+        return
+      }
+      showAlert("success", "הטופס נשלח בהצלחה!")
+      contactForm.value.reset()
+      nuxtApp.$analytics?.trackEvent?.("contact_form_submit", {
         form_id: "contact-form",
         form_location: "footer_contact_section",
-        transport_lambda: lambdaSuccess,
-        transport_make: makeSuccess,
-      });
-
-      if (!lambdaSuccess) {
-        consola.warn("contact_lambda_failed", lambdaRes);
-      }
-      if (!makeSuccess) {
-        consola.warn("contact_make_failed", makeRes);
-      }
+        transport_lambda: result.delivery.lambda,
+        transport_make: result.delivery.make,
+      })
     } else {
-      showAlert("error", "אירעה שגיאה בשליחה.");
-      consola.error("contact_both_failed", { lambdaRes, makeRes });
+      if (response.status === 429) {
+        const retryAfter = Number(response.headers.get("Retry-After"))
+        if (Number.isSafeInteger(retryAfter) && retryAfter > 0 && retryAfter <= 2147483) {
+          isRetryBlocked.value = true
+          retryTimeout = setTimeout(() => {
+            isRetryBlocked.value = false
+            retryTimeout = null
+          }, retryAfter * 1000)
+        }
+      }
+      showAlert("error", response.status === 429
+        ? "נשלחו יותר מדי פניות. נא להמתין ולנסות שוב."
+        : "אירעה שגיאה בשליחה. נא לנסות שוב מאוחר יותר.")
     }
-  } catch (error) {
-    showAlert("error", "שגיאה כללית, נסה שוב.");
-    consola.error("contact_submit_error", error);
+  } catch {
+    showAlert("error", "שגיאה כללית, נסה שוב.")
+  } finally {
+    isSubmitting.value = false
   }
-};
+}
 </script>
 
 <style scoped>
@@ -213,6 +235,10 @@ const handleSubmit = async () => {
   background: var(--gradient-primary-hover);
 }
 
+#contact-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
 
 .form-alert {
   max-width: 500px;
