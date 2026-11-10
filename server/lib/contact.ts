@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto"
+import { isIP } from "node:net"
 import {
   getHeader,
-  getRequestIP,
   setHeader,
   setResponseStatus,
 } from "h3"
@@ -37,12 +37,29 @@ const contactSchema = z.object({
 }).strict()
 
 const destinationSchema = z.string().url().refine((value) => {
-  const url = new URL(value)
-  return url.protocol === "https:" && !url.username && !url.password && !url.hash
+  try {
+    const url = new URL(value)
+    return url.protocol === "https:" && !url.username && !url.password && !url.hash
+  } catch {
+    return false
+  }
 })
+
+const canonicalOriginSchema = z.string().url().refine((value) => {
+  try {
+    const url = new URL(value)
+    return url.protocol === "https:" && url.origin === value
+  } catch {
+    return false
+  }
+})
+const trustedProxySchema = z.string().transform((value) =>
+  value === "" ? [] : value.split(",").map((ip) => ip.trim()),
+).pipe(z.array(z.string().refine((ip) => isIP(ip) !== 0)).max(32))
 
 type ContactConfig = {
   canonicalOrigin: string
+  trustedProxyIps: string
   makeWebhookUrl: string
   lambdaUrl: string
 }
@@ -50,6 +67,7 @@ type ContactConfig = {
 type ContactResult = {
   success: true
   delivery: { lambda: boolean; make: boolean }
+  deliveryStatus: "complete" | "partial"
   requestId: string
 } | {
   error: { code: string; message: string }
@@ -100,14 +118,12 @@ const readBoundedBody = (event: H3Event): Promise<string> =>
     request.once("aborted", onError)
   })
 
-const checkRateLimit = (event: H3Event): number => {
+const checkRateLimit = (key: string): number => {
   const now = Date.now()
   for (const [key, entry] of rateLimitStore) {
     if (entry.expiresAt <= now) rateLimitStore.delete(key)
   }
 
-  // Do not trust caller-controlled X-Forwarded-For headers.
-  const key = getRequestIP(event) || "unknown"
   const entry = rateLimitStore.get(key)
   if (!entry) {
     if (rateLimitStore.size >= MAX_RATE_ENTRIES) return 60
@@ -166,7 +182,31 @@ export const handleContact = async (
   }
 
   try {
-    const retryAfter = checkRateLimit(event)
+    const canonicalOrigin = canonicalOriginSchema.safeParse(config.canonicalOrigin)
+    const trustedProxyIps = trustedProxySchema.safeParse(config.trustedProxyIps)
+    if (!canonicalOrigin.success || !trustedProxyIps.success) {
+      logger.error({
+        requestId,
+        operation: "contact.config",
+        configName: !canonicalOrigin.success ? "CONTACT_CANONICAL_ORIGIN" : "CONTACT_TRUSTED_PROXY_IPS",
+        code: "CONTACT_CONFIG_INVALID",
+      })
+      return fail(503, "CONTACT_CONFIG_INVALID", "Contact service configuration is unavailable.")
+    }
+
+    // Only socket peers explicitly allowlisted by operators may supply one client IP.
+    // The trusted ingress MUST strip incoming X-Forwarded-For and overwrite it.
+    // Host, Forwarded, X-Forwarded-Host and X-Forwarded-Proto never establish origin.
+    const socketIp = event.node.req.socket.remoteAddress || "unknown"
+    let clientIp = socketIp
+    if (trustedProxyIps.data.includes(socketIp)) {
+      const forwardedIp = getHeader(event, "x-forwarded-for")
+      if (!forwardedIp || isIP(forwardedIp) === 0) {
+        return fail(400, "INVALID_PROXY_IP", "Invalid request routing metadata.")
+      }
+      clientIp = forwardedIp
+    }
+    const retryAfter = checkRateLimit(clientIp)
     if (retryAfter) {
       setHeader(event, "Retry-After", retryAfter)
       return fail(429, "RATE_LIMITED", "Too many submissions. Please try again later.")
@@ -174,9 +214,9 @@ export const handleContact = async (
 
     const origin = getHeader(event, "origin")
     const referer = getHeader(event, "referer")
-    const expectedOrigin = new URL(config.canonicalOrigin).origin
+    const expectedOrigin = canonicalOrigin.data
     let refererOrigin: string | undefined
-    if (!origin && referer) {
+    if (origin === undefined && referer) {
       try {
         const refererUrl = new URL(referer)
         if ((refererUrl.protocol === "http:" || refererUrl.protocol === "https:")
@@ -188,7 +228,7 @@ export const handleContact = async (
       }
     }
     if (getHeader(event, "sec-fetch-site") === "cross-site"
-      || (origin ? origin !== expectedOrigin : refererOrigin !== expectedOrigin)) {
+      || (origin !== undefined ? origin !== expectedOrigin : refererOrigin !== expectedOrigin)) {
       return fail(403, "ORIGIN_REJECTED", "Cross-origin submissions are not allowed.")
     }
     if (getHeader(event, "content-type")?.split(";")[0]?.trim().toLowerCase() !== "application/json") {
@@ -239,7 +279,8 @@ export const handleContact = async (
     if (!lambda && !make) {
       return fail(502, "CONTACT_DELIVERY_FAILED", "Delivery unavailable. Please try again later.")
     }
-    return { success: true, delivery: { lambda, make }, requestId }
+    const partial = (Boolean(config.lambdaUrl) && !lambda) || (Boolean(config.makeWebhookUrl) && !make)
+    return { success: true, delivery: { lambda, make }, deliveryStatus: partial ? "partial" : "complete", requestId }
   } catch {
     logger.error({ requestId, operation: "contact.submit", code: "UNEXPECTED_ERROR" })
     return fail(500, "CONTACT_INTERNAL_ERROR", "Unable to process the submission.")

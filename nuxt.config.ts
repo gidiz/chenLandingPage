@@ -60,6 +60,8 @@ export default defineNuxtConfig({
   ssr: true,
   runtimeConfig: {
     contact: {
+      canonicalOrigin: "",
+      trustedProxyIps: "",
       makeWebhookUrl: "",
       lambdaUrl: "",
     },
