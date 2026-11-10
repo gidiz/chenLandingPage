@@ -588,6 +588,7 @@ const handleGlobalKeydown = (event: KeyboardEvent): void => {
 
   .nav-dropdown__menu {
     position: static;
+    translate: none;
     width: auto;
     max-height: none;
     overflow: visible;
