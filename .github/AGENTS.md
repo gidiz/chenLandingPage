@@ -43,6 +43,15 @@
 - CSS and styling guidance: `.rule/style-rules.md`.
 - Design tokens, branding, and color palette: defined in `.rule/style-rules.md`.
 
+## Feature-Scoped Work and Validation
+- All implementers, reviewers, and the Orchestrator work on the requested feature and its directly affected behavior only. Follow dependencies only as needed to implement or verify that behavior.
+- A full-site review, repository-wide bug search, or general dependency audit requires an explicit user request. Specialist ownership lists describe eligible areas, not a requirement to inspect every file in those areas.
+- Delegate only the relevant paths and criteria, with a clear stopping point. Do not recruit extra reviewers or expand the task merely because an unrelated issue is discovered.
+- Run the smallest meaningful tests and inspect only affected routes and interactions. A project build may validate compilation when needed; it is not permission to review the rest of the site.
+- Record unrelated pre-existing findings as separate follow-up tasks. Do not repair them or make them feature blockers unless they demonstrate a directly affected unsafe behavior or regression.
+- Report scoped verdicts and actual checks honestly; do not imply that unreviewed areas or explicitly deferred criteria passed.
+- This scope rule applies to every specialist checklist and takes precedence over broad domain lists below or in agent definitions.
+
 ## Multi-Agent Team
 Thirteen agents are defined in `.github/agents/`. Invoke via the VS Code agent picker or as subagents.
 Historical architecture references: `.plan/004-2026-08-17-multi-agent-setup.md` (core five), `.plan/006-2026-11-03-agent-team-expansion.md` (expansion).
