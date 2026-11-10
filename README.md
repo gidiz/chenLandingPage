@@ -121,9 +121,11 @@ See the [shared contract](.github/AGENTS.md) and
 - [The default layout](layouts/default.vue) provides a keyboard skip link and a
   [mobile contact bar](components/MobileContactBar.vue) through 768px. The bar
   reserves safe-area space, hides during editable-field focus and while the
-  mobile navigation drawer is open, and is not shown on desktop.
+  mobile navigation drawer is open, and is not shown on desktop. Its primary
+  action links to `/consultation`.
 - [The footer](components/SiteFooter.vue) contains social links, a chat launcher
-  and native treatment disclosures; the desktop layout uses three columns.
+  and native treatment disclosures over a darkened clinic photo background; the
+  desktop layout uses three columns.
 - [Homepage videos](pages/index.vue) are curated in the order `UTAWXOtyfa0`,
   `RcBWFggZImU`, `U5uEPOUf16A`. The full catalog remains at `/videos`.
   Video titles and thumbnail labels are not speech captions or transcripts.
