@@ -2,7 +2,7 @@
   <nav
     v-if="breadcrumbItems.length > 0"
     class="breadcrumbs"
-    aria-label="Breadcrumb"
+    aria-label="פירורי לחם"
   >
     <div class="container breadcrumbs__inner">
       <ol class="breadcrumbs__list">
@@ -41,6 +41,7 @@ const { getCategoryBySlug, getServiceBySlugs } = useTreatmentCatalog();
 
 const segmentLabelMap: Record<string, string> = {
   about: "אודות",
+  accessibility: "הצהרת נגישות",
   consultation: "קביעת ייעוץ",
   contact: "יצירת קשר",
   faq: "שאלות נפוצות",
@@ -144,7 +145,7 @@ useHead(
                 name: item.label,
                 ...(item.to ? { item: `https://drchenpardo.co.il${item.to}` } : {}),
               })),
-            }),
+            }).replace(/</g, '\\u003c'),
           },
         ]
       : [],

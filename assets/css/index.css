@@ -84,6 +84,9 @@
   --z-header: 999;
   --z-nav: 1000;
   --z-floating: 1100;
+
+  /* Room for the mobile contact actions, including the device safe area */
+  --mobile-action-bar-height: 4.75rem;
 }
 
 /* ==========================================================================
@@ -191,6 +194,26 @@ img {
 @media (max-width: 768px) {
   .container {
     width: min(var(--container-max), calc(100% - 2rem));
+  }
+
+  body {
+    padding-block-end: calc(
+      var(--mobile-action-bar-height) + env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  html {
+    scroll-padding-block-end: calc(
+      var(--mobile-action-bar-height) + env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  #contact,
+  #contact-form,
+  [id^="treatments-"] {
+    scroll-margin-block-end: calc(
+      var(--mobile-action-bar-height) + env(safe-area-inset-bottom, 0px)
+    );
   }
 
   .page-grid {
@@ -431,12 +454,19 @@ img {
   }
 
   .cta-button,
-  .page-card--link {
+  .page-card--link,
+  .page-enter-active,
+  .page-leave-active {
     transition: none;
   }
 
   .cta-button:hover,
   .page-card--link:hover {
+    transform: none;
+  }
+
+  .page-enter-from,
+  .page-leave-to {
     transform: none;
   }
 }

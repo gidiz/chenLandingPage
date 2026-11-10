@@ -6,37 +6,46 @@
       <div class="treatment-video-frame">
         <iframe
           :src="activeVideo.embedUrl"
-          :title="`סרטון YouTube – ${activeVideo.videoId}`"
+          :title="`סרטון: ${activeVideo.title}`"
           loading="lazy"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           referrerpolicy="strict-origin-when-cross-origin"
           allowfullscreen
         />
       </div>
 
-      <div v-if="validVideos.length > 1" class="treatment-video-thumbnails" role="list">
+      <div
+        v-if="validVideos.length > 1"
+        class="treatment-video-thumbnails"
+        role="group"
+        aria-label="בחירת סרטון"
+      >
         <button
           v-for="(video, index) in validVideos"
           :key="video.videoId"
           type="button"
           class="treatment-video-thumb"
           :class="{ 'treatment-video-thumb--active': index === selectedIndex }"
-          :aria-label="`בחירת סרטון ${index + 1}`"
+          :aria-pressed="index === selectedIndex"
+          :aria-label="`בחירת סרטון: ${video.title}`"
           @click="selectedIndex = index"
         >
           <img
             :src="video.thumbnailUrl"
-            :alt="`תמונה ממוזערת של סרטון ${index + 1}`"
+            alt=""
             loading="lazy"
           />
         </button>
       </div>
+      <p v-if="activeVideo" class="treatment-video-caption">
+        {{ activeVideo.title }}
+      </p>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { toYouTubeVideo, type ParsedYouTubeVideo } from '../../composables/useClinicVideos'
+import { toYouTubeVideo } from '../../composables/useClinicVideos'
 import { useTreatmentVideos } from '../../composables/useTreatmentVideos'
 
 const props = defineProps<{
@@ -52,9 +61,10 @@ const { videos } = useTreatmentVideos({
 const selectedIndex = ref(0)
 
 const validVideos = computed(() =>
-  (videos.value ?? [])
-    .map((v) => toYouTubeVideo(v.url))
-    .filter((v): v is ParsedYouTubeVideo => v !== null),
+  (videos.value ?? []).flatMap((video) => {
+    const parsedVideo = toYouTubeVideo(video.url)
+    return parsedVideo ? [{ ...parsedVideo, title: video.title }] : []
+  }),
 )
 
 const activeVideo = computed(
@@ -95,7 +105,15 @@ const activeVideo = computed(
   gap: 0.65rem;
 }
 
+.treatment-video-caption {
+  width: min(960px, 100%);
+  margin: 0.75rem auto 0;
+  color: var(--color-text);
+  font-weight: 700;
+}
+
 .treatment-video-thumb {
+  min-height: 44px;
   border: 2px solid transparent;
   border-radius: 10px;
   overflow: hidden;
@@ -121,5 +139,15 @@ const activeVideo = computed(
   aspect-ratio: 16 / 9;
   object-fit: cover;
   display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .treatment-video-thumb {
+    transition: none;
+  }
+
+  .treatment-video-thumb:hover {
+    transform: none;
+  }
 }
 </style>

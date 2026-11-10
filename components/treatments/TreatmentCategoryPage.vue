@@ -1,14 +1,19 @@
 <template>
   <div>
+    <section class="page-section page-section--soft" aria-label="מידע רפואי כללי">
+      <div class="container">
+        <p class="page-card treatment-disclaimer">
+          המידע באתר הוא כללי ואינו מחליף ייעוץ, בדיקה או אבחון רפואי אישי.
+          ההתאמה לטיפול נקבעת רק לאחר הערכה רפואית.
+        </p>
+      </div>
+    </section>
+
     <PageHero
       :eyebrow="category.eyebrow"
       :title="category.title"
       :subtitle="`<p>${category.description}</p><p>${category.intro}</p>`"
     />
-
-    
-
-   
 
     <section class="page-section page-section--soft" v-reveal>
       <div class="container">
@@ -44,10 +49,6 @@
           <NuxtLink to="/consultation" class="cta-button">
             לקביעת פגישת ייעוץ
           </NuxtLink>
-          <p v-if="category.slug === 'hyperhidrosis'">
-            המידע באתר הוא כללי ואינו מחליף ייעוץ, בדיקה או אבחון רפואי אישי.
-            ההתאמה לטיפול נקבעת רק לאחר הערכה רפואית.
-          </p>
         </aside>
       </div>
     </section>
@@ -123,7 +124,7 @@ useHead({
             },
           })),
         },
-      }),
+      }).replace(/</g, '\\u003c'),
     },
   ],
 })

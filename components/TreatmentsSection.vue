@@ -27,16 +27,20 @@
   </section>
 </template>
 
-<script setup>
-const { treatmentCategories } = useTreatmentCatalog();
-const { $analytics } = useNuxtApp();
+<script setup lang="ts">
+const { treatmentCategories } = useTreatmentCatalog()
+const nuxtApp = useNuxtApp() as {
+  $analytics: {
+    trackEvent: (eventName: string, payload: Record<string, unknown>) => void
+  }
+}
 
-const trackClick = (eventName, clickLocation) => {
-  $analytics.trackEvent(eventName, {
+const trackClick = (eventName: string, clickLocation: string): void => {
+  nuxtApp.$analytics.trackEvent(eventName, {
     click_location: clickLocation,
     page_path: window.location.pathname,
-  });
-};
+  })
+}
 </script>
 
 <style scoped>
@@ -53,21 +57,56 @@ const trackClick = (eventName, clickLocation) => {
 
 .treatment-category-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.25rem;
   margin-bottom: 2rem;
 }
 
 .treatment-category-card h3 {
   margin-top: 0;
+  overflow-wrap: anywhere;
 }
 
 .treatment-category-card {
-  min-height: 100%;
+  min-width: 0;
+}
+
+.treatment-category-card p {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.treatment-category-card:focus-visible p,
+.treatment-category-card:hover p {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
 }
 
 .cta {
   text-align: center;
   margin-top: 2rem;
+}
+
+@media (min-width: 640px) {
+  .treatment-category-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .treatment-category-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 359px) {
+  .treatment-category-card p {
+    display: block;
+    overflow: visible;
+    -webkit-line-clamp: unset;
+  }
 }
 </style>

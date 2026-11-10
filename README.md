@@ -116,6 +116,25 @@ For resuming, give the Orchestrator the issue URL so it reads recorded progress 
 See the [shared contract](.github/AGENTS.md) and
 [Orchestrator definition](.github/agents/orchestrator.agent.md).
 
+## Responsive clinic UI
+
+- [The default layout](layouts/default.vue) provides a keyboard skip link and a
+  [mobile contact bar](components/MobileContactBar.vue) through 768px. The bar
+  reserves safe-area space, hides during editable-field focus and while the
+  mobile navigation drawer is open, and is not shown on desktop.
+- [The footer](components/SiteFooter.vue) contains social links, a chat launcher
+  and native treatment disclosures; the desktop layout uses three columns.
+- [Homepage videos](pages/index.vue) are curated in the order `UTAWXOtyfa0`,
+  `RcBWFggZImU`, `U5uEPOUf16A`. The full catalog remains at `/videos`.
+  Video titles and thumbnail labels are not speech captions or transcripts.
+- Treatment video loading refreshes on navigation. If loading fails, category
+  pages may use category-matched static records; service pages have no static
+  service mapping and must not show unrelated category videos.
+- Approved clinical copy, transcript/caption work and dependent content
+  verification remain tracked in [#24](https://github.com/gidiz/chenLandingPage/issues/24).
+  Analytics consent controls are separately deferred in
+  [#25](https://github.com/gidiz/chenLandingPage/issues/25).
+
 ## Deployment (Vercel)
 
 This project is deployed on **Vercel**. There is no GitHub Actions workflow — the previous AWS S3 workflow was removed in commit `cc96bdb` ("remove AWS deployment workflow in favor of Vercel deployment").

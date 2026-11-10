@@ -157,7 +157,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref } from "vue"
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue"
 
 const isOpen = ref(false)
 const isTreatmentsOpen = ref(false)
@@ -198,6 +198,7 @@ onMounted(() => {
   updateScrollState()
   mobileMediaQueryList = window.matchMedia(mobileMediaQuery)
   updateMobileViewport()
+  document.documentElement.classList.toggle("mobile-menu-open", isOpen.value)
   window.addEventListener("scroll", updateScrollState, { passive: true })
   document.addEventListener("click", closeOnOutsideClick)
   window.addEventListener("keydown", handleGlobalKeydown)
@@ -205,10 +206,17 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  document.documentElement.classList.remove("mobile-menu-open")
   window.removeEventListener("scroll", updateScrollState)
   document.removeEventListener("click", closeOnOutsideClick)
   window.removeEventListener("keydown", handleGlobalKeydown)
   mobileMediaQueryList?.removeEventListener("change", updateMobileViewport)
+})
+
+watch(isOpen, (isMenuOpen) => {
+  if (import.meta.client) {
+    document.documentElement.classList.toggle("mobile-menu-open", isMenuOpen)
+  }
 })
 
 const closeMenu = (): void => {
@@ -347,8 +355,14 @@ const handleGlobalKeydown = (event: KeyboardEvent): void => {
 }
 
 .nav-menu > a:hover,
-.nav-dropdown__trigger:hover {
-  color: var(--color-accent-deep);
+.nav-menu > a:focus-visible,
+.nav-dropdown__trigger:hover,
+.nav-dropdown__trigger:focus-visible {
+  color: #856b5a;
+}
+
+.main-header :focus-visible {
+  outline-color: var(--color-primary-deep);
 }
 
 .nav-menu__consultation {
@@ -360,7 +374,7 @@ const handleGlobalKeydown = (event: KeyboardEvent): void => {
 }
 
 .nav-menu__consultation:hover {
-  background: var(--gradient-primary-hover) !important;
+  background: var(--gradient-primary) !important;
   color: var(--color-on-primary) !important;
 }
 
@@ -417,7 +431,7 @@ const handleGlobalKeydown = (event: KeyboardEvent): void => {
 }
 
 .nav-dropdown__overview:hover {
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .nav-dropdown__overview-note {
@@ -446,14 +460,16 @@ const handleGlobalKeydown = (event: KeyboardEvent): void => {
 }
 
 .nav-category__heading > a {
+  display: flex;
   color: var(--color-primary-deep);
   font-weight: 700;
   line-height: 1.4;
   text-decoration: none;
+  text-align: start;
 }
 
 .nav-category__heading > a:hover {
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .nav-category__toggle {
@@ -485,7 +501,7 @@ const handleGlobalKeydown = (event: KeyboardEvent): void => {
 }
 
 .nav-category__services a:hover {
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
@@ -601,24 +617,41 @@ const handleGlobalKeydown = (event: KeyboardEvent): void => {
   }
 
   .nav-category {
-    padding: 0.25rem 0;
+    padding: 0;
     border-bottom: 1px solid var(--color-border);
     border-radius: 0;
   }
 
+  .nav-category__heading {
+    align-items: stretch;
+    gap: 0.25rem;
+  }
+
   .nav-category__heading > a {
     flex: 1;
-    padding: 0.65rem 0.25rem;
+    min-width: 0;
+    min-height: 44px;
+    align-items: center;
+    padding-block: 0.4rem;
+    padding-inline: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .nav-category__toggle {
     display: inline-flex;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    align-self: center;
+    border-radius: var(--radius-sm);
   }
 
   .nav-category__services {
     display: none;
     margin: 0;
-    padding: 0 0.75rem 0.65rem;
+    padding-block: 0.15rem 0.4rem;
+    padding-inline: 0.35rem;
   }
 
   .nav-category.is-expanded .nav-category__services {
@@ -626,8 +659,15 @@ const handleGlobalKeydown = (event: KeyboardEvent): void => {
   }
 
   .nav-category__services a {
-    padding: 0.45rem 0;
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    padding-block: 0.45rem;
+    padding-inline: 0.35rem;
     font-size: 1rem;
+    line-height: 1.45;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .main-header .container {

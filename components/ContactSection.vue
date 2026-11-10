@@ -2,21 +2,81 @@
   <div>
     <footer id="contact" class="contact-footer" v-reveal>
       <div class="container">
-        <h3 class="footer-title">יצירת קשר</h3>
+        <h2 class="footer-title">יצירת קשר</h2>
+        <div class="contact-footer__methods" aria-label="פרטי קשר">
+          <a
+            href="tel:0547577214"
+          >
+            <span aria-hidden="true">📞</span>
+            <bdi dir="ltr">054-757-7214</bdi>
+          </a>
+          <a
+            href="https://wa.me/972547577214"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>WhatsApp</span>
+          </a>
+        </div>
 
         <form
           id="contact-form"
           ref="contactForm"
+          :aria-busy="isSubmitting"
           @submit.prevent="handleSubmit"
         >
-          <input type="text" name="name" placeholder="שם מלא" required />
-          <input type="email" name="email" placeholder="אימייל" required />
-          <input type="tel" name="phone" placeholder="טלפון" required />
-          <textarea name="message" placeholder="הודעה" required></textarea>
-          <button type="submit">שלח</button>
+          <label class="contact-form__field" for="contact-name">
+            <span>
+              שם מלא
+              <span class="contact-form__required" aria-hidden="true">*</span>
+              <span class="contact-form__visually-hidden">שדה חובה</span>
+            </span>
+            <input id="contact-name" type="text" name="name" placeholder="שם מלא" maxlength="100" required />
+          </label>
+          <label class="contact-form__field" for="contact-email">
+            <span>
+              אימייל
+              <span class="contact-form__required" aria-hidden="true">*</span>
+              <span class="contact-form__visually-hidden">שדה חובה</span>
+            </span>
+            <input id="contact-email" type="email" name="email" placeholder="אימייל" maxlength="254" required />
+          </label>
+          <label class="contact-form__field" for="contact-phone">
+            <span>
+              טלפון
+              <span class="contact-form__required" aria-hidden="true">*</span>
+              <span class="contact-form__visually-hidden">שדה חובה</span>
+            </span>
+            <input
+              id="contact-phone"
+              type="tel"
+              name="phone"
+              placeholder="טלפון"
+              dir="ltr"
+              maxlength="32"
+              required
+            />
+          </label>
+          <label class="contact-form__field" for="contact-message">
+            <span>
+              הודעה
+              <span class="contact-form__required" aria-hidden="true">*</span>
+              <span class="contact-form__visually-hidden">שדה חובה</span>
+            </span>
+            <textarea id="contact-message" name="message" placeholder="הודעה" maxlength="2000" required></textarea>
+          </label>
+          <button type="submit" :disabled="isSubmitting || isRetryBlocked">
+            {{ isSubmitting ? "שולח..." : isRetryBlocked ? "נא להמתין" : "שלח" }}
+          </button>
         </form>
 
-        <div id="form-alert" :class="['form-alert', alertState]">
+        <div
+          id="form-alert"
+          :class="['form-alert', alertState]"
+          :role="alertState === 'error' ? 'alert' : 'status'"
+          :aria-live="alertState === 'error' ? 'assertive' : 'polite'"
+          aria-atomic="true"
+        >
           {{ alertMessage }}
         </div>
 
@@ -27,7 +87,7 @@
             href="tel:0547577214"
             @click="trackClick('phone_click', 'footer_phone')"
           >
-            054-757-7214
+            <bdi dir="ltr">054-757-7214</bdi>
           </a>
         </p>
 
@@ -37,93 +97,106 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from "vue";
-import { createConsola } from "consola";
+<script setup lang="ts">
+import { onBeforeUnmount, ref } from "vue"
 
-const contactForm = ref(null);
-const alertState = ref("hidden");
-const alertMessage = ref("");
-const { $analytics } = useNuxtApp();
-const consola = createConsola({ tag: "chen-contact" });
+const contactForm = ref<HTMLFormElement | null>(null)
+const alertState = ref<"hidden" | "success" | "error">("hidden")
+const alertMessage = ref("")
+const isSubmitting = ref(false)
+const isRetryBlocked = ref(false)
+let retryTimeout: ReturnType<typeof setTimeout> | null = null
+const nuxtApp = useNuxtApp() as {
+  $analytics?: {
+    trackEvent?: (eventName: string, payload: Record<string, unknown>) => void
+  }
+}
 
-const showAlert = (state, message) => {
-  alertState.value = state;
-  alertMessage.value = message;
+const showAlert = (state: "success" | "error", message: string): void => {
+  alertState.value = state
+  alertMessage.value = message
+}
 
-  window.setTimeout(() => {
-    alertState.value = "hidden";
-    alertMessage.value = "";
-  }, 5000);
-};
+onBeforeUnmount(() => {
+  if (retryTimeout !== null) {
+    clearTimeout(retryTimeout)
+  }
+})
 
-const trackClick = (eventName, clickLocation) => {
-  $analytics.trackEvent(eventName, {
+const trackClick = (eventName: string, clickLocation: string): void => {
+  nuxtApp.$analytics?.trackEvent?.(eventName, {
     click_location: clickLocation,
     page_path: window.location.pathname,
-  });
-};
+  })
+}
 
-const handleSubmit = async () => {
-  if (!contactForm.value) {
-    return;
+const handleSubmit = async (): Promise<void> => {
+  if (!contactForm.value || isSubmitting.value || isRetryBlocked.value) {
+    return
   }
 
-  const formData = new FormData(contactForm.value);
+  isSubmitting.value = true
+  alertState.value = "hidden"
+  alertMessage.value = ""
+  const formData = new FormData(contactForm.value)
 
   const data = {
-    name: formData.get("name"),
-    email: formData.get("email"),
-    phone: formData.get("phone"),
-    message: formData.get("message"),
-  };
+    name: String(formData.get("name") ?? ""),
+    email: String(formData.get("email") ?? ""),
+    phone: String(formData.get("phone") ?? ""),
+    message: String(formData.get("message") ?? ""),
+  }
 
   try {
-    const [lambdaRes, makeRes] = await Promise.allSettled([
-      fetch(
-        "https://vxu8elp5u8.execute-api.us-east-1.amazonaws.com/v1/sendContactEmail",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        },
-      ),
-      fetch("https://hook.eu1.make.com/2754n2mdnhkuwadra1tp8m7pkr4f3el6", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      }),
-    ]);
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
 
-    const lambdaSuccess =
-      lambdaRes.status === "fulfilled" && lambdaRes.value.ok;
-    const makeSuccess = makeRes.status === "fulfilled" && makeRes.value.ok;
-
-    if (lambdaSuccess || makeSuccess) {
-      showAlert("success", "הטופס נשלח בהצלחה!");
-      contactForm.value.reset();
-      $analytics.trackEvent("contact_form_submit", {
+    if (response.ok) {
+      const result: {
+        success: boolean
+        delivery: { lambda: boolean; make: boolean }
+      } = await response.json()
+      if (
+        result?.success !== true ||
+        typeof result.delivery?.lambda !== "boolean" ||
+        typeof result.delivery?.make !== "boolean" ||
+        (!result.delivery.lambda && !result.delivery.make)
+      ) {
+        showAlert("error", "לא התקבל אישור לשליחת הטופס. נא לנסות שוב מאוחר יותר.")
+        return
+      }
+      showAlert("success", "הטופס נשלח בהצלחה!")
+      contactForm.value.reset()
+      nuxtApp.$analytics?.trackEvent?.("contact_form_submit", {
         form_id: "contact-form",
         form_location: "footer_contact_section",
-        transport_lambda: lambdaSuccess,
-        transport_make: makeSuccess,
-      });
-
-      if (!lambdaSuccess) {
-        consola.warn("contact_lambda_failed", lambdaRes);
-      }
-      if (!makeSuccess) {
-        consola.warn("contact_make_failed", makeRes);
-      }
+        transport_lambda: result.delivery.lambda,
+        transport_make: result.delivery.make,
+      })
     } else {
-      showAlert("error", "אירעה שגיאה בשליחה.");
-      consola.error("contact_both_failed", { lambdaRes, makeRes });
+      if (response.status === 429) {
+        const retryAfter = Number(response.headers.get("Retry-After"))
+        if (Number.isSafeInteger(retryAfter) && retryAfter > 0 && retryAfter <= 2147483) {
+          isRetryBlocked.value = true
+          retryTimeout = setTimeout(() => {
+            isRetryBlocked.value = false
+            retryTimeout = null
+          }, retryAfter * 1000)
+        }
+      }
+      showAlert("error", response.status === 429
+        ? "נשלחו יותר מדי פניות. נא להמתין ולנסות שוב."
+        : "אירעה שגיאה בשליחה. נא לנסות שוב מאוחר יותר.")
     }
-  } catch (error) {
-    showAlert("error", "שגיאה כללית, נסה שוב.");
-    consola.error("contact_submit_error", error);
+  } catch {
+    showAlert("error", "שגיאה כללית, נסה שוב.")
+  } finally {
+    isSubmitting.value = false
   }
-};
+}
 </script>
 
 <style scoped>
@@ -157,12 +230,64 @@ const handleSubmit = async () => {
   font-weight: bold;
 }
 
+.contact-footer__methods {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block: 0.75rem;
+}
+
+.contact-footer__methods a {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding-block: 0.45rem;
+  padding-inline: 0.8rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--color-primary-deep);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.contact-footer__methods a:hover {
+  background: var(--color-surface);
+}
+
 #contact-form {
   margin: 2rem auto;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   max-width: 500px;
+}
+
+#contact-form .contact-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-align: start;
+}
+
+#contact-form .contact-form__required {
+  color: var(--color-error-text);
+  font-weight: 700;
+}
+
+#contact-form .contact-form__visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 #contact-form input,
@@ -180,8 +305,14 @@ const handleSubmit = async () => {
 #contact-form input:focus,
 #contact-form textarea:focus {
   border-color: var(--color-primary);
-  outline: none;
   box-shadow: 0 0 0 3px rgba(90, 124, 122, 0.15);
+}
+
+#contact-form input:focus-visible,
+#contact-form textarea:focus-visible {
+  outline: 3px solid var(--color-primary-dark);
+  outline-offset: 2px;
+  box-shadow: none;
 }
 
 #contact-form input::placeholder,
@@ -190,7 +321,8 @@ const handleSubmit = async () => {
 }
 
 #contact-form input[type="tel" i] {
-  direction: rtl;
+  direction: ltr;
+  text-align: start;
 }
 
 #contact-form textarea {

@@ -1,5 +1,14 @@
 <template>
   <div>
+    <section class="page-section page-section--soft" aria-label="מידע רפואי כללי">
+      <div class="container">
+        <p class="page-card treatment-disclaimer">
+          המידע באתר הוא כללי ואינו מחליף ייעוץ, בדיקה או אבחון רפואי אישי.
+          ההתאמה לטיפול נקבעת רק לאחר הערכה רפואית.
+        </p>
+      </div>
+    </section>
+
     <TreatmentPageShell
       :eyebrow="category.title"
       :title="service.title"
@@ -111,7 +120,7 @@ useHead({
           name: 'ד"ר חן פרדו',
           url: 'https://drchenpardo.co.il',
         },
-      }),
+      }).replace(/</g, '\\u003c'),
     },
     ...(service.questions.length
       ? [
@@ -130,7 +139,7 @@ useHead({
                   text: question.answer,
                 },
               })),
-            }),
+            }).replace(/</g, '\\u003c'),
           },
         ]
       : []),
