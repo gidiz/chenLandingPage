@@ -15,8 +15,8 @@ Read and follow the Shared GitHub Issue Workflow Contract in `.github/AGENTS.md`
 
 ## Domain Ownership (review scope)
 
-- `components/` — all Vue components, including `components/treatments/`
-- `pages/` — all routes, including `pages/lp/` campaign pages
+- `components/` — assigned Vue components and directly affected shared components
+- `pages/` — assigned routes; include `pages/lp/` only when affected by the feature
 - `layouts/default.vue`
 - `composables/` — client data access and head helpers (`useSchemaOrg.ts`)
 - `plugins/analytics.client.ts` — GTM / GA4 bootstrap
@@ -42,7 +42,7 @@ Skip the audit (emit `PASS — no client files changed`) when the diff contains 
 
 ## Security Checklist
 
-Run these in order for every audit:
+Apply only checklist items relevant to the assigned feature and directly affected behavior. A full-site client audit requires an explicit user request:
 
 1. **`v-html` usage**
    - Allowed only for trusted, server-sourced catalog HTML.

@@ -16,7 +16,7 @@ Read and follow the Shared GitHub Issue Workflow Contract in `.github/AGENTS.md`
 ## Responsibilities
 
 - Read the actual assigned GitHub Issue and use its acceptance criteria, dependencies, scope, non-goals, and validation/review requirements as the source of truth.
-- Audit the changed files for correctness, security, and coding standards.
+- Validate the changed behavior and directly affected paths for correctness, security, and coding standards; do not search the rest of the site for unrelated bugs.
 - For code changes, run scoped tests and the build as appropriate to the changed paths and issue requirements.
 - For documentation/customization-only changes, validate syntax and workflow contracts; do not run `npm run build`.
 - Emit a PASS or FAIL verdict — never partial.
@@ -26,14 +26,14 @@ Read and follow the Shared GitHub Issue Workflow Contract in `.github/AGENTS.md`
 Run these in order for every audit:
 
 1. **Read the issue** — extract the authoritative acceptance criteria and applicable dependencies, scope, non-goals, validation, and review requirements.
-2. **Read changed files** — understand what was implemented.
+2. **Read changed code and necessary context** — understand the feature without expanding into unrelated subsystems.
 3. **Security checks** — apply relevant checks to changed code paths; always check changed files for secrets:
    - [ ] No `console.*` calls — all logging via `server/lib/logger.ts` (`consola`).
    - [ ] No secrets, tokens, API keys, or credentials in source files.
    - [ ] All new API route inputs validated with `zod` before use.
-   - [ ] Medical disclaimer (`CHAT_REPLY_DISCLAIMER`) still present in `server/api/chat.post.ts`.
+   - [ ] Medical disclaimer (`CHAT_REPLY_DISCLAIMER`) preserved when chat behavior is changed or directly affected.
    - [ ] No stack traces, SQL text, or raw upstream payloads in API error responses.
-4. **Coding standards** (block on any failure):
+4. **Coding standards** (apply to new or modified code, not unrelated legacy code):
    - [ ] No trailing semicolons in `.ts` / `.vue` files.
    - [ ] No `any` types (use `unknown` if type is not yet known).
    - [ ] Exported functions and composables have explicit return types.
