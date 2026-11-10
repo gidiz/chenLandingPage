@@ -2,21 +2,22 @@
   <nav
     v-show="!isKeyboardActive"
     class="mobile-contact-bar"
-    aria-label="דרכי יצירת קשר"
+    aria-label="קביעת ייעוץ ודרכי יצירת קשר"
   >
     <NuxtLink
-      to="/contact"
+      to="/consultation"
       class="mobile-contact-bar__action mobile-contact-bar__action--primary"
     >
       <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
         <path
-          d="M4 5.5h16v11H9l-5 3v-14Z"
+          d="M5 6h14v14H5zM8 3.5v5M16 3.5v5M5 10h14"
           stroke="currentColor"
+          stroke-linecap="round"
           stroke-linejoin="round"
           stroke-width="1.8"
         />
       </svg>
-      <span>יצירת קשר</span>
+      <span>קביעת ייעוץ</span>
     </NuxtLink>
 
     <a

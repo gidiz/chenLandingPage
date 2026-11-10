@@ -139,11 +139,25 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .site-footer {
-  background: var(--gradient-footer);
+  position: relative;
+  isolation: isolate;
+  background-color: var(--color-primary-dark);
+  background-image: url("~/assets/footer-background.jpg");
+  background-position: center 38%;
+  background-repeat: no-repeat;
+  background-size: cover;
   color: var(--color-on-primary);
   padding-block: 2rem;
   direction: rtl;
   text-align: start;
+}
+
+.site-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(38, 63, 62, 0.8);
 }
 
 .site-footer__content {
