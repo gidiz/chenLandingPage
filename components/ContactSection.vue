@@ -345,6 +345,10 @@ const handleSubmit = async (): Promise<void> => {
   background: var(--gradient-primary-hover);
 }
 
+#contact-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
 
 .form-alert {
   max-width: 500px;
