@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 const isDev = process.env.NODE_ENV === "development";
+const canonicalSiteUrl = "https://drchenpardo.co.il"
 
 export default defineNuxtConfig({
   compatibilityDate: "2025-05-15",
@@ -22,7 +23,7 @@ export default defineNuxtConfig({
   },
   modules: ['@nuxtjs/sitemap'],
   site: {
-    url: 'https://drchenpardo.co.il',
+    url: canonicalSiteUrl,
   },
   sitemap: {
     sitemapName: 'sitemap.xml',
@@ -73,6 +74,7 @@ export default defineNuxtConfig({
       retrievalTopK: Number(process.env.RAG_CHAT_RETRIEVAL_TOP_K || 6),
     },
     public: {
+      canonicalSiteUrl,
       gaMeasurementId: process.env.NUXT_PUBLIC_GA_MEASUREMENT_ID || "",
       gtmContainerId: process.env.NUXT_PUBLIC_GTM_CONTAINER_ID || "",
       gtmAuth: process.env.NUXT_PUBLIC_GTM_AUTH || "",

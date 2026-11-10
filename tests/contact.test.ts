@@ -223,7 +223,12 @@ test("client markup keeps bounded labelled fields, pending controls and persiste
     const field = fields.find((value) => value.includes(`name="${name}"`))
     assert.ok(field, `Missing ${name} field`)
     assert.match(field, new RegExp(`\\bmaxlength="${max}"`))
-    assert.match(field, /\baria-label="[^"]+"/)
+    const fieldId = field.match(/\bid="([^"]+)"/)?.[1]
+    assert.ok(
+      /\baria-label="[^"]+"/.test(field) ||
+        (fieldId !== undefined && new RegExp(`<label\\b[^>]*for="${fieldId}"`).test(template)),
+      `Missing accessible label for ${name} field`,
+    )
     assert.match(field, /\brequired\b/)
   }
   assert.match(template, /<form\b[^>]*:aria-busy="isSubmitting"/)

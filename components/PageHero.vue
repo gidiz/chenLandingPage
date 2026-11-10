@@ -8,21 +8,18 @@
   </section>
 </template>
 
-<script setup>
-defineProps({
-  eyebrow: {
-    type: String,
-    default: "",
+<script setup lang="ts">
+withDefaults(
+  defineProps<{
+    eyebrow?: string
+    title: string
+    subtitle?: string
+  }>(),
+  {
+    eyebrow: "",
+    subtitle: "",
   },
-  title: {
-    type: String,
-    required: true,
-  },
-  subtitle: {
-    type: String,
-    default: "",
-  },
-});
+)
 </script>
 
 <style scoped>
@@ -58,7 +55,7 @@ defineProps({
 
 .page-hero__eyebrow {
   margin: 0 0 1rem;
-  color: var(--color-primary);
+  color: var(--color-primary-deep);
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -66,7 +63,7 @@ defineProps({
 .page-hero__subtitle {
   max-width: 760px;
   margin: 1rem auto 0;
-  color: var(--color-text-muted);
+  color: var(--color-text);
   font-size: var(--text-lg);
   line-height: 1.9;
 }

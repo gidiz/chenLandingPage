@@ -9,19 +9,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { clinicVideoTable } from "../composables/useClinicVideos";
-
-const { data: videoCatalog } = await useFetch("/api/videos", {
-  default: () => ({
-    source: "static",
-    videos: clinicVideoTable,
-  }),
-});
-
-const clinicVideoUrls = computed(() =>
-  (videoCatalog.value?.videos || clinicVideoTable).map((video) => video.url),
-);
+const clinicVideoUrls = [
+  "https://www.youtube.com/watch?v=UTAWXOtyfa0",
+  "https://www.youtube.com/watch?v=RcBWFggZImU",
+  "https://www.youtube.com/watch?v=U5uEPOUf16A",
+]
 
 useSeoMeta({
   title: "ד\"ר חן פרדו | אסתטיקה רפואית וטיפולים בהזעת יתר",

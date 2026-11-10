@@ -1,6 +1,11 @@
 <template>
-  <div class="floating-social-root">
-    <div v-if="isChatOpen" class="chat-panel" role="dialog" aria-label="OpenAI chat">
+  <div class="chat-launcher">
+    <div
+      v-if="isChatOpen"
+      class="chat-panel"
+      role="dialog"
+      aria-label="צ'אט ייעוץ"
+    >
       <header class="chat-panel__header">
         <div>
           <h3 class="chat-panel__title">צ'אט ייעוץ מהיר</h3>
@@ -30,6 +35,7 @@
       <form class="chat-panel__composer" @submit.prevent="sendMessage">
         <input
           v-model="draftMessage"
+          aria-label="הודעה לצ'אט"
           type="text"
           class="chat-panel__input"
           maxlength="1200"
@@ -42,38 +48,23 @@
       </form>
     </div>
 
-    <div class="floating-social-links" aria-label="Social media quick links">
-      <button
-        type="button"
-        class="floating-social-button floating-social-button--chat"
-        :aria-label="isChatOpen ? 'סגור צ׳אט' : 'פתח צ׳אט'"
-        @click="toggleChat(!isChatOpen)"
-      ></button>
-      <a
-        class="floating-social-button floating-social-button--instagram"
-        href="https://www.instagram.com/dr_chen_pardo/"
-        target="_blank"
-        rel="noopener"
-        aria-label="Instagram"
-        @click="trackClick('instagram_click', 'floating_instagram')"
-      ></a>
-      <a
-        class="floating-social-button floating-social-button--facebook"
-        href="https://www.facebook.com/profile.php?id=61577031445942"
-        target="_blank"
-        rel="noopener"
-        aria-label="Facebook"
-        @click="trackClick('facebook_click', 'floating_facebook')"
-      ></a>
-      <a
-        class="floating-social-button floating-social-button--whatsapp"
-        href="https://wa.me/972547577214"
-        target="_blank"
-        rel="noopener"
-        aria-label="WhatsApp"
-        @click="trackClick('whatsapp_click', 'floating_whatsapp')"
-      ></a>
-    </div>
+    <button
+      type="button"
+      class="chat-launcher__trigger"
+      :aria-expanded="isChatOpen"
+      @click="toggleChat(!isChatOpen)"
+    >
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 3.5a8.5 8.5 0 0 0-7.2 13l-.9 4 4.1-1a8.5 8.5 0 1 0 4-16Z"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="1.8"
+        />
+      </svg>
+      <span>{{ isChatOpen ? "סגירת צ'אט" : "פתיחת צ'אט" }}</span>
+    </button>
   </div>
 </template>
 
@@ -213,41 +204,41 @@ const sendMessage = async (): Promise<void> => {
 </script>
 
 <style scoped>
-.floating-social-root {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  z-index: 9999;
+.chat-launcher {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
 }
 
-.floating-social-links {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.floating-social-button {
-  width: 55px;
-  height: 55px;
-  display: inline-block;
-  border-radius: 50%;
-  background-repeat: no-repeat;
-  background-position: center;
-  border: none;
+.chat-launcher__trigger {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding-block: 0.45rem;
+  padding-inline: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font: inherit;
+  font-size: 0.95rem;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
-.floating-social-button--chat {
-  background-color: #1f6a7a;
-  background-size: 58%;
-  background-image: url('data:image/svg+xml;utf8,<svg fill="white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 3C6.486 3 2 6.925 2 11.75c0 2.03.81 3.901 2.165 5.404L3.1 21l4.286-1.57c1.394.677 2.982 1.07 4.614 1.07 5.514 0 10-3.925 10-8.75S17.514 3 12 3zm0 2c4.411 0 8 3.015 8 6.75s-3.589 6.75-8 6.75c-1.453 0-2.858-.334-4.063-.965l-.379-.199-2.13.78.546-1.915-.29-.36C4.59 14.51 4 13.17 4 11.75 4 8.015 7.589 5 12 5z"/></svg>');
+.chat-launcher__trigger svg {
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 .chat-panel {
+  position: absolute;
+  inset-block-end: calc(100% + 0.75rem);
+  inset-inline-start: 0;
+  z-index: var(--z-floating);
   width: min(360px, calc(100vw - 36px));
-  height: min(520px, calc(100vh - 120px));
-  margin-bottom: 12px;
+  height: min(520px, calc(100dvh - 120px));
   border-radius: 18px;
   border: 1px solid rgba(31, 106, 122, 0.25);
   background: linear-gradient(170deg, #f8fcfc 0%, #f0f7f8 100%);
@@ -279,8 +270,9 @@ const sendMessage = async (): Promise<void> => {
 }
 
 .chat-panel__close {
-  width: 28px;
-  height: 28px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
   border: none;
   border-radius: 50%;
   background: #d9ebef;
@@ -334,6 +326,7 @@ const sendMessage = async (): Promise<void> => {
   flex: 1;
   border: 1px solid rgba(62, 110, 120, 0.35);
   border-radius: 10px;
+  min-height: 44px;
   padding: 8px 10px;
   font-size: 0.92rem;
 }
@@ -341,6 +334,7 @@ const sendMessage = async (): Promise<void> => {
 .chat-panel__send {
   border: none;
   border-radius: 10px;
+  min-height: 44px;
   padding: 8px 13px;
   background: #1f6a7a;
   color: #fff;
@@ -353,38 +347,16 @@ const sendMessage = async (): Promise<void> => {
   cursor: not-allowed;
 }
 
-.floating-social-button--instagram {
-  background-color: #e1306c;
-  background-size: 56%;
-  background-image: url('data:image/svg+xml;utf8,<svg fill="white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7.75 2C4.298 2 2 4.298 2 7.75v8.5C2 19.702 4.298 22 7.75 22h8.5c3.452 0 5.75-2.298 5.75-5.75v-8.5C22 4.298 19.702 2 16.25 2h-8.5zM4 7.75C4 5.679 5.679 4 7.75 4h8.5C18.321 4 20 5.679 20 7.75v8.5C20 18.321 18.321 20 16.25 20h-8.5C5.679 20 4 18.321 4 16.25v-8.5zM12 7a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6zm5.5-2a1 1 0 100 2 1 1 0 000-2z"/></svg>');
-}
-
-.floating-social-button--facebook {
-  background-color: #3b5998;
-  background-size: 56%;
-  background-image: url('data:image/svg+xml;utf8,<svg fill="white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22 12a10 10 0 10-11.6 9.9v-7H8v-3h2.4V9.5c0-2.4 1.43-3.8 3.63-3.8 1.05 0 2.15.2 2.15.2v2.36h-1.21c-1.2 0-1.58.74-1.58 1.5V12H18l-.4 3h-2.8v7A10 10 0 0022 12z"/></svg>');
-}
-
-.floating-social-button--whatsapp {
-  background-color: #25d366;
-  background-size: 60%;
-  background-image: url('data:image/svg+xml;utf8,<svg fill="white" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16.002 2.004c-7.732 0-14 6.27-14 14 0 2.469.648 4.826 1.882 6.92l-1.998 7.07 7.257-1.9c1.978 1.08 4.21 1.646 6.86 1.646 7.732 0 14-6.27 14-14s-6.27-14-14-14zm0 2c6.627 0 12 5.373 12 12 0 6.627-5.373 12-12 12-2.32 0-4.375-.598-6.215-1.754l-.43-.258-4.3 1.124 1.172-4.148-.28-.442C4.676 20.88 4 18.493 4 16.004c0-6.627 5.373-12 12-12zm-3.414 6.828l-1.172.078c-.324.01-.633.148-.863.387-.227.24-.352.558-.352.887 0 .305-.016.621-.043.95-.082.988.176 2.145.823 3.362.648 1.215 1.625 2.406 2.922 3.57 1.3 1.164 2.555 1.793 3.766 1.883.32.02.637-.09.875-.305.238-.219.375-.523.387-.844l.07-1.164c.02-.32-.09-.637-.305-.875l-1.074-1.07c-.289-.293-.672-.441-1.063-.414-.289.016-.57.109-.816.27l-.86.554a8.345 8.345 0 01-2.118-2.34c-.324-.52-.484-.96-.48-1.324.008-.34.125-.66.344-.918l.738-.89c.238-.285.355-.648.324-1.016-.027-.39-.191-.754-.488-1.028l-1.062-1.078c-.23-.238-.543-.371-.867-.387z"/></svg>');
-}
-
 @media (max-width: 768px) {
-  .floating-social-root {
-    bottom: 14px;
-    left: 14px;
-  }
-
   .chat-panel {
-    width: min(360px, calc(100vw - 24px));
+    width: min(360px, calc(100vw - 2rem));
     height: min(62vh, 470px);
   }
+}
 
-  .floating-social-button {
-    width: 50px;
-    height: 50px;
+@media (prefers-reduced-motion: reduce) {
+  .chat-launcher__trigger {
+    transition: none;
   }
 }
 </style>

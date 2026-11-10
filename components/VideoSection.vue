@@ -11,31 +11,41 @@
       <div class="video-frame" v-if="activeVideo?.embedUrl">
         <iframe
           :src="activeVideo.embedUrl"
-          title="סרטון YouTube של ד&quot;ר חן פרדו"
+          :title="`סרטון: ${getVideoCopy(activeVideo.videoId).title}`"
           loading="lazy"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           referrerpolicy="strict-origin-when-cross-origin"
           allowfullscreen
         ></iframe>
       </div>
 
-      <div v-if="validVideos.length > 1" class="video-thumbnails" role="list">
+      <div
+        v-if="validVideos.length > 1"
+        class="video-thumbnails"
+        role="group"
+        aria-label="בחירת סרטון"
+      >
         <button
           v-for="(video, index) in validVideos"
           :key="video.videoId"
           type="button"
           class="video-thumb"
           :class="{ 'video-thumb--active': index === selectedIndex }"
-          :aria-label="`בחירת סרטון ${index + 1}`"
+          :aria-pressed="index === selectedIndex"
+          :aria-label="getVideoCopy(video.videoId).buttonLabel"
           @click="selectedIndex = index"
         >
           <img
             :src="video.thumbnailUrl"
-            :alt="`תמונה ממוזערת של סרטון ${index + 1}`"
+            :alt="getVideoCopy(video.videoId).alt"
             loading="lazy"
           />
         </button>
       </div>
+
+      <p v-if="activeVideo" class="video-caption">
+        {{ getVideoCopy(activeVideo.videoId).title }}
+      </p>
 
       <p v-if="hasInvalidVideos" class="video-note">
         חלק מהקישורים שסופקו לא היו תקינים ולכן לא מוצגים בגלריה.
@@ -49,37 +59,83 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { toYouTubeVideo, type ParsedYouTubeVideo } from "../composables/useClinicVideos";
+import { computed, ref } from "vue"
+import {
+  toYouTubeVideo,
+  type ParsedYouTubeVideo,
+} from "../composables/useClinicVideos"
 
-const props = defineProps({
-  youtubeUrls: {
-    type: Array as () => string[],
-    default: () => [],
-  },
-  youtubeUrl: {
-    type: String,
-    default: "",
-  },
-});
+type HomepageVideoCopy = {
+  title: string
+  alt: string
+  buttonLabel: string
+}
 
-const selectedIndex = ref(0);
+const homepageVideoCopy: Record<string, HomepageVideoCopy> = {
+  UTAWXOtyfa0: {
+    title: "הקשר בין הרופאה למטופלת",
+    alt: "תמונה ממוזערת של הסרטון על הקשר בין הרופאה למטופלת",
+    buttonLabel: "בחירת הסרטון על הקשר בין הרופאה למטופלת",
+  },
+  RcBWFggZImU: {
+    title: "היכרות עם טיפול בלומקה",
+    alt: "תמונה ממוזערת של הסרטון המציג טיפול בלומקה",
+    buttonLabel: "בחירת הסרטון על טיפול בלומקה",
+  },
+  U5uEPOUf16A: {
+    title: "טיפול בהזעת יתר בבית השחי",
+    alt: "תמונה ממוזערת של הסרטון על טיפול בהזעת יתר בבית השחי",
+    buttonLabel: "בחירת הסרטון על טיפול בהזעת יתר בבית השחי",
+  },
+}
+
+const getVideoCopy = (videoId: string): HomepageVideoCopy =>
+  homepageVideoCopy[videoId] ?? {
+    title: "סרטון מהקליניקה",
+    alt: "תמונה ממוזערת של סרטון מהקליניקה",
+    buttonLabel: "בחירת סרטון מהקליניקה",
+  }
+
+const props = withDefaults(
+  defineProps<{
+    youtubeUrls?: string[]
+    youtubeUrl?: string
+  }>(),
+  {
+    youtubeUrls: () => [],
+    youtubeUrl: "",
+  },
+)
+
+const selectedIndex = ref(0)
 
 const allLinks = computed(() => {
-  const linksFromArray = props.youtubeUrls.filter((link) => typeof link === "string");
-  const singleLink = typeof props.youtubeUrl === "string" && props.youtubeUrl.trim() ? [props.youtubeUrl] : [];
-  return [...linksFromArray, ...singleLink];
-});
+  const linksFromArray = props.youtubeUrls.filter(
+    (link) => typeof link === "string",
+  )
+  const singleLink =
+    typeof props.youtubeUrl === "string" && props.youtubeUrl.trim()
+      ? [props.youtubeUrl]
+      : []
+  return [...linksFromArray, ...singleLink]
+})
 
 const validVideos = computed(() =>
   allLinks.value
     .map((link) => toYouTubeVideo(link))
     .filter((video): video is ParsedYouTubeVideo => video !== null),
-);
+)
 
-const hasInvalidVideos = computed(() => allLinks.value.length > validVideos.value.length);
+const hasInvalidVideos = computed(
+  () => allLinks.value.length > validVideos.value.length,
+)
 
-const activeVideo = computed(() => validVideos.value[selectedIndex.value] ?? validVideos.value[0] ?? null);
+const activeVideo = computed(
+  () =>
+    validVideos.value[selectedIndex.value] ??
+    validVideos.value[0] ??
+    null,
+)
 </script>
 
 <style scoped>
@@ -93,20 +149,20 @@ const activeVideo = computed(() => validVideos.value[selectedIndex.value] ?? val
 .video-description {
   margin: 0 auto 1.5rem;
   max-width: 680px;
-  color: var(--color-text-muted);
+  color: var(--color-text);
   line-height: 1.8;
 }
 
 .video-catalog-link {
   display: inline-block;
   margin-bottom: 1.25rem;
-  color: var(--color-primary);
+  color: var(--color-primary-deep);
   text-decoration: none;
   font-weight: 600;
 }
 
 .video-catalog-link:hover {
-  color: var(--color-primary-deep);
+  color: var(--color-primary-dark);
 }
 
 .video-frame {
@@ -142,6 +198,7 @@ const activeVideo = computed(() => validVideos.value[selectedIndex.value] ?? val
 }
 
 .video-thumb {
+  min-height: 44px;
   border: 2px solid transparent;
   border-radius: var(--radius-sm);
   overflow: hidden;
@@ -172,7 +229,14 @@ const activeVideo = computed(() => validVideos.value[selectedIndex.value] ?? val
 .video-note {
   margin: 1rem auto 0;
   max-width: 680px;
-  color: var(--color-text-muted);
+  color: var(--color-text);
+}
+
+.video-caption {
+  margin: 0.75rem auto 0;
+  max-width: 960px;
+  color: var(--color-text);
+  font-weight: 700;
 }
 
 .video-error {
@@ -183,5 +247,15 @@ const activeVideo = computed(() => validVideos.value[selectedIndex.value] ?? val
   border: 1px solid var(--color-error-border);
   border-radius: var(--radius-md);
   padding: 0.75rem 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .video-thumb {
+    transition: none;
+  }
+
+  .video-thumb:hover {
+    transform: none;
+  }
 }
 </style>

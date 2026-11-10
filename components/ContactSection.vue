@@ -2,7 +2,22 @@
   <div>
     <footer id="contact" class="contact-footer" v-reveal>
       <div class="container">
-        <h3 class="footer-title">יצירת קשר</h3>
+        <h2 class="footer-title">יצירת קשר</h2>
+        <div class="contact-footer__methods" aria-label="פרטי קשר">
+          <a
+            href="tel:0547577214"
+          >
+            <span aria-hidden="true">📞</span>
+            <bdi dir="ltr">054-757-7214</bdi>
+          </a>
+          <a
+            href="https://wa.me/972547577214"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>WhatsApp</span>
+          </a>
+        </div>
 
         <form
           id="contact-form"
@@ -10,10 +25,46 @@
           :aria-busy="isSubmitting"
           @submit.prevent="handleSubmit"
         >
-          <input type="text" name="name" placeholder="שם מלא" aria-label="שם מלא" maxlength="100" required />
-          <input type="email" name="email" placeholder="אימייל" aria-label="אימייל" maxlength="254" required />
-          <input type="tel" name="phone" placeholder="טלפון" aria-label="טלפון" maxlength="32" required />
-          <textarea name="message" placeholder="הודעה" aria-label="הודעה" maxlength="2000" required></textarea>
+          <label class="contact-form__field" for="contact-name">
+            <span>
+              שם מלא
+              <span class="contact-form__required" aria-hidden="true">*</span>
+              <span class="contact-form__visually-hidden">שדה חובה</span>
+            </span>
+            <input id="contact-name" type="text" name="name" placeholder="שם מלא" maxlength="100" required />
+          </label>
+          <label class="contact-form__field" for="contact-email">
+            <span>
+              אימייל
+              <span class="contact-form__required" aria-hidden="true">*</span>
+              <span class="contact-form__visually-hidden">שדה חובה</span>
+            </span>
+            <input id="contact-email" type="email" name="email" placeholder="אימייל" maxlength="254" required />
+          </label>
+          <label class="contact-form__field" for="contact-phone">
+            <span>
+              טלפון
+              <span class="contact-form__required" aria-hidden="true">*</span>
+              <span class="contact-form__visually-hidden">שדה חובה</span>
+            </span>
+            <input
+              id="contact-phone"
+              type="tel"
+              name="phone"
+              placeholder="טלפון"
+              dir="ltr"
+              maxlength="32"
+              required
+            />
+          </label>
+          <label class="contact-form__field" for="contact-message">
+            <span>
+              הודעה
+              <span class="contact-form__required" aria-hidden="true">*</span>
+              <span class="contact-form__visually-hidden">שדה חובה</span>
+            </span>
+            <textarea id="contact-message" name="message" placeholder="הודעה" maxlength="2000" required></textarea>
+          </label>
           <button type="submit" :disabled="isSubmitting || isRetryBlocked">
             {{ isSubmitting ? "שולח..." : isRetryBlocked ? "נא להמתין" : "שלח" }}
           </button>
@@ -36,7 +87,7 @@
             href="tel:0547577214"
             @click="trackClick('phone_click', 'footer_phone')"
           >
-            054-757-7214
+            <bdi dir="ltr">054-757-7214</bdi>
           </a>
         </p>
 
@@ -179,12 +230,64 @@ const handleSubmit = async (): Promise<void> => {
   font-weight: bold;
 }
 
+.contact-footer__methods {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block: 0.75rem;
+}
+
+.contact-footer__methods a {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding-block: 0.45rem;
+  padding-inline: 0.8rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--color-primary-deep);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.contact-footer__methods a:hover {
+  background: var(--color-surface);
+}
+
 #contact-form {
   margin: 2rem auto;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   max-width: 500px;
+}
+
+#contact-form .contact-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-align: start;
+}
+
+#contact-form .contact-form__required {
+  color: var(--color-error-text);
+  font-weight: 700;
+}
+
+#contact-form .contact-form__visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 #contact-form input,
@@ -202,8 +305,14 @@ const handleSubmit = async (): Promise<void> => {
 #contact-form input:focus,
 #contact-form textarea:focus {
   border-color: var(--color-primary);
-  outline: none;
   box-shadow: 0 0 0 3px rgba(90, 124, 122, 0.15);
+}
+
+#contact-form input:focus-visible,
+#contact-form textarea:focus-visible {
+  outline: 3px solid var(--color-primary-dark);
+  outline-offset: 2px;
+  box-shadow: none;
 }
 
 #contact-form input::placeholder,
@@ -212,7 +321,8 @@ const handleSubmit = async (): Promise<void> => {
 }
 
 #contact-form input[type="tel" i] {
-  direction: rtl;
+  direction: ltr;
+  text-align: start;
 }
 
 #contact-form textarea {
