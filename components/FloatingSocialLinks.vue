@@ -5,8 +5,9 @@
       class="chat-panel"
       role="dialog"
       aria-label="צ'אט ייעוץ"
+      @keydown="handleChatKeydown"
     >
-      <header class="chat-panel__header">
+      <div class="chat-panel__header">
         <div>
           <h3 class="chat-panel__title">צ'אט ייעוץ מהיר</h3>
           <p class="chat-panel__subtitle">מענה ראשוני מהיר לפני קביעת ייעוץ</p>
@@ -19,7 +20,7 @@
         >
           ×
         </button>
-      </header>
+      </div>
 
       <div ref="chatScrollRef" class="chat-panel__messages" aria-live="polite">
         <article
@@ -34,6 +35,7 @@
 
       <form class="chat-panel__composer" @submit.prevent="sendMessage">
         <input
+          ref="chatInputRef"
           v-model="draftMessage"
           aria-label="הודעה לצ'אט"
           type="text"
@@ -49,6 +51,7 @@
     </div>
 
     <button
+      ref="chatTriggerRef"
       type="button"
       class="chat-launcher__trigger"
       :aria-expanded="isChatOpen"
@@ -107,6 +110,8 @@ const nuxtApp = useNuxtApp() as {
 const isChatOpen = ref(false)
 const isSending = ref(false)
 const draftMessage = ref("")
+const chatInputRef = ref<HTMLInputElement | null>(null)
+const chatTriggerRef = ref<HTMLButtonElement | null>(null)
 const chatScrollRef = ref<HTMLElement | null>(null)
 const chatMessages = ref<UiMessage[]>([
   {
@@ -137,7 +142,18 @@ const toggleChat = (open: boolean): void => {
 
   if (open) {
     trackClick("chat_open_click", "floating_chat")
+    void nextTick(() => chatInputRef.value?.focus())
     void scrollMessagesToBottom()
+    return
+  }
+
+  void nextTick(() => chatTriggerRef.value?.focus())
+}
+
+const handleChatKeydown = (event: KeyboardEvent): void => {
+  if (event.key === "Escape") {
+    event.preventDefault()
+    toggleChat(false)
   }
 }
 

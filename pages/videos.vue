@@ -20,7 +20,15 @@
               allowfullscreen
             ></iframe>
           </div>
-          <p v-else class="videos-empty">לא נמצאו סרטונים לפי הסינון שבחרת.</p>
+          <p
+            v-else
+            class="videos-empty"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            לא נמצאו סרטונים לפי הסינון שבחרת.
+          </p>
         </article>
 
         <article class="page-card videos-filter-card">
@@ -40,29 +48,36 @@
               {{ category }}
             </option>
           </select>
-          <p class="videos-count">{{ filteredVideos.length }} מתוך {{ videos.length }} סרטונים</p>
+          <p class="videos-count" role="status" aria-live="polite" aria-atomic="true">
+            {{ filteredVideos.length }} מתוך {{ videos.length }} סרטונים
+          </p>
         </article>
       </div>
     </section>
 
     <section class="page-section videos-grid-section" v-reveal>
       <div class="container">
-        <div class="videos-grid" role="list">
-          <button
+        <ul class="videos-grid">
+          <li
             v-for="video in filteredVideos"
             :key="video.videoId"
-            type="button"
-            class="video-card"
-            :class="{ 'video-card--active': video.videoId === activeVideo?.videoId }"
-            @click="selectedVideoId = video.videoId"
+            class="video-card-item"
           >
-            <img :src="video.thumbnailUrl" :alt="video.title" loading="lazy" />
-            <div class="video-card__body">
-              <strong>{{ video.title }}</strong>
-              <p>{{ video.shortDesc }}</p>
-            </div>
-          </button>
-        </div>
+            <button
+              type="button"
+              class="video-card"
+              :class="{ 'video-card--active': video.videoId === activeVideo?.videoId }"
+              :aria-pressed="video.videoId === activeVideo?.videoId"
+              @click="selectedVideoId = video.videoId"
+            >
+              <img :src="video.thumbnailUrl" :alt="video.title" loading="lazy" />
+              <div class="video-card__body">
+                <strong>{{ video.title }}</strong>
+                <p>{{ video.shortDesc }}</p>
+              </div>
+            </button>
+          </li>
+        </ul>
       </div>
     </section>
   </div>
@@ -234,6 +249,7 @@ useSeoMeta({
 
 .videos-filter-input {
   width: 100%;
+  scroll-margin-block-start: 7rem;
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-sm);
   padding: 0.65rem 0.85rem;
@@ -253,6 +269,13 @@ useSeoMeta({
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1rem;
+  margin: 0;
+  padding: 0;
+}
+
+.video-card-item {
+  min-width: 0;
+  list-style: none;
 }
 
 .video-card {

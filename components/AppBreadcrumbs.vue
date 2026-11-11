@@ -53,6 +53,7 @@ const segmentLabelMap: Record<string, string> = {
   skincare: "קוסמטיקה רפואית",
   technology: "מכשור טכנולוגי",
   treatments: "טיפולים",
+  videos: "סרטונים",
 };
 
 const pathLabelMap: Record<string, string> = {
