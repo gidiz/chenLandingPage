@@ -38,7 +38,7 @@ const contrastRatio = (foreground: string, background: string): number => {
   return (values[0]! + 0.05) / (values[1]! + 0.05)
 }
 
-test("mobile menu traps Tab focus and Escape returns focus to its opener", async () => {
+test("mobile menu keeps its close control in the Tab cycle and restores focus on Escape", async () => {
   class TestNode {}
 
   const documentState: { activeElement: TestElement | null } = { activeElement: null }
@@ -173,6 +173,16 @@ test("mobile menu traps Tab focus and Escape returns focus to its opener", async
     preventDefault: () => { prevented = true },
   })
   assert.equal(prevented, true)
+  assert.equal(documentState.activeElement, fixture.menuToggleElement.value)
+
+  prevented = false
+  fixture.handleGlobalKeydown({
+    key: "Tab",
+    shiftKey: true,
+    target: menuToggle,
+    preventDefault: () => { prevented = true },
+  })
+  assert.equal(prevented, true)
   assert.equal(documentState.activeElement, lastItem)
 
   prevented = false
@@ -182,6 +192,14 @@ test("mobile menu traps Tab focus and Escape returns focus to its opener", async
     preventDefault: () => { prevented = true },
   })
   assert.equal(prevented, true)
+  assert.equal(documentState.activeElement, fixture.menuToggleElement.value)
+
+  fixture.toggleMenu()
+  assert.equal(fixture.isOpen.value, false)
+  assert.equal(documentState.activeElement, fixture.menuToggleElement.value)
+  fixture.toggleMenu()
+  await new Promise<void>((resolve) => setImmediate(resolve))
+  assert.equal(fixture.isOpen.value, true)
   assert.equal(documentState.activeElement, firstItem)
 
   fixture.handleGlobalKeydown({

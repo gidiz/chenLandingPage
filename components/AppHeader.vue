@@ -288,10 +288,16 @@ const handleGlobalKeydown = (event: KeyboardEvent): void => {
 
     if (event.shiftKey && (!focusIsInMenu || event.target === firstItem)) {
       event.preventDefault()
-      lastItem.focus()
+      const previousTarget = event.target === firstItem
+        ? menuToggleElement.value ?? lastItem
+        : lastItem
+      previousTarget.focus()
     } else if (!event.shiftKey && (!focusIsInMenu || event.target === lastItem)) {
       event.preventDefault()
-      firstItem.focus()
+      const nextTarget = event.target === lastItem
+        ? menuToggleElement.value ?? firstItem
+        : firstItem
+      nextTarget.focus()
     }
 
     return
