@@ -20,6 +20,12 @@
   </section>
 </template>
 
+<script setup lang="ts">
+useSeoMeta({
+  title: "הצהרת נגישות | ד\"ר חן פרדו",
+})
+</script>
+
 <style scoped>
 .accessibility-page__card {
   max-width: 760px;

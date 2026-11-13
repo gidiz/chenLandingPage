@@ -24,6 +24,8 @@
   --color-text-muted: #5f5f5f;
   --color-text-soft: #6f6f6f;
   --color-on-primary: #ffffff;
+  --color-focus: #263f3e;
+  --color-focus-contrast: #ffffff;
 
   /* Feedback */
   --color-success-bg: #d6efed;
@@ -35,7 +37,7 @@
 
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-deep) 100%);
-  --gradient-primary-hover: linear-gradient(135deg, #67908d 0%, var(--color-primary) 100%);
+  --gradient-primary-hover: linear-gradient(135deg, #3d5c5a 0%, #263f3e 100%);
   --gradient-soft: linear-gradient(135deg, #f7f5f2 0%, #efe7dd 100%);
   --gradient-soft-vertical: linear-gradient(180deg, #f7f5f2 0%, #efe9e1 100%);
   --gradient-accent-line: linear-gradient(90deg, var(--color-accent) 0%, var(--color-primary) 100%);
@@ -95,6 +97,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-block-start: 7rem;
   overflow-x: clip;
 }
 
@@ -151,8 +154,9 @@ img {
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-accent);
+  outline: 3px solid var(--color-focus);
   outline-offset: 3px;
+  box-shadow: 0 0 0 3px var(--color-focus-contrast);
   border-radius: 4px;
 }
 

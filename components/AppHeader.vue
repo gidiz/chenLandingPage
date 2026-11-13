@@ -20,7 +20,7 @@
         :aria-label="isOpen ? 'סגירת התפריט' : 'פתיחת התפריט'"
         aria-controls="primary-navigation"
         :aria-expanded="isOpen"
-        @click="isOpen = !isOpen"
+        @click="toggleMenu"
       >
         <span aria-hidden="true">{{ isOpen ? "×" : "☰" }}</span>
       </button>
@@ -30,11 +30,12 @@
         class="nav-backdrop"
         type="button"
         aria-label="סגירת התפריט"
-        @click="closeMenu"
+        @click="closeMenu(true)"
       />
 
       <nav
         id="primary-navigation"
+        ref="navMenuElement"
         class="nav-menu"
         :class="{ open: isOpen }"
         aria-label="ניווט ראשי"
@@ -164,6 +165,7 @@ const isTreatmentsOpen = ref(false)
 const activeMobileCategory = ref<string | null>(null)
 const headerElement = ref<HTMLElement | null>(null)
 const menuToggleElement = ref<HTMLButtonElement | null>(null)
+const navMenuElement = ref<HTMLElement | null>(null)
 const treatmentsTriggerElement = ref<HTMLButtonElement | null>(null)
 const isMobileViewport = ref(false)
 const { treatmentCategories, getCategoryBySlug } = useTreatmentCatalog()
@@ -194,6 +196,17 @@ const updateScrollState = (): void => {
   }
 }
 
+const getVisibleMenuItems = (): HTMLElement[] =>
+  Array.from(
+    navMenuElement.value?.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    ) ?? [],
+  ).filter((element) => element.getClientRects().length > 0)
+
+const focusFirstMenuItem = (): void => {
+  getVisibleMenuItems()[0]?.focus()
+}
+
 onMounted(() => {
   updateScrollState()
   mobileMediaQueryList = window.matchMedia(mobileMediaQuery)
@@ -219,10 +232,23 @@ watch(isOpen, (isMenuOpen) => {
   }
 })
 
-const closeMenu = (): void => {
+const closeMenu = (restoreFocus = false): void => {
+  const wasOpen = isOpen.value
   isOpen.value = false
   isTreatmentsOpen.value = false
   activeMobileCategory.value = null
+
+  if (restoreFocus && wasOpen) {
+    void nextTick(() => menuToggleElement.value?.focus())
+  }
+}
+
+const toggleMenu = (): void => {
+  isOpen.value = !isOpen.value
+
+  if (isOpen.value && isMobileViewport.value) {
+    void nextTick(focusFirstMenuItem)
+  }
 }
 
 const toggleTreatmentsMenu = (): void => {
@@ -248,6 +274,35 @@ const closeOnOutsideClick = (event: MouseEvent): void => {
 }
 
 const handleGlobalKeydown = (event: KeyboardEvent): void => {
+  if (isOpen.value && isMobileViewport.value && event.key === "Tab") {
+    const menuItems = getVisibleMenuItems()
+    const firstItem = menuItems[0]
+    const lastItem = menuItems.at(-1)
+
+    if (!firstItem || !lastItem) {
+      return
+    }
+
+    const focusIsInMenu =
+      event.target instanceof Node && navMenuElement.value?.contains(event.target)
+
+    if (event.shiftKey && (!focusIsInMenu || event.target === firstItem)) {
+      event.preventDefault()
+      const previousTarget = event.target === firstItem
+        ? menuToggleElement.value ?? lastItem
+        : lastItem
+      previousTarget.focus()
+    } else if (!event.shiftKey && (!focusIsInMenu || event.target === lastItem)) {
+      event.preventDefault()
+      const nextTarget = event.target === lastItem
+        ? menuToggleElement.value ?? firstItem
+        : firstItem
+      nextTarget.focus()
+    }
+
+    return
+  }
+
   if (event.key === "Escape") {
     const focusTarget = isOpen.value
       ? menuToggleElement.value
@@ -259,7 +314,7 @@ const handleGlobalKeydown = (event: KeyboardEvent): void => {
       return
     }
 
-    closeMenu()
+    closeMenu(true)
     void nextTick(() => focusTarget.focus())
   }
 }
