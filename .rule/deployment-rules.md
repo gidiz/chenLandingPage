@@ -15,6 +15,7 @@
 
 - **Nuxt and Vue** – Application framework and reactive UI library
 - **Google Tag Manager (GTM)** and **Google Analytics** – Client-side analytics through `plugins/analytics.client.ts`
+- **Enable** – Third-party accessibility toolbar loaded by `plugins/enable.client.ts` only on the exact HTTPS test origin `https://test.drchenpardo.co.il`; production and other preview domains do not load it.
 - **Google Analytics Admin/Data APIs** – Read-only MCP access through `server/mcp/index.ts`
 - **Google Tag Manager API** – Read-only MCP access through `server/mcp/index.ts`
 - **AWS S3** – Static site hosting for `.output/public` content
@@ -25,6 +26,27 @@
 - **Environment Configuration** – Nuxt runtime config with `NUXT_PUBLIC_*` prefix for environment-specific values
 
 ## Hosting and Deployment
+
+### Enable accessibility toolbar
+
+The public, site-specific Enable script is loaded once after the app mounts on
+the test origin, independently of client-side navigation. Loading failures are
+reported in the browser console. The trigger offsets depend on Enable's current
+trigger ID and closed-state body class; check viewport edges and the fixed mobile
+contact bar if the provider changes its widget. Test with the licensed test domain:
+Vercel's other preview hostnames intentionally do not load the widget.
+
+Production activation requires a separate approved change and a license valid
+for the production domain. Enable's statement button opens its own statement,
+not the site's `/accessibility` page. The provider's dashboard has separate
+Hebrew and English custom statements, configured per licensed domain and
+potentially shared across environments. Verify the displayed statements after
+the provider's cache updates and have the site owner review them before
+deployment. On 2026-11-14, the test-domain license displayed the provider's
+generic statement dated 2021 without the custom wording saved on the primary
+domain. Review the provider's privacy/data practices and browser behavior before
+rollout. The toolbar assists visitors but does not by itself establish accessibility
+compliance.
 
 ### Contact API requirement
 
