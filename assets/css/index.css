@@ -91,6 +91,21 @@
   --mobile-action-bar-height: 4.75rem;
 }
 
+/* Keep Enable's closed trigger inside the viewport and clear of mobile actions. */
+@media (min-width: 769px) {
+  body.enable-test-toolbar:not(.show-enable-toolbar) #enable-toolbar-trigger {
+    margin-top: -4px;
+  }
+}
+
+@media (max-width: 768px) {
+  body.enable-test-toolbar:not(.show-enable-toolbar) #enable-toolbar-trigger {
+    margin-top: calc(
+      -1 * (var(--mobile-action-bar-height) + env(safe-area-inset-bottom, 0px) + 12px)
+    );
+  }
+}
+
 /* ==========================================================================
    2. Base
    ========================================================================== */
