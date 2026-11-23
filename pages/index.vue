@@ -2,6 +2,7 @@
   <div>
     <HeroSection />
     <AboutSection />
+    <!-- <SocialProof /> -->
     <VideoSection :youtube-urls="clinicVideoUrls" />
     <TreatmentsSection />
     <ContactSection />
